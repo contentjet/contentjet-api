@@ -1,0 +1,22 @@
+<mjml>
+  <mj-body>
+    <mj-container background-color="#f7f7f7">
+      <mj-section background-color="#fff">
+        <mj-column>
+          <mj-text>
+            <p>Hi <%= name %>,</p>
+            <p>You have been invited to join the project <b><%= projectName %></b>.</p>
+            <p>Please click the button below to proceed.</p>
+          </mj-text>
+          <mj-button background-color="#fd1555"
+                     padding="6px 16px"
+                     color="white"
+                     border-radius="4px"
+                     href="<%= url %>">
+            Join project
+          </mj-button>
+        </mj-column>
+      </mj-section>
+    </mj-container>
+  </mj-body>
+</mjml>

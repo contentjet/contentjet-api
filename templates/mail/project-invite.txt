@@ -1,0 +1,7 @@
+Hi <%= name %>,
+
+You have been invited to join the project <%= projectName %>.
+
+Please click the url below to proceed.
+
+<%= url %>

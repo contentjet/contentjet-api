@@ -1,0 +1,6 @@
+node_modules
+config/config.development.js
+config/config.production.js
+config/config.staging.js
+config/config.test.js
+media

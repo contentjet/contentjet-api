@@ -1,0 +1,7 @@
+Hi <%= name %>,
+
+Thanks for signing up to contentjet!
+
+Please click the link below to verify your account.
+
+<%= url %>
