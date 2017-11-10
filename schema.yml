@@ -1,0 +1,145 @@
+openapi: "3.0.0"
+info:
+  title: contentjet
+  version: 0.1.0
+paths:
+  /project:
+    get:
+      summary: List projects
+      description: Returns a paginated list of projects
+      responses:
+        201:
+          description: The response
+          content:
+            application/json:
+              schema:
+                properties:
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  totalRecords:
+                    type: integer
+                  results:
+                    items:
+                      $ref: '#/components/schemas/Project'
+                example:
+                  page: 1
+                  totalPages: 1
+                  totalRecords: 1
+                  results:
+                      - id: 327
+                        name: My project
+                        userId: 17
+                        createdAt: '2017-11-03'
+                        modifiedAt: '2017-11-15'
+  /project/{id}/entry-type:
+    get:
+      summary: List entry types
+      description: Returns a list of entry types
+      responses:
+        201:
+          description: The response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryType'
+components:
+  schemas:
+    Project:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        metadata:
+          type: string
+          maxLength: 3000
+        userId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
+    COMMON_FIELD_PROPERTIES:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 4
+          maxLength: 64
+        label:
+          type: string
+          minLength: 4
+          maxLength: 64
+        description:
+          type: string
+          default: ''
+          maxLength: 128
+        required:
+          type: boolean
+          default: false
+        disabled:
+          type: boolean
+          default: false
+    TEXT:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^TEXT$'
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 999
+            maxLength:
+              type: integer
+              minimum: 1
+              maximum: 1000
+            format:
+              type: string
+              enum:
+                - 'plaintext'
+                - 'uri'
+                - 'email'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'name'
+            - 'label'
+            - 'description'
+            - 'required'
+            - 'disabled'
+            - 'minLength'
+            - 'maxLength'
+            - 'format'
+    EntryType:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          default: ''
+          maxLength: 128
+        metadata:
+          type: string
+          default: ''
+          maxLength: 3000
+        projectId:
+          type: integer
+        userId:
+          type: integer
+        fields:
+          type: object
+          oneOf:
+            - $ref: '#/components/schemas/TEXT'
