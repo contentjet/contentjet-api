@@ -3,13 +3,40 @@ info:
   title: contentjet
   version: 0.1.0
 paths:
-  /project:
+  /user/me:
     get:
+      tags:
+        - User
+      summary: Retrieve the authenticated user
+      description: Returns the authenticated user. Assuming you are logged in this is you!
+      responses:
+        201:
+          description: Authenticated user response response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /project:
+    post:
+      tags:
+        - Project
+      summary: Create project
+      description: Creates a project
+      responses:
+        201:
+          description: Create project response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+    get:
+      tags:
+        - Project
       summary: List projects
       description: Returns a paginated list of projects
       responses:
-        201:
-          description: The response
+        200:
+          description: List projects response
           content:
             application/json:
               schema:
@@ -33,19 +60,57 @@ paths:
                         userId: 17
                         createdAt: '2017-11-03'
                         modifiedAt: '2017-11-15'
+                        
+  /project/{id}:
+    get:
+      tags:
+        - Project
+      summary: Retrieve project
+      description: Returns a project
+      parameters:
+        - name: id
+          in: path
+          description: Project id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Retrieve project response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'                        
+                        
   /project/{id}/entry-type:
     get:
+      tags:
+        - Entry type
       summary: List entry types
       description: Returns a list of entry types
       responses:
         201:
-          description: The response
+          description: Entry type list response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EntryType'
 components:
   schemas:
+    # TODO
+    User:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      example:
+        id: 86
+        name: 'Maverick Mitchell'
+        email: 'topgun@example.com'
     Project:
       properties:
         id:
@@ -86,6 +151,12 @@ components:
         disabled:
           type: boolean
           default: false
+      required:
+        - name
+        - label
+        - description
+        - required
+        - disabled
     TEXT:
       allOf:
         - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
@@ -111,11 +182,6 @@ components:
           additionalProperties: false
           required:
             - 'fieldType'
-            - 'name'
-            - 'label'
-            - 'description'
-            - 'required'
-            - 'disabled'
             - 'minLength'
             - 'maxLength'
             - 'format'
