@@ -82,6 +82,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+  /user/verify:
+    post:
+      tags:
+        - User
+      summary: Verify a user
+      description: TODO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token: 
+                  type: string
+              required:
+                - token
+      responses:
+        200:
+          description: User verification response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+                
+                
+  /user/request-password-reset:
+    post:
+      tags:
+        - User
+      summary: Request password reset
+      description: Invoking this enpoint will send a unique reset password link to the user's email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: 
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        200:
+          description: User verification response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+                
+                
   /project:
     post:
       tags:
