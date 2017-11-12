@@ -8,10 +8,76 @@ paths:
       tags:
         - User
       summary: Retrieve the authenticated user
-      description: Returns the authenticated user. Assuming you are logged in this is you!
+      description: Returns the authenticated user.
+      responses:
+        200:
+          description: Retrieve authenticated user response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      tags:
+        - User
+      summary: Update the authenticated user
+      description: Updates the authenticated user. Note only the user's name may be changed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+              example:
+                name: Ned Flanders
+      responses:
+        200:
+          description: Update authenticated user response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /user/sign-up:
+    post:
+      tags:
+        - User
+      summary: Create new user
+      description: Signs up a new user. Note the user will be created with `isActive` set to `false` and a verification email will be sent to the email address contained in the request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                name:
+                  type: string
+                password:
+                  type: string
+                  minLength: 6
+                  maxLength: 64
+                inviteToken:
+                  type: string
+              required:
+                - email
+                - name
+                - password
+                - inviteToken
+              example:
+                name: Wayland Smithers
+                email: wayland@example.com
+                password: iheartburns
+                inviteToken: TODO
       responses:
         201:
-          description: Authenticated user response response
+          description: Update authenticated user response
           content:
             application/json:
               schema:
@@ -22,6 +88,25 @@ paths:
         - Project
       summary: Create project
       description: Creates a project
+      # TODO: Add requestBody:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+                metadata:
+                  type: string
+                  maxLength: 3000
+              required:
+                - name
+              example:
+                name: My first project
       responses:
         201:
           description: Create project response
@@ -107,10 +192,25 @@ components:
         email:
           type: string
           format: email
+        isActive:
+          type: boolean
+        isAdmin:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
       example:
         id: 86
         name: 'Maverick Mitchell'
         email: 'topgun@example.com'
+        isActive: true
+        isAdmin: false
+        # FIXME
+        createdAt: '2017-11-11'
+        modifiedAt: '2017-11-11'
     Project:
       properties:
         id:
