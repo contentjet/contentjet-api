@@ -3,6 +3,86 @@ info:
   title: contentjet
   version: 0.1.0
 paths:
+  /user/authenticate:
+    post:
+      tags:
+        - User
+      summary: Authenticate a user 
+      description: Authenticate a user using [OAuth2 Resource Owner Password Credentials Grant](https://tools.ietf.org/html/rfc6749#section-4.3).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                  maxLength: 64
+                grant_type:
+                  type: string
+                  pattern: "^password$"
+              required:
+                - username
+                - password
+                - grant_type
+      responses:
+        200:
+          description: Set password response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                  refresh_token:
+                    type: string
+                  token_type:
+                    type: string
+                    pattern: "^bearer$"
+                # TODO: Add example
+  /user/token-refresh:
+    post:
+      tags:
+        - User
+      summary: Refresh an authentication token
+      description: Refreshes a valid authentication token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+              required:
+                - refresh_token
+      responses:
+        200:
+          description: Token refresh response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                  refresh_token:
+                    type: string
+                  token_type:
+                    type: string
+                    pattern: "^bearer$"
+                # TODO: Add example
   /user/me:
     get:
       tags:
@@ -106,8 +186,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-                
-                
   /user/request-password-reset:
     post:
       tags:
@@ -133,8 +211,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-                
-                
+  /user/set-password:
+    post:
+      tags:
+        - User
+      summary: Set user password
+      description: Sets a user's password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+                  minLength: 6
+                  maxLength: 64
+              required:
+                - token
+                - password
+      responses:
+        200:
+          description: Set password response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
   /project:
     post:
       tags:
