@@ -1,7 +1,9 @@
 openapi: "3.0.0"
+
 info:
   title: contentjet
   version: 0.1.0
+
 paths:
   /user/authenticate:
     post:
@@ -48,6 +50,7 @@ paths:
                     type: string
                     pattern: "^bearer$"
                 # TODO: Add example
+
   /user/token-refresh:
     post:
       tags:
@@ -83,6 +86,7 @@ paths:
                     type: string
                     pattern: "^bearer$"
                 # TODO: Add example
+
   /user/me:
     get:
       tags:
@@ -121,6 +125,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+
   /user/sign-up:
     post:
       tags:
@@ -162,6 +167,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+
   /user/verify:
     post:
       tags:
@@ -186,6 +192,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+
   /user/request-password-reset:
     post:
       tags:
@@ -211,6 +218,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+
   /user/set-password:
     post:
       tags:
@@ -240,6 +248,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+
   /project:
     post:
       tags:
@@ -381,6 +390,7 @@ components:
       required: true
       schema:
         type: integer
+
   schemas:
     # TODO
     User:
@@ -411,6 +421,7 @@ components:
         # FIXME
         createdAt: '2017-11-11'
         modifiedAt: '2017-11-11'
+
     Project:
       properties:
         id:
@@ -430,6 +441,7 @@ components:
         modifiedAt:
           type: string
           format: date-time
+
     COMMON_FIELD_PROPERTIES:
       type: object
       properties:
@@ -457,6 +469,7 @@ components:
         - description
         - required
         - disabled
+
     TEXT:
       allOf:
         - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
@@ -485,6 +498,7 @@ components:
             - 'minLength'
             - 'maxLength'
             - 'format'
+
     EntryType:
       properties:
         id:
