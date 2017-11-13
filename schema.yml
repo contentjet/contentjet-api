@@ -7,7 +7,7 @@ paths:
     post:
       tags:
         - User
-      summary: Authenticate a user 
+      summary: Authenticate a user
       description: Authenticate a user using [OAuth2 Resource Owner Password Credentials Grant](https://tools.ietf.org/html/rfc6749#section-4.3).
       requestBody:
         required: true
@@ -175,7 +175,7 @@ paths:
             schema:
               type: object
               properties:
-                token: 
+                token:
                   type: string
               required:
                 - token
@@ -199,7 +199,7 @@ paths:
             schema:
               type: object
               properties:
-                email: 
+                email:
                   type: string
                   format: email
               required:
@@ -303,7 +303,7 @@ paths:
                         userId: 17
                         createdAt: '2017-11-03'
                         modifiedAt: '2017-11-15'
-                        
+
   /project/{id}:
     get:
       tags:
@@ -311,26 +311,23 @@ paths:
       summary: Retrieve project
       description: Returns a project
       parameters:
-        - name: id
-          in: path
-          description: Project id
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/ProjectId'
       responses:
         200:
           description: Retrieve project response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'                        
-                        
+                $ref: '#/components/schemas/Project'
+
   /project/{id}/entry-type:
     get:
       tags:
         - Entry type
       summary: List entry types
       description: Returns a list of entry types
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
       responses:
         201:
           description: Entry type list response
@@ -338,7 +335,52 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EntryType'
+
+  /project/{id}/entry-tag:
+    get:
+      tags:
+        - Entry tag
+      summary: List entry tags
+      description: Returns a list of entry tags
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        201:
+          description: Entry tag list response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /project/{id}/media-tag:
+    get:
+      tags:
+        - Media tag
+      summary: List media tags
+      description: Returns a list of media tags
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        201:
+          description: Media tag list response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
 components:
+  parameters:
+    ProjectId:
+      name: id
+      in: path
+      description: Project id
+      required: true
+      schema:
+        type: integer
   schemas:
     # TODO
     User:
