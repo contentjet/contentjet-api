@@ -85,7 +85,6 @@ paths:
                   token_type:
                     type: string
                     pattern: "^bearer$"
-                # TODO: Add example
 
   /user/me:
     get:
@@ -423,16 +422,47 @@ paths:
                 - name
                 - email
       responses:
-        200:
+        201:
           description: Project invite response
           content:
             application/json:
               schema:
-                # TODO: Confirm what this returns
-                type: string
+                $ref: '#/components/schemas/ProjectInvite'
 
-# TODO: GET /project/{projectId}/invite
-# TODO: GET /project/{projectId}/invite/{projectInviteId}
+    get:
+      tags:
+        - Project invite
+      summary: List invites
+      description: List pending invites for the project. An invite is pending if `accepted = false`.
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        200:
+          description: Invite list response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectInvite'
+
+  /project/{projectId}/invite/{projectInviteId}:
+    get:
+      tags:
+        - Project invite
+      summary: Retrieve project invite
+      description: Returns a project invite
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ProjectInviteId'
+      responses:
+        200:
+          description: Retrieve project invite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectInvite'
+
 # TODO: POST /project/{projectId}/invite/accept
 # TODO: POST /project/{projectId}/invite/bulk-delete
 
@@ -483,8 +513,15 @@ components:
       schema:
         type: integer
 
+    ProjectInviteId:
+      name: projectInviteId
+      in: path
+      description: Project invite id
+      required: true
+      schema:
+        type: integer
+
   schemas:
-    # TODO
     User:
       properties:
         id:
@@ -504,15 +541,6 @@ components:
         modifiedAt:
           type: string
           format: date-time
-      example:
-        id: 86
-        name: 'Maverick Mitchell'
-        email: 'topgun@example.com'
-        isActive: true
-        isAdmin: false
-        # FIXME
-        createdAt: '2017-11-11'
-        modifiedAt: '2017-11-11'
 
     Project:
       properties:
@@ -693,3 +721,28 @@ components:
         - mediaUpdated
         - mediaDeleted
         - mediaDeletedBulk
+
+    ProjectInvite:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 128
+        email:
+          type: string
+          format: email
+        userId:
+          type: integer
+        projectId:
+          type: integer
+        accepted:
+          type: boolean
+          default: false
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
