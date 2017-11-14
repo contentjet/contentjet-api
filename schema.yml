@@ -5,6 +5,7 @@ info:
   version: 0.1.0
 
 paths:
+  # User
   /user/authenticate:
     post:
       tags:
@@ -248,6 +249,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
 
+  # Project
   /project:
     post:
       tags:
@@ -328,6 +330,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Project'
 
+  # Entry type
   /project/{projectId}/entry-type:
     get:
       tags:
@@ -343,6 +346,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EntryType'
+    # TODO: POST /project/{projectId}/entry-type
 
   /project/{projectId}/entry-type/{entryTypeId}:
     get:
@@ -360,7 +364,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EntryType'
+    # TODO: PUT /project/{projectId}/entry-type/{entryTypeId}
 
+  # Entry
+  # TODO: POST /project/{projectId}/entry
+  # TODO: GET /project/{projectId}/entry
+  # TODO: GET /project/{projectId}/entry/{entryId}
+  # TODO: PUT /project/{projectId}/entry/{entryId}
+
+  # Entry tag
   /project/{projectId}/entry-tag:
     get:
       tags:
@@ -379,6 +391,7 @@ paths:
                 items:
                   type: string
 
+  # Media tag
   /project/{projectId}/media-tag:
     get:
       tags:
@@ -397,6 +410,13 @@ paths:
                 items:
                   type: string
 
+  # Media
+  # TODO: POST /project/{projectId}/media/upload
+  # TODO: GET /project/{projectId}/media
+  # TODO: GET /project/{projectId}/media/{mediaId}
+  # TODO: PUT /project/{projectId}/media/{mediaId}
+
+  # Project invite
   /project/{projectId}/invite:
     post:
       tags:
@@ -491,8 +511,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProjectInvite'
 
-# TODO: POST /project/{projectId}/invite/bulk-delete
+  # TODO: POST /project/{projectId}/invite/bulk-delete
 
+  # Web hook
   /project/{projectId}/web-hook:
     post:
       tags:
@@ -528,6 +549,22 @@ components:
       name: projectId
       in: path
       description: Project id
+      required: true
+      schema:
+        type: integer
+
+    EntryId:
+      name: entryId
+      in: path
+      description: Entry id
+      required: true
+      schema:
+        type: integer
+
+    MediaId:
+      name: mediaId
+      in: path
+      description: Media id
       required: true
       schema:
         type: integer
