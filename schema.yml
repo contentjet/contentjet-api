@@ -338,8 +338,25 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
       responses:
-        201:
+        200:
           description: Entry type list response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryType'
+
+  /project/{projectId}/entry-type/{entryTypeId}:
+    get:
+      tags:
+        - Entry type
+      summary: Retrieve entry type
+      description: Returns an entry type
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryTypeId'
+      responses:
+        200:
+          description: Retrieve entry type response
           content:
             application/json:
               schema:
@@ -354,7 +371,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
       responses:
-        201:
+        200:
           description: Entry tag list response
           content:
             application/json:
@@ -372,7 +389,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
       responses:
-        201:
+        200:
           description: Media tag list response
           content:
             application/json:
@@ -454,6 +471,14 @@ components:
       name: projectId
       in: path
       description: Project id
+      required: true
+      schema:
+        type: integer
+
+    EntryTypeId:
+      name: entryTypeId
+      in: path
+      description: Entry type id
       required: true
       schema:
         type: integer
