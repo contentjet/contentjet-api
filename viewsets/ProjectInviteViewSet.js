@@ -64,6 +64,10 @@ class ProjectInviteViewSet extends BaseViewSet {
       .where('accepted', false);
   }
 
+  getPageSize(ctx) {
+    return 0;
+  }
+
   async create(ctx, next) {
     const errors = validate(ctx.request.body, createConstraints);
     if (errors) {
