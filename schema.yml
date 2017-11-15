@@ -58,6 +58,8 @@ paths:
         - User
       summary: Refresh an authentication token
       description: Refreshes a valid authentication token.
+      security:
+        - OAuth2: []
       requestBody:
         required: true
         content:
@@ -93,6 +95,8 @@ paths:
         - User
       summary: Retrieve the authenticated user
       description: Returns the authenticated user.
+      security:
+        - OAuth2: []
       responses:
         200:
           description: Retrieve authenticated user response
@@ -105,6 +109,8 @@ paths:
         - User
       summary: Update the authenticated user
       description: Updates the authenticated user. Note only the user's name may be changed.
+      security:
+        - OAuth2: []
       requestBody:
         required: true
         content:
@@ -225,6 +231,7 @@ paths:
         - User
       summary: Set user password
       description: Sets a user's password
+      # TODO: Add security
       requestBody:
         required: true
         content:
@@ -256,6 +263,9 @@ paths:
         - Project
       summary: Create project
       description: Creates a project
+      security:
+        - OAuth2:
+          - project:create
       # TODO: Add requestBody:
       requestBody:
         required: true
@@ -287,6 +297,9 @@ paths:
         - Project
       summary: List projects
       description: Returns a paginated list of projects
+      security:
+        - OAuth2:
+          - project:list
       responses:
         200:
           description: List projects response
