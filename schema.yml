@@ -179,7 +179,7 @@ paths:
       tags:
         - User
       summary: Verify a user
-      description: TODO
+      description: Accepts the JWT contained within the URL emailed to the user when invoking the `/user/signup` endpoint. This endpoint verifies the JWT and if valid sets the user's `isActive` field to `true`.
       requestBody:
         required: true
         content:
@@ -266,7 +266,6 @@ paths:
       security:
         - OAuth2:
           - project:create
-      # TODO: Add requestBody:
       requestBody:
         required: true
         content:
@@ -403,7 +402,9 @@ paths:
       description: Returns a list of entry tags
       parameters:
         - $ref: '#/components/parameters/ProjectId'
-      # TODO: Add security
+      security:
+        - OAuth2:
+          - entryTag:list
       responses:
         200:
           description: Entry tag list response
@@ -423,7 +424,9 @@ paths:
       description: Returns a list of media tags
       parameters:
         - $ref: '#/components/parameters/ProjectId'
-      # TODO: Add security
+      security:
+        - OAuth2:
+          - mediaTag:list
       responses:
         200:
           description: Media tag list response
@@ -525,7 +528,8 @@ paths:
         the unique URL emailed to the user when an invite is created.
       parameters:
         - $ref: '#/components/parameters/ProjectId'
-      # TODO: Add security
+      security:
+        - OAuth2: []
       requestBody:
         required: true
         content:
