@@ -522,6 +522,9 @@ paths:
       description: Creates a web hook for the project
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - webhook:create
       requestBody:
         required: true
         content:
@@ -544,6 +547,13 @@ paths:
                 $ref: '#/components/schemas/WebHook'
 
 components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: '/user/authenticate'
+
   parameters:
     ProjectId:
       name: projectId
