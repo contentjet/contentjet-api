@@ -322,6 +322,9 @@ paths:
       description: Returns a project
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - project:retrieve
       responses:
         200:
           description: Retrieve project response
@@ -339,6 +342,9 @@ paths:
       description: Returns a list of entry types
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - entryType:list
       responses:
         200:
           description: Entry type list response
@@ -357,6 +363,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/EntryTypeId'
+      security:
+        - OAuth2:
+          - entryType:retrieve
       responses:
         200:
           description: Retrieve entry type response
@@ -381,6 +390,7 @@ paths:
       description: Returns a list of entry tags
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+      # TODO: Add security
       responses:
         200:
           description: Entry tag list response
@@ -400,6 +410,7 @@ paths:
       description: Returns a list of media tags
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+      # TODO: Add security
       responses:
         200:
           description: Media tag list response
@@ -425,6 +436,9 @@ paths:
       description: Invite user to project
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - projectInvite:create
       requestBody:
         required: true
         content:
@@ -456,6 +470,9 @@ paths:
       description: List pending invites for the project. An invite is pending if `accepted = false`.
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - projectInvite:list
       responses:
         200:
           description: Invite list response
@@ -475,6 +492,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - $ref: '#/components/parameters/ProjectInviteId'
+      security:
+        - OAuth2:
+          - projectInvite:retrieve
       responses:
         200:
           description: Retrieve project invite response
@@ -492,6 +512,7 @@ paths:
         the unique URL emailed to the user when an invite is created.
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+      # TODO: Add security
       requestBody:
         required: true
         content:
