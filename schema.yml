@@ -364,6 +364,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EntryType'
+
     # TODO: POST /project/{projectId}/entry-type
 
   /project/{projectId}/entry-type/{entryTypeId}:
@@ -438,9 +439,85 @@ paths:
                   type: string
 
   # Media
-  # TODO: POST /project/{projectId}/media/upload
-  # TODO: GET /project/{projectId}/media
-  # TODO: GET /project/{projectId}/media/{mediaId}
+  /project/{projectId}/media/upload:
+    post:
+      tags:
+        - Media
+      summary: Upload file
+      description: Upload file to project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - media:create
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+                - file
+      responses:
+        201:
+          description: Upload file response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+
+  /project/{projectId}/media:
+    get:
+      tags:
+        - Media
+      summary: List media
+      description: List media
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - media:list
+      responses:
+        200:
+          description: List media response
+          content:
+            application/json:
+              schema:
+                properties:
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  totalRecords:
+                    type: integer
+                  results:
+                    items:
+                      $ref: '#/components/schemas/Media'
+
+  /project/{projectId}/media/{mediaId}:
+    get:
+      tags:
+        - Media
+      summary: Retrieve media
+      description: Retrieve media
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/MediaId'
+      security:
+        - OAuth2:
+          - media:retrieve
+      responses:
+        200:
+          description: Retrieve media response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+
   # TODO: PUT /project/{projectId}/media/{mediaId}
 
   # Project invite
@@ -858,3 +935,52 @@ components:
         modifiedAt:
           type: string
           format: date-time
+
+    Media:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        projectId:
+          type: integer
+        name:
+          type: string
+          maxLength: 512
+        file:
+          type: string
+          maxLength: 512
+          format: uri
+        thumbnail:
+          type: string
+          maxLength: 512
+          format: uri
+        mimeType:
+          type: string
+          maxLength: 128
+        size:
+          type: integer
+          default: 0
+        width:
+          type: integer
+          default: 0
+          minimum: 0
+        height:
+          type: integer
+          default: 0
+          minimum: 0
+        description:
+          type: string
+          default: ''
+          maxLength: 64
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
