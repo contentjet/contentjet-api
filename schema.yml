@@ -518,7 +518,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/Media'
 
-  # TODO: PUT /project/{projectId}/media/{mediaId}
+    put:
+      tags:
+        - Media
+      summary: Update media
+      description: Update media
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/MediaId'
+      security:
+        - OAuth2:
+          - media:update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  maxLength: 64
+                tags:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - description
+                - tags
+      responses:
+        200:
+          description: Update media response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
 
   # Project invite
   /project/{projectId}/invite:
