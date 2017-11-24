@@ -265,7 +265,7 @@ paths:
       description: Creates a project
       security:
         - OAuth2:
-          - project:create
+          - 'project:create'
       requestBody:
         required: true
         content:
@@ -298,7 +298,7 @@ paths:
       description: Returns a paginated list of projects
       security:
         - OAuth2:
-          - project:list
+          - 'project:list'
       responses:
         200:
           description: List projects response
@@ -336,7 +336,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - project:retrieve
+          - 'project:retrieve'
       responses:
         200:
           description: Retrieve project response
@@ -356,7 +356,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - entryType:list
+          - 'entryType:list'
       responses:
         200:
           description: Entry type list response
@@ -378,7 +378,7 @@ paths:
         - $ref: '#/components/parameters/EntryTypeId'
       security:
         - OAuth2:
-          - entryType:retrieve
+          - 'entryType:retrieve'
       responses:
         200:
           description: Retrieve entry type response
@@ -405,7 +405,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - entryTag:list
+          - 'entryTag:list'
       responses:
         200:
           description: Entry tag list response
@@ -427,7 +427,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - mediaTag:list
+          - 'mediaTag:list'
       responses:
         200:
           description: Media tag list response
@@ -449,7 +449,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - media:create
+          - 'media:create'
       requestBody:
         required: true
         content:
@@ -480,7 +480,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - media:list
+          - 'media:list'
       responses:
         200:
           description: List media response
@@ -509,7 +509,7 @@ paths:
         - $ref: '#/components/parameters/MediaId'
       security:
         - OAuth2:
-          - media:retrieve
+          - 'media:retrieve'
       responses:
         200:
           description: Retrieve media response
@@ -528,7 +528,7 @@ paths:
         - $ref: '#/components/parameters/MediaId'
       security:
         - OAuth2:
-          - media:update
+          - 'media:update'
       requestBody:
         required: true
         content:
@@ -565,7 +565,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - projectInvite:create
+          - 'projectInvite:create'
       requestBody:
         required: true
         content:
@@ -599,7 +599,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - projectInvite:list
+          - 'projectInvite:list'
       responses:
         200:
           description: Invite list response
@@ -621,7 +621,7 @@ paths:
         - $ref: '#/components/parameters/ProjectInviteId'
       security:
         - OAuth2:
-          - projectInvite:retrieve
+          - 'projectInvite:retrieve'
       responses:
         200:
           description: Retrieve project invite response
@@ -670,7 +670,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - projectInvite:delete
+          - 'projectInvite:delete'
       requestBody:
         required: true
         content:
@@ -699,7 +699,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - webhook:create
+          - 'webhook:create'
       requestBody:
         required: true
         content:
