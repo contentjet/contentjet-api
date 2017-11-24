@@ -660,7 +660,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProjectInvite'
 
-  # TODO: POST /project/{projectId}/invite/bulk-delete
+  /project/{projectId}/invite/bulk-delete:
+    post:
+      tags:
+        - Project invite
+      summary: Bulk deletes project invites
+      description: Bulk deletes project invites matching ids contained in the submitted list
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - projectInvite:delete
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+              example:
+                - 13
+                - 432
+                - 987
+                - 7
+      responses:
+        204:
+          description: Bulk delete invite response
 
   # Web hook
   /project/{projectId}/web-hook:
@@ -842,6 +868,145 @@ components:
             - 'maxLength'
             - 'format'
 
+    LONGTEXT:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^LONGTEXT$'
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 29999
+            maxLength:
+              type: integer
+              minimum: 1
+              maximum: 30000
+            format:
+              type: string
+              enum:
+                - 'plaintext'
+                - 'markdown'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minLength'
+            - 'maxLength'
+            - 'format'
+
+    BOOLEAN:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^BOOLEAN$'
+            labelTrue:
+              type: string
+              minLength: 1
+              maxLength: 32
+            labelFalse:
+              type: string
+              minLength: 1
+              maxLength: 32
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'labelTrue'
+            - 'labelFalse'
+
+    NUMBER:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^NUMBER$'
+            minValue:
+              type: number
+            maxValue:
+              type: number
+            format:
+              type: string
+              enum:
+                - 'number'
+                - 'integer'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minValue'
+            - 'maxValue'
+            - 'format'
+
+    DATE:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^DATE$'
+            format:
+              type: string
+              enum:
+                - 'datetime'
+                - 'date'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'format'
+
+    CHOICE:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^CHOICE$'
+            choices:
+              type: array
+              items:
+                type: string
+              minLength: 2
+              maxLength: 128
+            format:
+              type: string
+              enum:
+                - 'single'
+                - 'multiple'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'choices'
+            - 'format'
+
+    COLOR:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^COLOR$'
+            format:
+              type: string
+              enum:
+                - 'rgb'
+                - 'rgba'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'format'
+
+    # TODO: MEDIA
+    # TODO: LINK
+    # TODO: LIST
+
     EntryType:
       properties:
         id:
@@ -863,9 +1028,16 @@ components:
         userId:
           type: integer
         fields:
-          type: object
-          oneOf:
-            - $ref: '#/components/schemas/TEXT'
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/TEXT'
+              - $ref: '#/components/schemas/LONGTEXT'
+              - $ref: '#/components/schemas/BOOLEAN'
+              - $ref: '#/components/schemas/NUMBER'
+              - $ref: '#/components/schemas/DATE'
+              - $ref: '#/components/schemas/CHOICE'
+              - $ref: '#/components/schemas/COLOR'
 
     WebHook:
       type: object
