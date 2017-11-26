@@ -6,6 +6,51 @@ info:
 
 paths:
   # User
+  /user:
+    get:
+      tags:
+        - User
+      summary: List users
+      description: Returns a paginated list of users
+      security:
+        - OAuth2:
+          - 'user:list'
+      responses:
+        200:
+          description: List projects response
+          content:
+            application/json:
+              schema:
+                properties:
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  totalRecords:
+                    type: integer
+                  results:
+                    items:
+                      $ref: '#/components/schemas/User'
+
+  /user/{userId}:
+    get:
+      tags:
+        - User
+      summary: Retrieve user
+      description: Returns a user
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      security:
+        - OAuth2:
+          - 'user:retrieve'
+      responses:
+        200:
+          description: Retrieve user response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
   /user/authenticate:
     post:
       tags:
@@ -872,6 +917,14 @@ components:
       name: projectId
       in: path
       description: Project id
+      required: true
+      schema:
+        type: integer
+
+    UserId:
+      name: userId
+      in: path
+      description: User id
       required: true
       schema:
         type: integer
