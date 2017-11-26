@@ -68,7 +68,8 @@ class Entry extends Model {
           type: 'integer'
         },
         name: {
-          type: 'string'
+          type: 'string',
+          maxLength: 128
         },
         published: {
           type: 'string',

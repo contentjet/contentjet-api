@@ -50,7 +50,6 @@ paths:
                   token_type:
                     type: string
                     pattern: "^bearer$"
-                # TODO: Add example
 
   /user/token-refresh:
     post:
@@ -230,8 +229,8 @@ paths:
       tags:
         - User
       summary: Set user password
-      description: Sets a user's password
-      # TODO: Add security
+      description: Sets a user's password. This endpoint requires a JWT token which is part of the unique
+        url emailed to the user when invoking the `/user/request-password-reset` endpoint.
       requestBody:
         required: true
         content:
@@ -365,7 +364,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/EntryType'
 
-    # TODO: POST /project/{projectId}/entry-type
+    post:
+      tags:
+        - Entry type
+      summary: Create entry type
+      description: Creates a new entry type in the specified project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'entryType:create'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryType'
+      responses:
+        201:
+          description: Create entry type response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryType'
 
   /project/{projectId}/entry-type/{entryTypeId}:
     get:
@@ -386,13 +407,129 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EntryType'
-    # TODO: PUT /project/{projectId}/entry-type/{entryTypeId}
+
+    put:
+      tags:
+        - Entry type
+      summary: Update entry type
+      description: Updates an entry type
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryTypeId'
+      security:
+        - OAuth2:
+          - 'entryType:update'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryType'
+      responses:
+        201:
+          description: Update entry type response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryType'
 
   # Entry
-  # TODO: POST /project/{projectId}/entry
-  # TODO: GET /project/{projectId}/entry
-  # TODO: GET /project/{projectId}/entry/{entryId}
-  # TODO: PUT /project/{projectId}/entry/{entryId}
+  /project/{projectId}/entry:
+    get:
+      tags:
+        - Entry
+      summary: List entries
+      description: Returns a list of entries
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'entry:list'
+      responses:
+        200:
+          description: Entry list response
+          content:
+            application/json:
+              schema:
+                properties:
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  totalRecords:
+                    type: integer
+                  results:
+                    items:
+                      $ref: '#/components/schemas/Entry'
+
+    post:
+      tags:
+        - Entry
+      summary: Create entry
+      description: Creates a new entry in the specified project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'entry:create'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Entry'
+      responses:
+        201:
+          description: Create entry response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+
+  /project/{projectId}/entry-type/{entryId}:
+    get:
+      tags:
+        - Entry
+      summary: Retrieve entry
+      description: Returns an entry
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryId'
+      security:
+        - OAuth2:
+          - 'entry:retrieve'
+      responses:
+        200:
+          description: Retrieve entry response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+
+    put:
+      tags:
+        - Entry
+      summary: Update entry
+      description: Updates an entry
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryId'
+      security:
+        - OAuth2:
+          - 'entry:update'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Entry'
+      responses:
+        201:
+          description: Update entry response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
 
   # Entry tag
   /project/{projectId}/entry-tag:
@@ -1038,6 +1175,35 @@ components:
               - $ref: '#/components/schemas/DATE'
               - $ref: '#/components/schemas/CHOICE'
               - $ref: '#/components/schemas/COLOR'
+
+    Entry:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 128
+        entryTypeId:
+          type: integer
+        userId:
+          type: integer
+        published:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+        modifiedByUserId:
+          type: integer
+        fields:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
 
     WebHook:
       type: object
