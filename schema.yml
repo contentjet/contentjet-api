@@ -577,6 +577,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/Entry'
 
+    delete:
+      tags:
+        - Entry
+      summary: Delete entry
+      description: Deletes an entry
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryId'
+      security:
+        - OAuth2:
+          - 'entry:delete'
+      responses:
+        204:
+          description: Delete entry response
+
   # Entry tag
   /project/{projectId}/entry-tag:
     get:
@@ -737,6 +752,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/Media'
 
+    delete:
+      tags:
+        - Media
+      summary: Delete media
+      description: Deletes media. Note this only removes the record from the
+        database. It does not remove the file from storage.
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/MediaId'
+      security:
+        - OAuth2:
+          - 'media:delete'
+      responses:
+        204:
+          description: Delete media response
+
   # Project invite
   /project/{projectId}/invite:
     post:
@@ -873,6 +904,7 @@ paths:
 
   # Web hook
   /project/{projectId}/web-hook:
+    # TODO: GET /project/{projectId}/web-hook
     post:
       tags:
         - Web hook
@@ -903,6 +935,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WebHook'
+
+# TODO: GET /project/{projectId}/web-hook/{webHookId}
+# TODO: PUT /project/{projectId}/web-hook/{webHookId}
+# TODO: DELETE /project/{projectId}/web-hook/{webHookId}
 
 components:
   securitySchemes:
@@ -957,6 +993,14 @@ components:
       name: projectInviteId
       in: path
       description: Project invite id
+      required: true
+      schema:
+        type: integer
+
+    WebHookId:
+      name: webHookId
+      in: path
+      description: Web hook id
       required: true
       schema:
         type: integer
