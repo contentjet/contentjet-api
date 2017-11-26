@@ -1141,9 +1141,71 @@ components:
             - 'fieldType'
             - 'format'
 
-    # TODO: MEDIA
-    # TODO: LINK
-    # TODO: LIST
+    MEDIA:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^MEDIA$'
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 999
+            maxLength:
+              type: integer
+              minimum: 1
+              maximum: 1000
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minLength'
+            - 'maxLength'
+
+    LINK:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^LINK$'
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 999
+            maxLength:
+              type: integer
+              minimum: 1
+              maximum: 1000
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minLength'
+            - 'maxLength'
+
+    LIST:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^LIST$'
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 999
+            maxLength:
+              type: integer
+              minimum: 1
+              maximum: 1000
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minLength'
+            - 'maxLength'
 
     EntryType:
       properties:
@@ -1176,6 +1238,9 @@ components:
               - $ref: '#/components/schemas/DATE'
               - $ref: '#/components/schemas/CHOICE'
               - $ref: '#/components/schemas/COLOR'
+              - $ref: '#/components/schemas/MEDIA'
+              - $ref: '#/components/schemas/LINK'
+              - $ref: '#/components/schemas/LIST'
 
     Entry:
       properties:
