@@ -172,6 +172,7 @@ class EntryViewSet extends BaseViewSet {
     const entryJSON = entry.toJSON();
     entryJSON.tags = entry.tags.map(entryTag => entryTag.name);
     entryJSON.fields = await entry.internalFieldsToExternal(entry.entryType.fields);
+    delete entryJSON.entryType.fields;
     ctx.body = entryJSON;
     ctx.state.viewsetResult = {
       action: 'retrieve',

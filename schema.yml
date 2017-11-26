@@ -440,6 +440,7 @@ paths:
         - Entry
       summary: List entries
       description: Returns a list of entries
+      # TODO Add query parameters: tags, entryType, nonPublished, search
       parameters:
         - $ref: '#/components/parameters/ProjectId'
       security:
@@ -1185,8 +1186,31 @@ components:
           maxLength: 128
         entryTypeId:
           type: integer
+        entryType:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+              minLength: 1
+              maxLength: 64
+            description:
+              type: string
+              default: ''
+              maxLength: 128
+            metadata:
+              type: string
+              default: ''
+              maxLength: 3000
+            projectId:
+              type: integer
+            userId:
+              type: integer
         userId:
           type: integer
+        user:
+          $ref: '#/components/schemas/User'
         published:
           type: string
           format: date-time
@@ -1196,6 +1220,8 @@ components:
             type: string
         modifiedByUserId:
           type: integer
+        modifiedByUser:
+          $ref: '#/components/schemas/User'
         fields:
           type: object
         createdAt:
