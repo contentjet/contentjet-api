@@ -904,7 +904,26 @@ paths:
 
   # Web hook
   /project/{projectId}/web-hook:
-    # TODO: GET /project/{projectId}/web-hook
+    get:
+      tags:
+        - Web hook
+      summary: List web hooks
+      description: Returns a list of web hooks
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'webHook:list'
+      responses:
+        200:
+          description: List web hooks response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebHook'
+
     post:
       tags:
         - Web hook
@@ -936,9 +955,71 @@ paths:
               schema:
                 $ref: '#/components/schemas/WebHook'
 
-# TODO: GET /project/{projectId}/web-hook/{webHookId}
-# TODO: PUT /project/{projectId}/web-hook/{webHookId}
-# TODO: DELETE /project/{projectId}/web-hook/{webHookId}
+  /project/{projectId}/web-hook/{webHookId}:
+    get:
+      tags:
+        - Web hook
+      summary: Retrieve web hook
+      description: Retrieve web hook
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/WebHookId'
+      security:
+        - OAuth2:
+          - 'webHook:retrieve'
+      responses:
+        200:
+          description: Retrieve web hook response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebHook'
+
+    put:
+      tags:
+        - Web hook
+      summary: Create web hook
+      description: Creates a web hook for the project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/WebHookId'
+      security:
+        - OAuth2:
+          - 'webhook:update'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebHook'
+      responses:
+        200:
+          description: Update web hook response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebHook'
+
+    delete:
+      tags:
+        - Web hook
+      summary: Delete web hook
+      description: Deletes a web hook from the project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/WebHookId'
+      security:
+        - OAuth2:
+          - 'webhook:delete'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebHook'
+      responses:
+        204:
+          description: Update web hook response
 
 components:
   securitySchemes:

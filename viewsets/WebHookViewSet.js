@@ -22,6 +22,10 @@ class WebHookViewSet extends BaseViewSet {
       .where('projectId', ctx.state.project.id);
   }
 
+  getPageSize(ctx) {
+    return 0;
+  }
+
   async create(ctx, next) {
     ctx.request.body.projectId = ctx.state.project.id;
     return super.create(ctx, next);

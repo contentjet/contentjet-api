@@ -161,12 +161,16 @@ class BaseViewSet {
       .where(`${this.Model.tableName}.id`, id)
       .first()
       .returning('*');
-    ctx.body = model;
-    ctx.state.viewsetResult = {
-      action: 'update',
-      modelClass: this.Model,
-      data: model
-    };
+    if (model) {
+      ctx.body = model;
+      ctx.state.viewsetResult = {
+        action: 'update',
+        modelClass: this.Model,
+        data: model
+      };
+    } else {
+      ctx.status = 404;
+    }
     return model;
   }
 
