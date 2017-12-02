@@ -20,6 +20,9 @@ const authenticationConstraints = {
 const tokenRefreshConstraints = {
   refresh_token: {
     presence: true
+  },
+  grant_type: {
+    presence: true
   }
 };
 

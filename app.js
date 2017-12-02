@@ -14,6 +14,7 @@ Model.knex(require('knex')(config.DATABASE));
 const _ = require('lodash');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
+const yaml = require('yamljs');
 
 const ProjectViewSet = require('./viewsets/ProjectViewSet');
 const UserViewSet = require('./viewsets/UserViewSet');
@@ -46,6 +47,10 @@ const storage = new StorageBackend();
 
 const viewSetOptions = { storage };
 
+// Load the OpenAPI spec from disk converting YAML to JSON
+const spec = yaml.load('spec.yml');
+
+// Attach routes
 router.use('/user/', new UserViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/', async (ctx, next) => {
   const project = await Project.getById(ctx.params.projectId);
@@ -61,7 +66,9 @@ router.use('/project/:projectId(\\d+)/media-tag/', new MediaTagViewSet(viewSetOp
 router.use('/project/:projectId(\\d+)/entry-type/', new EntryTypeViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry-tag/', new EntryTagViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry/', new EntryViewSet(viewSetOptions).routes());
-
+router.get('/spec', function (ctx) {
+  ctx.body = spec;
+});
 
 const app = new Koa();
 
