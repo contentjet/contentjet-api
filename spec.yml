@@ -1,0 +1,1722 @@
+openapi: 3.0.0
+
+info:
+  title: contentjet
+  version: 0.1.0
+
+paths:
+  # Spec
+  /spec:
+    get:
+      tags:
+        - OpenAPI
+      summary: Retrieve OpenAPI 3.0 specification
+      description: Returns the OpenAPI 3.0 specification of the API
+      responses:
+        200:
+          description: OpenAPI 3.0 specification response
+          content:
+            application/json:
+              schema:
+                type: object
+
+  # User
+  /user:
+    get:
+      tags:
+        - User
+      summary: List users
+      description: Returns a paginated list of users
+      security:
+        - OAuth2:
+          - 'user:list'
+      responses:
+        200:
+          description: List projects response
+          content:
+            application/json:
+              schema:
+                properties:
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  totalRecords:
+                    type: integer
+                  results:
+                    items:
+                      $ref: '#/components/schemas/User'
+
+  /user/{userId}:
+    get:
+      tags:
+        - User
+      summary: Retrieve user
+      description: Returns a user
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      security:
+        - OAuth2:
+          - 'user:retrieve'
+      responses:
+        200:
+          description: Retrieve user response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /user/authenticate:
+    post:
+      tags:
+        - User
+      summary: Authenticate a user
+      description: Authenticate a user using [OAuth2 Resource Owner Password Credentials Grant](https://tools.ietf.org/html/rfc6749#section-4.3).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                  maxLength: 64
+                grant_type:
+                  type: string
+                  pattern: "^password$"
+              required:
+                - username
+                - password
+                - grant_type
+      responses:
+        200:
+          description: Set password response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                  refresh_token:
+                    type: string
+                  token_type:
+                    type: string
+                    pattern: "^bearer$"
+
+  /user/token-refresh:
+    post:
+      tags:
+        - User
+      summary: Refresh an authentication token
+      description: Refreshes a valid authentication token.
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+              required:
+                - refresh_token
+      responses:
+        200:
+          description: Token refresh response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                  refresh_token:
+                    type: string
+                  token_type:
+                    type: string
+                    pattern: "^bearer$"
+
+  /user/me:
+    get:
+      tags:
+        - User
+      summary: Retrieve the authenticated user
+      description: Returns the authenticated user.
+      security:
+        - OAuth2: []
+      responses:
+        200:
+          description: Retrieve authenticated user response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      tags:
+        - User
+      summary: Update the authenticated user
+      description: Updates the authenticated user. Note only the user's name may be changed.
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+              example:
+                name: Ned Flanders
+      responses:
+        200:
+          description: Update authenticated user response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /user/sign-up:
+    post:
+      tags:
+        - User
+      summary: Create new user
+      description: Signs up a new user. Note the user will be created with `isActive` set to `false` and a verification email will be sent to the email address contained in the request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                name:
+                  type: string
+                password:
+                  type: string
+                  minLength: 6
+                  maxLength: 64
+                inviteToken:
+                  type: string
+              required:
+                - email
+                - name
+                - password
+                - inviteToken
+      responses:
+        201:
+          description: Update authenticated user response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /user/verify:
+    post:
+      tags:
+        - User
+      summary: Verify a user
+      description: Accepts the JWT contained within the URL emailed to the user when invoking the `/user/signup` endpoint. This endpoint verifies the JWT and if valid sets the user's `isActive` field to `true`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+              required:
+                - token
+      responses:
+        200:
+          description: User verification response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /user/request-password-reset:
+    post:
+      tags:
+        - User
+      summary: Request password reset
+      description: Invoking this enpoint will send a unique reset password link to the user's email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        200:
+          description: User verification response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /user/set-password:
+    post:
+      tags:
+        - User
+      summary: Set user password
+      description: Sets a user's password. This endpoint requires a JWT token which is part of the unique
+        url emailed to the user when invoking the `/user/request-password-reset` endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+                  minLength: 6
+                  maxLength: 64
+              required:
+                - token
+                - password
+      responses:
+        200:
+          description: Set password response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  # Project
+  /project:
+    post:
+      tags:
+        - Project
+      summary: Create project
+      description: Creates a project
+      security:
+        - OAuth2:
+          - 'project:create'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+                metadata:
+                  type: string
+                  maxLength: 3000
+              required:
+                - name
+              example:
+                name: My first project
+      responses:
+        201:
+          description: Create project response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+    get:
+      tags:
+        - Project
+      summary: List projects
+      description: Returns a paginated list of projects
+      security:
+        - OAuth2:
+          - 'project:list'
+      responses:
+        200:
+          description: List projects response
+          content:
+            application/json:
+              schema:
+                properties:
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  totalRecords:
+                    type: integer
+                  results:
+                    items:
+                      $ref: '#/components/schemas/Project'
+                example:
+                  page: 1
+                  totalPages: 1
+                  totalRecords: 1
+                  results:
+                      - id: 327
+                        name: My project
+                        userId: 17
+                        createdAt: '2017-11-03'
+                        modifiedAt: '2017-11-15'
+
+  /project/{projectId}:
+    get:
+      tags:
+        - Project
+      summary: Retrieve project
+      description: Returns a project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'project:retrieve'
+      responses:
+        200:
+          description: Retrieve project response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+
+  /project/{projectId}/update-member:
+    post:
+      tags:
+        - Project
+      summary: Update a user's membership within the project
+      description: Update a user's membership within the project
+      security:
+        - OAuth2:
+          - 'project:update'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                membershipIsActive:
+                  type: boolean
+                membershipType:
+                  type: string
+                  enum:
+                    - author
+                    - admin
+              required:
+                - userId
+      responses:
+        201:
+          description: Update member response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  # Entry type
+  /project/{projectId}/entry-type:
+    get:
+      tags:
+        - Entry type
+      summary: List entry types
+      description: Returns a list of entry types
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'entryType:list'
+      responses:
+        200:
+          description: Entry type list response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryType'
+
+    post:
+      tags:
+        - Entry type
+      summary: Create entry type
+      description: Creates a new entry type in the specified project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'entryType:create'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryType'
+      responses:
+        201:
+          description: Create entry type response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryType'
+
+  /project/{projectId}/entry-type/{entryTypeId}:
+    get:
+      tags:
+        - Entry type
+      summary: Retrieve entry type
+      description: Returns an entry type
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryTypeId'
+      security:
+        - OAuth2:
+          - 'entryType:retrieve'
+      responses:
+        200:
+          description: Retrieve entry type response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryType'
+
+    put:
+      tags:
+        - Entry type
+      summary: Update entry type
+      description: Updates an entry type
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryTypeId'
+      security:
+        - OAuth2:
+          - 'entryType:update'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryType'
+      responses:
+        201:
+          description: Update entry type response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryType'
+
+  # Entry
+  /project/{projectId}/entry:
+    get:
+      tags:
+        - Entry
+      summary: List published entries
+      description: Returns a list of published entries. An entry is published
+        if the date value of it's `published` field is in the past.
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - name: tags
+          in: query
+          description: Limit to entries containing a comma separated list of tags. Note
+            tags are OR'd together. e.g `?tags=summer,winter,autumn`
+          schema:
+            type: string
+        - name: entryType
+          in: query
+          description: Limit to entries of a specific entry type by id. e.g `?entryType=7`.
+          schema:
+            type: integer
+        - name: nonPublished
+          in: query
+          description: If present both published and non-published entries will be
+            returned. e.g `?nonPublished=1`.
+          schema:
+            type: integer
+        - name: search
+          in: query
+          description: Search entries containing words in their title. Note this is
+            NOT full-text search.
+          schema:
+            type: string
+      security:
+        - OAuth2:
+          - 'entry:list'
+      responses:
+        200:
+          description: Entry list response
+          content:
+            application/json:
+              schema:
+                properties:
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  totalRecords:
+                    type: integer
+                  results:
+                    items:
+                      $ref: '#/components/schemas/Entry'
+
+    post:
+      tags:
+        - Entry
+      summary: Create entry
+      description: Creates a new entry in the specified project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'entry:create'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Entry'
+      responses:
+        201:
+          description: Create entry response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+
+  /project/{projectId}/entry-type/{entryId}:
+    get:
+      tags:
+        - Entry
+      summary: Retrieve entry
+      description: Returns an entry
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryId'
+      security:
+        - OAuth2:
+          - 'entry:retrieve'
+      responses:
+        200:
+          description: Retrieve entry response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+
+    put:
+      tags:
+        - Entry
+      summary: Update entry
+      description: Updates an entry
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryId'
+      security:
+        - OAuth2:
+          - 'entry:update'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Entry'
+      responses:
+        201:
+          description: Update entry response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+
+    delete:
+      tags:
+        - Entry
+      summary: Delete entry
+      description: Deletes an entry
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/EntryId'
+      security:
+        - OAuth2:
+          - 'entry:delete'
+      responses:
+        204:
+          description: Delete entry response
+
+  # Entry tag
+  /project/{projectId}/entry-tag:
+    get:
+      tags:
+        - Entry tag
+      summary: List entry tags
+      description: Returns a list of entry tags
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'entryTag:list'
+      responses:
+        200:
+          description: Entry tag list response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  # Media tag
+  /project/{projectId}/media-tag:
+    get:
+      tags:
+        - Media tag
+      summary: List media tags
+      description: Returns a list of media tags
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'mediaTag:list'
+      responses:
+        200:
+          description: Media tag list response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  # Media
+  /project/{projectId}/media/upload:
+    post:
+      tags:
+        - Media
+      summary: Upload file
+      description: Upload file to project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'media:create'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+                - file
+      responses:
+        201:
+          description: Upload file response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+
+  /project/{projectId}/media:
+    get:
+      tags:
+        - Media
+      summary: List media
+      description: List media
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - name: tags
+          in: query
+          description: Limit to media containing a comma separated list of tags. Note
+            tags are OR'd together. e.g `?tags=summer,winter,autumn`
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search media containing words in their name. Note this is
+            NOT full-text search.
+          schema:
+            type: string
+      security:
+        - OAuth2:
+          - 'media:list'
+      responses:
+        200:
+          description: List media response
+          content:
+            application/json:
+              schema:
+                properties:
+                  page:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  totalRecords:
+                    type: integer
+                  results:
+                    items:
+                      $ref: '#/components/schemas/Media'
+
+  /project/{projectId}/media/{mediaId}:
+    get:
+      tags:
+        - Media
+      summary: Retrieve media
+      description: Retrieve media
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/MediaId'
+      security:
+        - OAuth2:
+          - 'media:retrieve'
+      responses:
+        200:
+          description: Retrieve media response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+
+    put:
+      tags:
+        - Media
+      summary: Update media
+      description: Update media
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/MediaId'
+      security:
+        - OAuth2:
+          - 'media:update'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  maxLength: 64
+                tags:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - description
+                - tags
+      responses:
+        200:
+          description: Update media response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+
+    delete:
+      tags:
+        - Media
+      summary: Delete media
+      description: Deletes media. Note this only removes the record from the
+        database. It does not remove the file from storage.
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/MediaId'
+      security:
+        - OAuth2:
+          - 'media:delete'
+      responses:
+        204:
+          description: Delete media response
+
+  # Project invite
+  /project/{projectId}/invite:
+    post:
+      tags:
+        - Project invite
+      summary: Invite user to project
+      description: Invite user to project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'projectInvite:create'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 128
+                email:
+                  type: string
+                  format: email
+              required:
+                - name
+                - email
+      responses:
+        201:
+          description: Project invite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectInvite'
+
+    get:
+      tags:
+        - Project invite
+      summary: List invites
+      description: List pending invites for the project. An invite is pending if `accepted = false`.
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'projectInvite:list'
+      responses:
+        200:
+          description: Invite list response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectInvite'
+
+  /project/{projectId}/invite/{projectInviteId}:
+    get:
+      tags:
+        - Project invite
+      summary: Retrieve project invite
+      description: Returns a project invite
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ProjectInviteId'
+      security:
+        - OAuth2:
+          - 'projectInvite:retrieve'
+      responses:
+        200:
+          description: Retrieve project invite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectInvite'
+
+    delete:
+      tags:
+        - Project invite
+      summary: Delete project invite
+      description: Deletes a project invite
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ProjectInviteId'
+      security:
+        - OAuth2:
+          - 'projectInvite:delete'
+      responses:
+        204:
+          description: Delete project invite response
+
+  /project/{projectId}/invite/accept:
+    put:
+      tags:
+        - Project invite
+      summary: Accept pending invite
+      description: Accepts a pending invite. Note `token` is a JWT which is part of
+        the unique URL emailed to the user when an invite is created.
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+              required:
+                - token
+      responses:
+        200:
+          description: Project invite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectInvite'
+
+  /project/{projectId}/invite/bulk-delete:
+    post:
+      tags:
+        - Project invite
+      summary: Bulk deletes project invites
+      description: Bulk deletes project invites matching ids contained in the submitted list
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'projectInvite:delete'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+              example:
+                - 13
+                - 432
+                - 987
+                - 7
+      responses:
+        204:
+          description: Bulk delete invite response
+
+  # Web hook
+  /project/{projectId}/web-hook:
+    get:
+      tags:
+        - Web hook
+      summary: List web hooks
+      description: Returns a list of web hooks
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'webHook:list'
+      responses:
+        200:
+          description: List web hooks response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebHook'
+
+    post:
+      tags:
+        - Web hook
+      summary: Create web hook
+      description: Creates a web hook for the project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'webhook:create'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                  maxLength: 64
+              required:
+                - name
+      responses:
+        200:
+          description: Create web hook response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebHook'
+
+  /project/{projectId}/web-hook/{webHookId}:
+    get:
+      tags:
+        - Web hook
+      summary: Retrieve web hook
+      description: Retrieve web hook
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/WebHookId'
+      security:
+        - OAuth2:
+          - 'webHook:retrieve'
+      responses:
+        200:
+          description: Retrieve web hook response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebHook'
+
+    put:
+      tags:
+        - Web hook
+      summary: Create web hook
+      description: Creates a web hook for the project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/WebHookId'
+      security:
+        - OAuth2:
+          - 'webhook:update'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebHook'
+      responses:
+        200:
+          description: Update web hook response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebHook'
+
+    delete:
+      tags:
+        - Web hook
+      summary: Delete web hook
+      description: Deletes a web hook from the project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/WebHookId'
+      security:
+        - OAuth2:
+          - 'webhook:delete'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebHook'
+      responses:
+        204:
+          description: Update web hook response
+
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: '/user/authenticate'
+
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      description: Project id
+      required: true
+      schema:
+        type: integer
+
+    UserId:
+      name: userId
+      in: path
+      description: User id
+      required: true
+      schema:
+        type: integer
+
+    EntryId:
+      name: entryId
+      in: path
+      description: Entry id
+      required: true
+      schema:
+        type: integer
+
+    MediaId:
+      name: mediaId
+      in: path
+      description: Media id
+      required: true
+      schema:
+        type: integer
+
+    EntryTypeId:
+      name: entryTypeId
+      in: path
+      description: Entry type id
+      required: true
+      schema:
+        type: integer
+
+    ProjectInviteId:
+      name: projectInviteId
+      in: path
+      description: Project invite id
+      required: true
+      schema:
+        type: integer
+
+    WebHookId:
+      name: webHookId
+      in: path
+      description: Web hook id
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+    User:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        isActive:
+          type: boolean
+        isAdmin:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
+
+    Project:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        metadata:
+          type: string
+          maxLength: 3000
+        userId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
+
+    COMMON_FIELD_PROPERTIES:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 4
+          maxLength: 64
+        label:
+          type: string
+          minLength: 4
+          maxLength: 64
+        description:
+          type: string
+          default: ''
+          maxLength: 128
+        required:
+          type: boolean
+          default: false
+        disabled:
+          type: boolean
+          default: false
+      required:
+        - name
+        - label
+        - description
+        - required
+        - disabled
+
+    TEXT:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^TEXT$'
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 999
+            maxLength:
+              type: integer
+              minimum: 1
+              maximum: 1000
+            format:
+              type: string
+              enum:
+                - 'plaintext'
+                - 'uri'
+                - 'email'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minLength'
+            - 'maxLength'
+            - 'format'
+
+    LONGTEXT:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^LONGTEXT$'
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 29999
+            maxLength:
+              type: integer
+              minimum: 1
+              maximum: 30000
+            format:
+              type: string
+              enum:
+                - 'plaintext'
+                - 'markdown'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minLength'
+            - 'maxLength'
+            - 'format'
+
+    BOOLEAN:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^BOOLEAN$'
+            labelTrue:
+              type: string
+              minLength: 1
+              maxLength: 32
+            labelFalse:
+              type: string
+              minLength: 1
+              maxLength: 32
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'labelTrue'
+            - 'labelFalse'
+
+    NUMBER:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^NUMBER$'
+            minValue:
+              type: number
+            maxValue:
+              type: number
+            format:
+              type: string
+              enum:
+                - 'number'
+                - 'integer'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minValue'
+            - 'maxValue'
+            - 'format'
+
+    DATE:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^DATE$'
+            format:
+              type: string
+              enum:
+                - 'datetime'
+                - 'date'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'format'
+
+    CHOICE:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^CHOICE$'
+            choices:
+              type: array
+              items:
+                type: string
+              minLength: 2
+              maxLength: 128
+            format:
+              type: string
+              enum:
+                - 'single'
+                - 'multiple'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'choices'
+            - 'format'
+
+    COLOR:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^COLOR$'
+            format:
+              type: string
+              enum:
+                - 'rgb'
+                - 'rgba'
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'format'
+
+    MEDIA:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^MEDIA$'
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 999
+            maxLength:
+              type: integer
+              minimum: 1
+              maximum: 1000
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minLength'
+            - 'maxLength'
+
+    LINK:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^LINK$'
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 999
+            maxLength:
+              type: integer
+              minimum: 1
+              maximum: 1000
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minLength'
+            - 'maxLength'
+
+    LIST:
+      allOf:
+        - $ref: '#/components/schemas/COMMON_FIELD_PROPERTIES'
+        - type: object
+          properties:
+            fieldType:
+              type: string
+              pattern: '^LIST$'
+            minLength:
+              type: integer
+              minimum: 0
+              maximum: 999
+            maxLength:
+              type: integer
+              minimum: 1
+              maximum: 1000
+          additionalProperties: false
+          required:
+            - 'fieldType'
+            - 'minLength'
+            - 'maxLength'
+
+    EntryType:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          default: ''
+          maxLength: 128
+        metadata:
+          type: string
+          default: ''
+          maxLength: 3000
+        projectId:
+          type: integer
+        userId:
+          type: integer
+        fields:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/TEXT'
+              - $ref: '#/components/schemas/LONGTEXT'
+              - $ref: '#/components/schemas/BOOLEAN'
+              - $ref: '#/components/schemas/NUMBER'
+              - $ref: '#/components/schemas/DATE'
+              - $ref: '#/components/schemas/CHOICE'
+              - $ref: '#/components/schemas/COLOR'
+              - $ref: '#/components/schemas/MEDIA'
+              - $ref: '#/components/schemas/LINK'
+              - $ref: '#/components/schemas/LIST'
+
+    Entry:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 128
+        entryTypeId:
+          type: integer
+        entryType:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+              minLength: 1
+              maxLength: 64
+            description:
+              type: string
+              default: ''
+              maxLength: 128
+            metadata:
+              type: string
+              default: ''
+              maxLength: 3000
+            projectId:
+              type: integer
+            userId:
+              type: integer
+        userId:
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+        published:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+        modifiedByUserId:
+          type: integer
+        modifiedByUser:
+          $ref: '#/components/schemas/User'
+        fields:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
+
+    WebHook:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 64
+        isActive:
+          type: boolean
+          default: true
+        url:
+          type: string
+          format: uri
+        projectUpdated:
+          type: boolean
+          default: true
+        projectDeleted:
+          type: boolean
+          default: true
+        entryTypeCreated:
+          type: boolean
+          default: true
+        entryTypeUpdated:
+          type: boolean
+          default: true
+        entryTypeDeleted:
+          type: boolean
+          default: true
+        entryCreated:
+          type: boolean
+          default: true
+        entryUpdated:
+          type: boolean
+          default: true
+        entryDeleted:
+          type: boolean
+          default: true
+        entryDeletedBulk:
+          type: boolean
+          default: true
+        mediaCreated:
+          type: boolean
+          default: true
+        mediaUpdated:
+          type: boolean
+          default: true
+        mediaDeleted:
+          type: boolean
+          default: true
+        mediaDeletedBulk:
+          type: boolean
+          default: true
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
+      required:
+        - name
+        - isActive
+        - url
+        - projectUpdated
+        - projectDeleted
+        - entryTypeCreated
+        - entryTypeUpdated
+        - entryTypeDeleted
+        - entryCreated
+        - entryUpdated
+        - entryDeleted
+        - entryDeletedBulk
+        - mediaCreated
+        - mediaUpdated
+        - mediaDeleted
+        - mediaDeletedBulk
+
+    ProjectInvite:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          maxLength: 128
+        email:
+          type: string
+          format: email
+        userId:
+          type: integer
+        projectId:
+          type: integer
+        accepted:
+          type: boolean
+          default: false
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
+
+    Media:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        projectId:
+          type: integer
+        name:
+          type: string
+          maxLength: 512
+        file:
+          type: string
+          maxLength: 512
+          format: uri
+        thumbnail:
+          type: string
+          maxLength: 512
+          format: uri
+        mimeType:
+          type: string
+          maxLength: 128
+        size:
+          type: integer
+          default: 0
+        width:
+          type: integer
+          default: 0
+          minimum: 0
+        height:
+          type: integer
+          default: 0
+          minimum: 0
+        description:
+          type: string
+          default: ''
+          maxLength: 64
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string

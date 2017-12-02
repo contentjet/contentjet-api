@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const ejs = require('ejs');
+const _ = require('lodash');
 const { mjml2html } = require('mjml');
 const transaction = require('objection').transaction;
 const User = require('../models/User');
@@ -88,7 +89,9 @@ const requestPasswordResetConstraints = {
 class UserViewSet extends BaseViewSet {
 
   constructor(options) {
-    super(User, options);
+    const clonedOptions = _.cloneDeep(options);
+    clonedOptions.disabledActions = ['create', 'delete', 'update'];
+    super(User, clonedOptions);
     this.retrieveMe = this.retrieveMe.bind(this);
     this.updateMe = this.updateMe.bind(this);
     this.signUp = this.signUp.bind(this);
@@ -164,7 +167,7 @@ class UserViewSet extends BaseViewSet {
     const knex = ProjectInvite.knex();
     await transaction(knex, async (trx) => {
       const user = await User.create(
-        email, name, password, config.ACTIVE_ON_SIGNUP, trx
+        email, name, password, config.ACTIVE_ON_SIGNUP, false, trx
       );
       // Get the project from the invite...
       const {projectId, projectInviteId} = invitePayload;

@@ -64,6 +64,10 @@ class ProjectInviteViewSet extends BaseViewSet {
       .where('accepted', false);
   }
 
+  getPageSize(ctx) {
+    return 0;
+  }
+
   async create(ctx, next) {
     const errors = validate(ctx.request.body, createConstraints);
     if (errors) {
@@ -125,10 +129,10 @@ class ProjectInviteViewSet extends BaseViewSet {
     const knex = ProjectInvite.knex();
     await transaction(knex, async (trx) => {
       // Mark the invite as accepted...
-      await ProjectInvite.accept(projectInviteId, trx);
+      const projectInvite = await ProjectInvite.accept(projectInviteId, trx);
       // ... and make the authenticated user a member
       await project.addUser(user, 'author', trx);
-      ctx.body = 'OK';
+      ctx.body = projectInvite;
     });
   }
 

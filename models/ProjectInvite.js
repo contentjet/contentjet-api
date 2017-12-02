@@ -112,7 +112,9 @@ class ProjectInvite extends Model {
       .where({
         'id': id,
         'accepted': false
-      });
+      })
+      .returning('*')
+      .first();
   }
 
 }
