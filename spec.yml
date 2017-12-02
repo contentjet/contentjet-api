@@ -528,11 +528,34 @@ paths:
     get:
       tags:
         - Entry
-      summary: List entries
-      description: Returns a list of entries
-      # TODO Add query parameters: tags, entryType, nonPublished, search
+      summary: List published entries
+      description: Returns a list of published entries. An entry is published
+        if the date value of it's `published` field is in the past.
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+        - name: tags
+          in: query
+          description: Limit to entries containing a comma separated list of tags. Note
+            tags are OR'd together. e.g `?tags=summer,winter,autumn`
+          schema:
+            type: string
+        - name: entryType
+          in: query
+          description: Limit to entries of a specific entry type by id. e.g `?entryType=7`.
+          schema:
+            type: integer
+        - name: nonPublished
+          in: query
+          description: If present both published and non-published entries will be
+            returned. e.g `?nonPublished=1`.
+          schema:
+            type: integer
+        - name: search
+          in: query
+          description: Search entries containing words in their title. Note this is
+            NOT full-text search.
+          schema:
+            type: string
       security:
         - OAuth2:
           - 'entry:list'
@@ -721,6 +744,18 @@ paths:
       description: List media
       parameters:
         - $ref: '#/components/parameters/ProjectId'
+        - name: tags
+          in: query
+          description: Limit to media containing a comma separated list of tags. Note
+            tags are OR'd together. e.g `?tags=summer,winter,autumn`
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search media containing words in their name. Note this is
+            NOT full-text search.
+          schema:
+            type: string
       security:
         - OAuth2:
           - 'media:list'
