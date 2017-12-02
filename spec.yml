@@ -220,11 +220,6 @@ paths:
                 - name
                 - password
                 - inviteToken
-              example:
-                name: Wayland Smithers
-                email: wayland@example.com
-                password: iheartburns
-                inviteToken: TODO
       responses:
         201:
           description: Update authenticated user response
@@ -404,7 +399,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/Project'
 
-  # TODO: Add POST /project/{projectId}/update-member
+  /project/{projectId}/update-member:
+    post:
+      tags:
+        - Project
+      summary: Update a user's membership within the project
+      description: Update a user's membership within the project
+      security:
+        - OAuth2:
+          - 'project:update'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                membershipIsActive:
+                  type: boolean
+                membershipType:
+                  type: string
+                  enum:
+                    - author
+                    - admin
+              required:
+                - userId
+      responses:
+        201:
+          description: Update member response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
 
   # Entry type
   /project/{projectId}/entry-type:
