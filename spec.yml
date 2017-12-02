@@ -924,6 +924,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProjectInvite'
 
+    delete:
+      tags:
+        - Project invite
+      summary: Delete project invite
+      description: Deletes a project invite
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ProjectInviteId'
+      security:
+        - OAuth2:
+          - 'projectInvite:delete'
+      responses:
+        204:
+          description: Delete project invite response
+
   /project/{projectId}/invite/accept:
     put:
       tags:
