@@ -164,7 +164,7 @@ class UserViewSet extends BaseViewSet {
     const knex = ProjectInvite.knex();
     await transaction(knex, async (trx) => {
       const user = await User.create(
-        email, name, password, config.ACTIVE_ON_SIGNUP, trx
+        email, name, password, config.ACTIVE_ON_SIGNUP, false, trx
       );
       // Get the project from the invite...
       const {projectId, projectInviteId} = invitePayload;

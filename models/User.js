@@ -90,14 +90,14 @@ class User extends Model {
       .then(result => parseInt(result.count) === 1);
   }
 
-  static async create(email, name, password, isActive = false, trx) {
+  static async create(email, name, password, isActive = false, isAdmin = false, trx) {
     const exists = await User.existsWithEmail(email, trx);
     if (exists) throw new ValidationError('A user with this email already exists');
     const hash = crypto.createHash('sha256');
     const hashedPassword = hash.update(`${config.SECRET_KEY}${password}`).digest('hex');
     return User
       .query(trx)
-      .insert({email, name, password: hashedPassword, isActive})
+      .insert({email, name, password: hashedPassword, isActive, isAdmin})
       .returning('*');
   }
 

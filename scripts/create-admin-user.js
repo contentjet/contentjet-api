@@ -31,6 +31,7 @@ async function main() {
       data.email,
       data.name,
       data.password,
+      true,
       true
     );
     console.log('User created');
