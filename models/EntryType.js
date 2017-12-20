@@ -875,6 +875,12 @@ class EntryType extends Model {
     return validate.async(fields, constraints);
   }
 
+  static deleteAll(trx) {
+    return EntryType
+      .query(trx)
+      .delete();
+  }
+
 }
 
 module.exports = EntryType;
