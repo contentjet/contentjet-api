@@ -27,32 +27,20 @@ describe('Project', function () {
     await Project.deleteAll();
   });
 
-  describe('#addUser', async function () {
+  describe('#getById', async function () {
 
-    it('adds user to project', async function () {
-      let isMember;
-      isMember = await project1.isMember(user2);
-      assert.isFalse(isMember, 'user is not member');
-      await project1.addUser(user2, 'author');
-      isMember = await project1.isMember(user2);
-      assert.isTrue(isMember, 'user is member');
+    it('gets a project by id', async function () {
+      const project = await Project.getById(project1.id);
+      assert.equal(project.id, project1.id);
     });
 
   });
 
-  describe('#removeUser', async function () {
+  describe('#deleteAll', async function () {
 
-    beforeEach(async function () {
-      await project1.addUser(user2, 'author');
-    });
-
-    it('removes user from project', async function () {
-      let isMember;
-      isMember = await project1.isMember(user2);
-      assert.isTrue(isMember);
-      await project1.removeUser(user2);
-      isMember = await project1.isMember(user2);
-      assert.isFalse(isMember);
+    it('deletes all projects', async function () {
+      const numDeleted = await Project.deleteAll();
+      assert.equal(numDeleted, 1);
     });
 
   });
@@ -72,26 +60,17 @@ describe('Project', function () {
 
   });
 
-  describe('#getUsersByMembershipType', async function () {
+  describe('#getUserById', async function () {
 
     beforeEach(async function () {
       await project1.addUser(user1, 'author');
-      await project1.addUser(user2, 'admin');
-      // Calling addUser multiple times with the same user regardless
-      // of type should only add the user once.
-      await project1.addUser(user3, 'author');
-      await project1.addUser(user3, 'author');
-      await project1.addUser(user3, 'admin');
     });
 
-    it('returns 2 users', async function () {
-      const users = await project1.getUsersByMembershipType('author');
-      assert.lengthOf(users, 2, 'has length of 2');
-    });
-
-    it('returns 1 users', async function () {
-      const users = await project1.getUsersByMembershipType('admin');
-      assert.lengthOf(users, 1, 'has length of 1');
+    it('returns project user', async function () {
+      const user = await project1.getUserById(user1.id);
+      assert.strictEqual(user.membershipType, 'author');
+      assert.strictEqual(user.membershipIsActive, true);
+      assert.strictEqual(user.id, user1.id);
     });
 
   });
@@ -124,17 +103,70 @@ describe('Project', function () {
 
   });
 
-  describe('#getUserById', async function () {
+  describe('#isOwner', async function () {
+
+    it('user is project owner', async function () {
+      const isOwner = await project1.isOwner(user1);
+      assert.isTrue(isOwner);
+    });
+
+    it('user is not project owner', async function () {
+      const isOwner = await project1.isOwner(user2);
+      assert.isFalse(isOwner);
+    });
+
+  });
+
+  describe('#getUsersByMembershipType', async function () {
 
     beforeEach(async function () {
       await project1.addUser(user1, 'author');
+      await project1.addUser(user2, 'admin');
+      // Calling addUser multiple times with the same user regardless
+      // of type should only add the user once.
+      await project1.addUser(user3, 'author');
+      await project1.addUser(user3, 'author');
+      await project1.addUser(user3, 'admin');
     });
 
-    it('returns project user', async function () {
-      const user = await project1.getUserById(user1.id);
-      assert.strictEqual(user.membershipType, 'author');
-      assert.strictEqual(user.membershipIsActive, true);
-      assert.strictEqual(user.id, user1.id);
+    it('returns 2 users', async function () {
+      const users = await project1.getUsersByMembershipType('author');
+      assert.lengthOf(users, 2, 'has length of 2');
+    });
+
+    it('returns 1 users', async function () {
+      const users = await project1.getUsersByMembershipType('admin');
+      assert.lengthOf(users, 1, 'has length of 1');
+    });
+
+  });
+
+  describe('#addUser', async function () {
+
+    it('adds user to project', async function () {
+      let isMember;
+      isMember = await project1.isMember(user2);
+      assert.isFalse(isMember, 'user is not member');
+      await project1.addUser(user2, 'author');
+      isMember = await project1.isMember(user2);
+      assert.isTrue(isMember, 'user is member');
+    });
+
+  });
+
+  describe('#removeUser', async function () {
+
+    beforeEach(async function () {
+      await project1.addUser(user2, 'author');
+    });
+
+    it('removes user from project', async function () {
+      let isMember;
+      isMember = await project1.isMember(user2);
+      assert.isTrue(isMember);
+      await project1.removeUser(user2);
+      isMember = await project1.isMember(user2);
+      assert.isFalse(isMember);
     });
 
   });
