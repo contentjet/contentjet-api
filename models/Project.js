@@ -93,7 +93,7 @@ class Project extends Model {
   /**
    * Deletes all projects
    * @param {object} [trx] Knex transaction object
-   * @return {Promise.<integer>} The number of project's deleted
+   * @return {Promise.<integer>} The number of projects deleted
    */
   static deleteAll(trx) {
     return Project
@@ -229,12 +229,22 @@ class Project extends Model {
       });
   }
 
+  /**
+   * Deletes project
+   * @param {object} [trx] Knex transaction object
+   * @return {Promise.<integer>} The number of projects deleted
+   */
   delete(trx) {
     return Project
       .query(trx)
       .deleteById(this.id);
   }
 
+  /**
+   * Returns active WebHooks for this Project
+   * @param {object} [trx] Knex transaction object
+   * @return {Promise.<[WebHook]>} List of active WebHook instances
+   */
   getActiveWebHooks(trx) {
     return this
       .$relatedQuery('webHooks', trx)

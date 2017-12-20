@@ -171,6 +171,15 @@ describe('Project', function () {
 
   });
 
+  describe('#delete', async function () {
+
+    it('deletes the project', async function () {
+      const numDeleted = await Project.deleteAll();
+      assert.equal(numDeleted, 1);
+    });
+
+  });
+
   describe('#getActiveWebHooks', async function () {
 
     beforeEach(async function () {
