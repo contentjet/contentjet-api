@@ -4,6 +4,101 @@ const User = app.models.User;
 const Project = app.models.Project;
 const EntryType = app.models.EntryType;
 
+
+const textField = {
+  name: 'testTextField',
+  label: 'Test text field',
+  description: '',
+  required: false,
+  disabled: false,
+  fieldType: 'TEXT',
+  minLength: 1,
+  maxLength: 100,
+  format: 'plaintext'
+};
+
+const longTextField = {
+  name: 'testLongTextField',
+  label: 'Test long text field',
+  description: '',
+  required: false,
+  disabled: false,
+  fieldType: 'LONGTEXT',
+  minLength: 1,
+  maxLength: 30000,
+  format: 'plaintext'
+};
+
+const booleanField = {
+  name: 'testBooleanField',
+  label: 'Test boolean field',
+  description: '',
+  required: false,
+  disabled: false,
+  fieldType: 'BOOLEAN',
+  labelTrue: 'Yes',
+  labelFalse: 'No'
+};
+
+const numberField = {
+  name: 'testNumberField',
+  label: 'Test number field',
+  description: '',
+  required: false,
+  disabled: false,
+  fieldType: 'NUMBER',
+  minValue: -99999,
+  maxValue: 99999,
+  format: 'integer'
+};
+
+const dateField = {
+  name: 'testDateField',
+  label: 'Test date field',
+  description: '',
+  required: false,
+  disabled: false,
+  fieldType: 'DATE',
+  format: 'datetime'
+};
+
+const choiceField = {
+  name: 'choiceField',
+  label: 'Test choice field',
+  description: '',
+  required: false,
+  disabled: false,
+  fieldType: 'CHOICE',
+  choices: [
+    'foo',
+    'bar',
+    'eggs',
+    'spam'
+  ],
+  format: 'single'
+};
+
+const colorField = {
+  name: 'colorField',
+  label: 'Test color field',
+  description: '',
+  required: false,
+  disabled: false,
+  fieldType: 'COLOR',
+  format: 'rgb'
+};
+
+const listField = {
+  name: 'listField',
+  label: 'Test list field',
+  description: '',
+  required: false,
+  disabled: false,
+  fieldType: 'LIST',
+  minLength: 0,
+  maxLength: 999
+};
+
 describe('EntryType', function () {
 
   let user1;
@@ -26,7 +121,17 @@ describe('EntryType', function () {
       .insert({
         name: 'Test Entry Type',
         userId: user1.id,
-        projectId: project1.id, fields: []
+        projectId: project1.id,
+        fields: [
+          textField,
+          longTextField,
+          booleanField,
+          numberField,
+          dateField,
+          choiceField,
+          colorField,
+          listField
+        ]
       });
   });
 
@@ -55,6 +160,15 @@ describe('EntryType', function () {
     it('EntryType does not exist in project', async function () {
       const exists = await EntryType.existsInProject(entryType1.id, 123);
       assert.isFalse(exists);
+    });
+
+  });
+
+  describe('#deleteAll', async function () {
+
+    it('deletes all entry types', async function () {
+      const numDeleted = await EntryType.deleteAll();
+      assert.equal(numDeleted, 1);
     });
 
   });
