@@ -1,5 +1,5 @@
 import {Model, RelationMappings, Transaction, QueryBuilderOption} from 'objection';
-import ValidationError = require('../errors/ValidationError');
+import ValidationError from '../errors/ValidationError';
 import _ = require('lodash');
 import validate from '../utils/validate';
 
@@ -285,7 +285,7 @@ const listFieldConstraints = {
   }
 };
 
-const fieldTypeConstraints = {
+const fieldTypeConstraints: {[name: string]: object} = {
   TEXT: Object.assign({}, commonFieldConstraints, textFieldConstraints),
   LONGTEXT: Object.assign({}, commonFieldConstraints, longTextFieldConstraints),
   BOOLEAN: Object.assign({}, commonFieldConstraints, booleanFieldConstraints),
@@ -315,6 +315,10 @@ interface IEntryTypeField {
   labelTrue?: string;
   labelFalse?: string;
   choices?: string[];
+}
+
+interface IEntryTypeJson {
+  fields: IEntryTypeField[];
 }
 
 export default class EntryType extends Model {
@@ -354,7 +358,7 @@ export default class EntryType extends Model {
     };
   }
 
-  $beforeValidate(jsonSchema: object, json: any) {
+  $beforeValidate(jsonSchema: object, json: IEntryTypeJson) {
     // Validate top-level fields
     let errors = validate(json, entryTypeConstraints);
     if (errors) {
@@ -367,7 +371,7 @@ export default class EntryType extends Model {
     if (fieldNames.length !== _.uniq(fieldNames).length) {
       throw new ValidationError('Field names must be unique');
     }
-    let fieldErrors = {};
+    let fieldErrors: any = {};
     json.fields.forEach(field => {
       // Validate field type
       let fieldTypeError = validate.single(field.fieldType, {inclusion: fieldTypes});

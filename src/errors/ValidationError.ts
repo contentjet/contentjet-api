@@ -2,7 +2,7 @@ import BaseError from './BaseError';
 
 class ValidationError extends BaseError {
 
-  errors?: any[];
+  errors?: object;
 
   constructor(message = 'A validation error occurred') {
     super(message);
