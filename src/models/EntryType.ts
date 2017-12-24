@@ -300,7 +300,7 @@ const fieldTypeConstraints: {[name: string]: object} = {
 
 const fieldTypes = Object.keys(fieldTypeConstraints);
 
-interface IEntryTypeField {
+export interface IEntryTypeField {
   name: string;
   label: string;
   description: string;

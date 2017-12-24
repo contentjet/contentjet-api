@@ -29,9 +29,9 @@ import EntryTagViewSet = require('./viewsets/EntryTagViewSet');
 import Project from './models/Project';
 import WebHook from './models/WebHook';
 
-import NotFoundError = require('./errors/NotFoundError');
-import ValidationError = require('./errors/ValidationError');
-import AuthenticationError = require('./errors/AuthenticationError');
+import NotFoundError from './errors/NotFoundError';
+import ValidationError from './errors/ValidationError';
+import AuthenticationError from './errors/AuthenticationError';
 
 // Instantiate storage backend and expose on context prototype
 const storage = new StorageBackend();

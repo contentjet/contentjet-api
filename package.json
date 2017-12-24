@@ -52,6 +52,7 @@
     "@types/koa": "^2.0.43",
     "@types/lodash": "^4.14.91",
     "@types/mocha": "^2.2.45",
+    "@types/moment": "^2.13.0",
     "@types/node": "^8.5.2",
     "@types/underscore.string": "0.0.32",
     "chai": "^4.0.1",

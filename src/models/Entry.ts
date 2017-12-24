@@ -1,12 +1,21 @@
-import moment = require('moment');
-import _ = require('lodash');
+import * as moment from 'moment';
+import {get, isArray, difference} from 'lodash';
 import {Model, Transaction, QueryBuilder, RelationMappings} from 'objection';
 import Media from './Media';
 import EntryTag from './EntryTag';
+import {IEntryTypeField} from './EntryType';
 
 export interface IEntryField {
   name: string,
   fieldType: string
+}
+
+export interface IExternalEntryFields {
+  [name: string]: any;
+}
+
+interface IObjectWithId {
+  id: number;
 }
 
 export default class Entry extends Model {
@@ -132,31 +141,33 @@ export default class Entry extends Model {
       .delete();
   }
 
-  static externalFieldsToInternal(entryTypeFields, entryFields) {
+  static externalFieldsToInternal(entryTypeFields: IEntryTypeField[], entryFields: IExternalEntryFields) {
     return entryTypeFields
       .filter(entryTypeField => !entryTypeField.disabled)
       .map(entryTypeField => {
         const {name, fieldType} = entryTypeField;
         const obj:{name: string, fieldType: string, value: any} = {name, fieldType, value: null};
         if (fieldType === 'TEXT' || fieldType === 'LONGTEXT') {
-          obj.value = _.get(entryFields, entryTypeField.name, '');
+          obj.value = get(entryFields, entryTypeField.name, '');
         } else if (fieldType === 'BOOLEAN') {
-          obj.value = !!_.get(entryFields, entryTypeField.name, null);
+          obj.value = !!get(entryFields, entryTypeField.name, null);
         } else if (fieldType === 'NUMBER') {
-          obj.value = _.get(entryFields, entryTypeField.name, null);
+          obj.value = get(entryFields, entryTypeField.name, null);
         } else if (fieldType === 'DATE') {
-          const date = _.get(entryFields, entryTypeField.name, null);
+          const date = get(entryFields, entryTypeField.name, null);
           obj.value = date ? moment.utc(date).format() : null;
         } else if (fieldType === 'CHOICE') {
-          obj.value = _.get(entryFields, entryTypeField.name, []);
+          obj.value = get(entryFields, entryTypeField.name, []);
         } else if (fieldType === 'COLOR') {
-          obj.value = _.get(entryFields, entryTypeField.name, '');
+          obj.value = get(entryFields, entryTypeField.name, '');
         } else if (fieldType === 'MEDIA') {
-          obj.value = _.get(entryFields, entryTypeField.name, []).map(media => media.id);
+          let media: IObjectWithId[] = get(entryFields, entryTypeField.name, []);
+          obj.value = media.map(media => media.id);
         } else if (fieldType === 'LINK') {
-          obj.value = _.get(entryFields, entryTypeField.name, []).map(entry => entry.id);
+          let entires: IObjectWithId[] = get(entryFields, entryTypeField.name, []);
+          obj.value = entires.map(entry => entry.id);
         } else if (fieldType === 'LIST') {
-          obj.value = _.get(entryFields, entryTypeField.name, []);
+          obj.value = get(entryFields, entryTypeField.name, []);
         }
         return obj;
       });
@@ -166,14 +177,14 @@ export default class Entry extends Model {
     const field = this.fields.find(
       field => field.name === fieldName && field.fieldType === fieldType
     );
-    return _.get(field, 'value');
+    return get(field, 'value');
   }
 
   async internalFieldsToExternal(entryTypeFields, trx?: Transaction) {
     const obj = {};
     for (const entryTypeField of entryTypeFields) {
       let value = this.getFieldValue(entryTypeField.name, entryTypeField.fieldType);
-      if (_.isArray(value)) {
+      if (isArray(value)) {
         // Note for MEDIA and LINK types we order the query results to match
         // the order of the ids stored in the field's value.
         if (entryTypeField.fieldType === 'MEDIA') {
@@ -207,8 +218,8 @@ export default class Entry extends Model {
     const incomingTagIds = entryTags.map(entryTag => entryTag.id);
     const existingTags = await this.getTags(trx);
     const existingTagIds = existingTags.map(entryTag => entryTag.id);
-    const idsToUnrelate = _.difference(existingTagIds, incomingTagIds);
-    const idsToRelate = _.difference(incomingTagIds, existingTagIds);
+    const idsToUnrelate = difference(existingTagIds, incomingTagIds);
+    const idsToRelate = difference(incomingTagIds, existingTagIds);
     // Unrelate any existing tags not in entryTags
     const p1 = this.$relatedQuery('tags', trx).unrelate().whereIn('id', idsToUnrelate);
     // Relate incoming entryTags
