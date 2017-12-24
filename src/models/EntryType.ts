@@ -302,7 +302,15 @@ const fieldTypes = Object.keys(fieldTypeConstraints);
 
 export default class EntryType extends Model {
 
+  id: number;
+  projectId: number;
+  userId: number;
+  name: string;
+  metadata: string;
+  description: string;
   fields: object[];
+  createdAt: Date;
+  modifiedAt: Date;
 
   static get tableName() {
     return 'entryType';
@@ -801,13 +809,13 @@ export default class EntryType extends Model {
     };
   }
 
-  static getById(id, trx: Transaction) {
+  static getById(id, trx?: Transaction) {
     return EntryType.query(trx)
       .where('id', id)
       .first();
   }
 
-  static existsInProject(id, projectId, trx: Transaction) {
+  static existsInProject(id, projectId, trx?: Transaction) {
     return EntryType.query(trx)
       .where({id, projectId})
       .count('*')
@@ -894,10 +902,11 @@ export default class EntryType extends Model {
     return validate.async(fields, constraints);
   }
 
-  static deleteAll(trx: Transaction) {
-    return EntryType
+  static async deleteAll(trx?: Transaction): Promise<number> {
+    const num: any = await EntryType
       .query(trx)
       .delete();
+    return num as number;
   }
 
 }

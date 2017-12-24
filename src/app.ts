@@ -26,17 +26,8 @@ const EntryTypeViewSet = require('./viewsets/EntryTypeViewSet');
 const EntryViewSet = require('./viewsets/EntryViewSet');
 const EntryTagViewSet = require('./viewsets/EntryTagViewSet');
 
-// const Entry = require('./models/Entry');
-// const EntryTag = require('./models/EntryTag');
-// const EntryType = require('./models/EntryType');
-// const Media = require('./models/Media');
-// const MediaTag = require('./models/MediaTag');
-// const Permission = require('./models/Permission');
-const Project = require('./models/Project');
-// const ProjectInvite = require('./models/ProjectInvite');
-// const Role = require('./models/Role');
-// const User = require('./models/User');
-// const WebHook = require('./models/WebHook');
+import Project from './models/Project';
+import WebHook from './models/WebHook';
 
 const NotFoundError = require('./errors/NotFoundError');
 const ValidationError = require('./errors/ValidationError');
@@ -75,21 +66,6 @@ const app = new Koa();
 // Instantiate mail backend and expose sendMail method on context prototype
 const mailBackend = new MailBackend();
 app.context.sendMail = mailBackend.sendMail;
-
-// Attach our models to the app instance
-// app.models = {
-//   Entry,
-//   EntryTag,
-//   EntryType,
-//   Media,
-//   MediaTag,
-//   Permission,
-//   Project,
-//   ProjectInvite,
-//   Role,
-//   User,
-//   WebHook
-// };
 
 interface IWebHookEventPayload {
   dateTime: Date;
@@ -180,4 +156,4 @@ app
     };
   });
 
-module.exports = app;
+export default app;

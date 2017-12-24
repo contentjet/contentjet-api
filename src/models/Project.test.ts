@@ -1,15 +1,15 @@
-const app = require('../app');
-const assert = require('chai').assert;
-const User = app.models.User;
-const Project = app.models.Project;
-const WebHook = app.models.WebHook;
+import User from './User';
+import Project from './Project';
+import WebHook from './WebHook';
+import {get} from 'lodash';
+import {assert} from 'chai';
 
 describe('Project', function () {
 
-  let user1;
-  let user2;
-  let user3;
-  let project1;
+  let user1: User;
+  let user2: User;
+  let user3: User;
+  let project1: Project;
 
   beforeEach(async function () {
     await User.deleteAll();
@@ -31,7 +31,7 @@ describe('Project', function () {
 
     it('gets a project by id', async function () {
       const project = await Project.getById(project1.id);
-      assert.equal(project.id, project1.id);
+      assert.equal(get(project, 'id'), project1.id);
     });
 
   });
@@ -68,9 +68,9 @@ describe('Project', function () {
 
     it('returns project user', async function () {
       const user = await project1.getUserById(user1.id);
-      assert.strictEqual(user.membershipType, 'author');
-      assert.strictEqual(user.membershipIsActive, true);
-      assert.strictEqual(user.id, user1.id);
+      assert.strictEqual(get(user, 'membershipType'), 'author');
+      assert.strictEqual(get(user, 'membershipIsActive'), true);
+      assert.strictEqual(get(user, 'id'), user1.id);
     });
 
   });
@@ -82,22 +82,22 @@ describe('Project', function () {
     });
 
     it('user is project member', async function () {
-      const isMember = await project1.isMember(user1);
+      const isMember = await project1.isMember(user1.id);
       assert.isTrue(isMember);
     });
 
     it('user is not project member', async function () {
-      const isMember = await project1.isMember(user2);
+      const isMember = await project1.isMember(user2.id);
       assert.isFalse(isMember);
     });
 
     it('user is project member with membershipType', async function () {
-      const isMember = await project1.isMember(user1, 'author');
+      const isMember = await project1.isMember(user1.id, 'author');
       assert.isTrue(isMember);
     });
 
     it('user is not project member with membershipType', async function () {
-      const isMember = await project1.isMember(user2, 'admin');
+      const isMember = await project1.isMember(user2.id, 'admin');
       assert.isFalse(isMember);
     });
 
@@ -106,12 +106,12 @@ describe('Project', function () {
   describe('#isOwner', async function () {
 
     it('user is project owner', async function () {
-      const isOwner = await project1.isOwner(user1);
+      const isOwner = await project1.isOwner(user1.id);
       assert.isTrue(isOwner);
     });
 
     it('user is not project owner', async function () {
-      const isOwner = await project1.isOwner(user2);
+      const isOwner = await project1.isOwner(user2.id);
       assert.isFalse(isOwner);
     });
 
@@ -145,10 +145,10 @@ describe('Project', function () {
 
     it('adds user to project', async function () {
       let isMember;
-      isMember = await project1.isMember(user2);
+      isMember = await project1.isMember(user2.id);
       assert.isFalse(isMember, 'user is not member');
       await project1.addUser(user2, 'author');
-      isMember = await project1.isMember(user2);
+      isMember = await project1.isMember(user2.id);
       assert.isTrue(isMember, 'user is member');
     });
 
@@ -162,10 +162,10 @@ describe('Project', function () {
 
     it('removes user from project', async function () {
       let isMember;
-      isMember = await project1.isMember(user2);
+      isMember = await project1.isMember(user2.id);
       assert.isTrue(isMember);
-      await project1.removeUser(user2);
-      isMember = await project1.isMember(user2);
+      await project1.removeUser(user2.id);
+      isMember = await project1.isMember(user2.id);
       assert.isFalse(isMember);
     });
 
@@ -202,11 +202,11 @@ describe('Project', function () {
     });
 
     afterEach(async function () {
-      await project1.removeUser(user2);
+      await project1.removeUser(user2.id);
     });
 
     it('changes an existing users membershipType', async function () {
-      await project1.updateUserMembership(user2.id, {membershipType: 'admin'});
+      await project1.updateUserMembership(user2.id, true, 'admin');
       const users = await project1.getUsers();
       assert.lengthOf(users, 1);
       assert.strictEqual(users[0].membershipType, 'admin');
@@ -214,10 +214,10 @@ describe('Project', function () {
     });
 
     it('sets membershipIsActive to false', async function () {
-      let isActiveMember = await project1.isActiveMember(user2);
+      let isActiveMember = await project1.isActiveMember(user2.id);
       assert.isTrue(isActiveMember);
-      await project1.updateUserMembership(user2.id, {membershipIsActive: false});
-      isActiveMember = await project1.isActiveMember(user2);
+      await project1.updateUserMembership(user2.id, false);
+      isActiveMember = await project1.isActiveMember(user2.id);
       assert.isFalse(isActiveMember);
       const users = await project1.getUsers();
       assert.lengthOf(users, 1);

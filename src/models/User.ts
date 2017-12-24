@@ -85,14 +85,14 @@ export default class User extends Model {
       .first();
   }
 
-  static getById(id: number, trx: Transaction): QueryBuilderOption<User> {
+  static getById(id: number, trx?: Transaction): QueryBuilderOption<User> {
     return User
       .query(trx)
       .where('id', id)
       .first();
   }
 
-  static async existsWithEmail(email: string, trx: Transaction): Promise<boolean> {
+  static async existsWithEmail(email: string, trx?: Transaction): Promise<boolean> {
     const result = await User.query(trx)
       .count('*')
       .where('email', email)
@@ -100,7 +100,7 @@ export default class User extends Model {
     return parseInt(result.count) === 1;
   }
 
-  static async create(email: string, name: string, password: string, isActive = false, isAdmin = false, trx: Transaction): Promise<User> {
+  static async create(email: string, name: string, password: string, isActive = false, isAdmin = false, trx?: Transaction): Promise<User> {
     const exists = await User.existsWithEmail(email, trx);
     if (exists) throw new ValidationError('A user with this email already exists');
     const hash = crypto.createHash('sha256');

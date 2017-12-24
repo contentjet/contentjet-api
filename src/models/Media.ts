@@ -125,7 +125,7 @@ export default class Media extends Model {
     };
   }
 
-  static getInProject(projectId: number, trx: Transaction): QueryBuilder<Media> {
+  static getInProject(projectId: number, trx?: Transaction): QueryBuilder<Media> {
     return Media
       .query(trx)
       .eager('tags')
@@ -144,18 +144,18 @@ export default class Media extends Model {
     return data;
   }
 
-  static bulkDelete(arrayOfIds: number[], projectId: number, trx: Transaction): QueryBuilder<Media> {
+  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilder<Media> {
     return Media.query(trx)
       .whereIn('id', arrayOfIds)
       .andWhere('projectId', projectId)
       .delete();
   }
 
-  getTags(trx: Transaction): QueryBuilder<MediaTag> {
+  getTags(trx?: Transaction): QueryBuilder<MediaTag> {
     return this.$relatedQuery('tags', trx);
   }
 
-  async setTags(mediaTags: MediaTag[], trx: Transaction): Promise<MediaTag[]> {
+  async setTags(mediaTags: MediaTag[], trx?: Transaction): Promise<MediaTag[]> {
     const incomingTagIds = mediaTags.map(mediaTag => mediaTag.id);
     const existingTags = await this.getTags(trx);
     const existingTagIds = existingTags.map(mediaTag => mediaTag.id);

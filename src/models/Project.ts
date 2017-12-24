@@ -3,6 +3,11 @@ import ProjectMembership from './ProjectMembership';
 import User from './User';
 import WebHook from './WebHook';
 
+export interface IMember extends User {
+  membershipType: string;
+  membershipIsActive: boolean;
+}
+
 export default class Project extends Model {
 
   id: number;
@@ -84,31 +89,32 @@ export default class Project extends Model {
     };
   }
 
-  static getById(id: number, trx: Transaction): QueryBuilderOption<Project> {
+  static getById(id: number, trx?: Transaction): QueryBuilderOption<Project> {
     return Project
       .query(trx)
       .where('id', id)
       .first();
   }
 
-  static deleteAll(trx: Transaction): QueryBuilder<Project> {
-    return Project
+  static async deleteAll(trx?: Transaction): Promise<number> {
+    const num: any = await Project
       .query(trx)
       .delete();
+    return num as number;
   }
 
-  getUsers(trx: Transaction): QueryBuilder<User> {
-    return this.$relatedQuery('members', trx);
+  async getUsers(trx?: Transaction): Promise<IMember[]> {
+    return await this.$relatedQuery<IMember>('members', trx);
   }
 
-  getUserById(id: number, trx: Transaction): QueryBuilderOption<User> {
+  getUserById(id: number, trx?: Transaction): QueryBuilderOption<User> {
     return this
       .$relatedQuery<User>('members', trx)
       .where('id', id)
       .first();
   }
 
-  _isMember(userId: number, membershipType: string, trx: Transaction): QueryBuilderOption<User> {
+  _isMember(userId: number, membershipType?: string, trx?: Transaction): QueryBuilderOption<User> {
     let query = this
       .$relatedQuery<User>('members', trx)
       .where('id', userId);
@@ -116,14 +122,14 @@ export default class Project extends Model {
     return query.first();
   }
 
-  isMember(userId: number, membershipType: string, trx: Transaction): Promise<boolean> {
+  isMember(userId: number, membershipType?: string, trx?: Transaction): Promise<boolean> {
     if (this.isOwner(userId)) return Promise.resolve(true);
     return this
       ._isMember(userId, membershipType, trx)
       .then(id => !!id);
   }
 
-  isActiveMember(userId: number, membershipType: string, trx: Transaction): Promise<boolean> {
+  isActiveMember(userId: number, membershipType?: string, trx?: Transaction): Promise<boolean> {
     if (this.isOwner(userId)) return Promise.resolve(true);
     return this
       ._isMember(userId, membershipType, trx)
@@ -135,13 +141,13 @@ export default class Project extends Model {
     return this.userId === userId;
   }
 
-  getUsersByMembershipType(membershipType: string, trx: Transaction): QueryBuilder<User> {
+  getUsersByMembershipType(membershipType: string, trx?: Transaction): QueryBuilder<User> {
     return this
       .$relatedQuery<User>('members', trx)
       .where('membershipType', membershipType);
   }
 
-  async addUser(user: User, membershipType: string, trx: Transaction): Promise<User> {
+  async addUser(user: User, membershipType: string, trx?: Transaction): Promise<User> {
     const existingUserId = await this
       .$relatedQuery<User>('members', trx)
       .select('id')
@@ -157,14 +163,14 @@ export default class Project extends Model {
     return user;
   }
 
-  removeUser(userId: number, trx: Transaction): QueryBuilder<User> {
+  removeUser(userId: number, trx?: Transaction): QueryBuilder<User> {
     return this
       .$relatedQuery<User>('members', trx)
       .unrelate()
       .where('id', userId);
   }
 
-  updateUserMembership(userId: number, membershipIsActive: boolean, membershipType: string, trx: Transaction): QueryBuilder<number> {
+  updateUserMembership(userId: number, membershipIsActive: boolean, membershipType?: string, trx?: Transaction): QueryBuilder<number> {
     return ProjectMembership
       .query(trx)
       .patch({membershipType, membershipIsActive})
@@ -174,13 +180,13 @@ export default class Project extends Model {
       });
   }
 
-  delete(trx: Transaction): QueryBuilderSingle<number> {
+  delete(trx?: Transaction): QueryBuilderSingle<number> {
     return Project
       .query(trx)
       .deleteById(this.id);
   }
 
-  getActiveWebHooks(trx: Transaction): QueryBuilder<WebHook> {
+  getActiveWebHooks(trx?: Transaction): QueryBuilder<WebHook> {
     return this
       .$relatedQuery<WebHook>('webHooks', trx)
       .where('isActive', true);

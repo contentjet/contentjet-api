@@ -57,13 +57,13 @@ export default class MediaTag extends Model {
     };
   }
 
-  static getInProject(projectId: number, trx: Transaction): QueryBuilder<MediaTag> {
+  static getInProject(projectId: number, trx?: Transaction): QueryBuilder<MediaTag> {
     return MediaTag
       .query(trx)
       .where('projectId', projectId);
   }
 
-  static async bulkGetOrCreate(names: string[], projectId: number, trx: Transaction): Promise<MediaTag[]> {
+  static async bulkGetOrCreate(names: string[], projectId: number, trx?: Transaction): Promise<MediaTag[]> {
     const existingTags = await MediaTag
       .query(trx)
       .where('projectId', projectId)

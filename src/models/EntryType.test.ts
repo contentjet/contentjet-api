@@ -1,8 +1,8 @@
-const app = require('../app');
-const assert = require('chai').assert;
-const User = app.models.User;
-const Project = app.models.Project;
-const EntryType = app.models.EntryType;
+import Project from './Project';
+import EntryType from './EntryType';
+import User from './User';
+import {get} from 'lodash';
+import {assert} from 'chai';
 
 
 const textField = {
@@ -101,9 +101,9 @@ const listField = {
 
 describe('EntryType', function () {
 
-  let user1;
-  let project1;
-  let entryType1;
+  let user1: User;
+  let project1: Project;
+  let entryType1: EntryType;
 
   beforeEach(async function () {
     await EntryType.deleteAll();
@@ -145,7 +145,7 @@ describe('EntryType', function () {
 
     it('gets an EntryType by id', async function () {
       const entryType = await EntryType.getById(entryType1.id);
-      assert.equal(entryType.id, entryType1.id);
+      assert.equal(get(entryType, 'id'), entryType1.id);
     });
 
   });

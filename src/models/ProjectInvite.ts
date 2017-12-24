@@ -2,7 +2,7 @@ import {Model, RelationMappings, QueryBuilder, Transaction} from 'objection';
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 
-class ProjectInvite extends Model {
+export default class ProjectInvite extends Model {
 
   id: number;
   projectId: number;
@@ -104,7 +104,7 @@ class ProjectInvite extends Model {
     });
   }
 
-  static bulkDelete(arrayOfIds: number[], projectId: number, trx: Transaction): QueryBuilder<ProjectInvite> {
+  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilder<ProjectInvite> {
     return ProjectInvite
       .query(trx)
       .whereIn('id', arrayOfIds)
@@ -112,7 +112,7 @@ class ProjectInvite extends Model {
       .delete();
   }
 
-  static accept(id: number, trx: Transaction) {
+  static accept(id: number, trx?: Transaction) {
     return ProjectInvite
       .query(trx)
       .patch({accepted: true})
@@ -125,5 +125,3 @@ class ProjectInvite extends Model {
   }
 
 }
-
-module.exports = ProjectInvite;

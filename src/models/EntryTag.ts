@@ -57,13 +57,13 @@ export default class EntryTag extends Model {
     };
   }
 
-  static getInProject(projectId: number, trx: Transaction): QueryBuilder<EntryTag> {
+  static getInProject(projectId: number, trx?: Transaction): QueryBuilder<EntryTag> {
     return EntryTag
       .query(trx)
       .where('entryTag.projectId', projectId);
   }
 
-  static async bulkGetOrCreate(names: string[], projectId: number, trx: Transaction): Promise<EntryTag[]> {
+  static async bulkGetOrCreate(names: string[], projectId: number, trx?: Transaction): Promise<EntryTag[]> {
     const existingTags = await EntryTag
       .query(trx)
       .where('projectId', projectId)

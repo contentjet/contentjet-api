@@ -1,15 +1,16 @@
-import {Model} from 'objection';
+import {Model, RelationMappings, QueryBuilderSingle, QueryBuilder} from 'objection';
+import Permission from './Permission';
 
+export default class Role extends Model {
 
-class Role extends Model {
-
+  id: number;
   name: string;
 
-  static get tableName() {
+  static get tableName(): string {
     return 'role';
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       permissions: {
         relation: Model.ManyToManyRelation,
@@ -38,7 +39,7 @@ class Role extends Model {
     };
   }
 
-  static get jsonSchema() {
+  static get jsonSchema(): object {
     return {
       type: 'object',
       additionalProperties: false,
@@ -55,7 +56,7 @@ class Role extends Model {
     };
   }
 
-  static getOrCreate(name: string) {
+  static getOrCreate(name: string): Promise<Role> {
     return Role
       .query()
       .where('name', name)
@@ -66,20 +67,18 @@ class Role extends Model {
       });
   }
 
-  static create(name: string) {
+  static create(name: string): QueryBuilderSingle<Role> {
     return Role
       .query()
       .insert({name});
   }
 
-  assignPermission(permission) {
-    return this.$relatedQuery('permissions').relate(permission.id);
+  assignPermission(permissionId: number): QueryBuilder<Permission> {
+    return this.$relatedQuery<Permission>('permissions').relate(permissionId);
   }
 
-  unassignPermission(permission) {
-    return this.$relatedQuery('permissions').unrelate().where('id', permission.id);
+  unassignPermission(permissionId: number): QueryBuilder<Permission> {
+    return this.$relatedQuery<Permission>('permissions').unrelate().where('id', permissionId);
   }
 
 }
-
-module.exports = Role;

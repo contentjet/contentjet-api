@@ -1,4 +1,4 @@
-import {Model} from 'objection';
+import {Model, RelationMappings} from 'objection';
 
 export default class WebHook extends Model {
 
@@ -27,7 +27,7 @@ export default class WebHook extends Model {
     return 'webHook';
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       project: {
         relation: Model.BelongsToOneRelation,
@@ -40,7 +40,7 @@ export default class WebHook extends Model {
     };
   }
 
-  static get jsonSchema() {
+  static get jsonSchema(): object {
     return {
       type: 'object',
       additionalProperties: false,

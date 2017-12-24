@@ -114,7 +114,7 @@ export default class Entry extends Model {
     };
   }
 
-  static getInProject(projectId: number, trx: Transaction): QueryBuilder<{}> {
+  static getInProject(projectId: number, trx?: Transaction): QueryBuilder<{}> {
     return Entry
       .query(trx)
       .eager('[user, modifiedByUser, tags, entryType]')
@@ -123,7 +123,7 @@ export default class Entry extends Model {
       .orderBy('entry.modifiedAt', 'desc');
   }
 
-  static bulkDelete(arrayOfIds: number[], projectId: number, trx: Transaction): QueryBuilder<Entry> {
+  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilder<Entry> {
     return Entry.query(trx)
       .join('entryType', 'entry.entryTypeId', 'entryType.id')
       .join('project', 'project.id', 'entryType.projectId')
@@ -169,7 +169,7 @@ export default class Entry extends Model {
     return _.get(field, 'value');
   }
 
-  async internalFieldsToExternal(entryTypeFields, trx: Transaction) {
+  async internalFieldsToExternal(entryTypeFields, trx?: Transaction) {
     const obj = {};
     for (const entryTypeField of entryTypeFields) {
       let value = this.getFieldValue(entryTypeField.name, entryTypeField.fieldType);
@@ -199,11 +199,11 @@ export default class Entry extends Model {
     return obj;
   }
 
-  getTags(trx: Transaction): QueryBuilder<EntryTag> {
+  getTags(trx?: Transaction): QueryBuilder<EntryTag> {
     return this.$relatedQuery('tags', trx);
   }
 
-  async setTags(entryTags: EntryTag[], trx: Transaction): Promise<EntryTag[]> {
+  async setTags(entryTags: EntryTag[], trx?: Transaction): Promise<EntryTag[]> {
     const incomingTagIds = entryTags.map(entryTag => entryTag.id);
     const existingTags = await this.getTags(trx);
     const existingTagIds = existingTags.map(entryTag => entryTag.id);
