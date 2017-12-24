@@ -42,7 +42,7 @@
     "sharp": "^0.18.4",
     "underscore.string": "^3.3.4",
     "uuid": "^3.1.0",
-    "validate.js": "^0.11.1",
+    "validate.js": "^0.12.0",
     "yamljs": "^0.3.0"
   },
   "false": {},
@@ -53,6 +53,7 @@
     "@types/lodash": "^4.14.91",
     "@types/mocha": "^2.2.45",
     "@types/node": "^8.5.2",
+    "@types/underscore.string": "0.0.32",
     "chai": "^4.0.1",
     "chai-http": "^3.0.0",
     "mocha": "^3.4.2",

@@ -1,7 +1,7 @@
-import {Model, Transaction} from 'objection';
+import {Model, RelationMappings, Transaction, QueryBuilderOption} from 'objection';
 import ValidationError = require('../errors/ValidationError');
 import _ = require('lodash');
-import validate = require('../utils/validate');
+import validate from '../utils/validate';
 
 const entryTypeConstraints = {
   name: {
@@ -300,6 +300,23 @@ const fieldTypeConstraints = {
 
 const fieldTypes = Object.keys(fieldTypeConstraints);
 
+interface IEntryTypeField {
+  name: string;
+  label: string;
+  description: string;
+  required: boolean;
+  disabled: boolean;
+  fieldType: string;
+  format?: string;
+  minLength?: number;
+  maxLength?: number;
+  minValue?: number;
+  maxValue?: number;
+  labelTrue?: string;
+  labelFalse?: string;
+  choices?: string[];
+}
+
 export default class EntryType extends Model {
 
   id: number;
@@ -308,15 +325,15 @@ export default class EntryType extends Model {
   name: string;
   metadata: string;
   description: string;
-  fields: object[];
+  fields: IEntryTypeField[];
   createdAt: Date;
   modifiedAt: Date;
 
-  static get tableName() {
+  static get tableName(): string {
     return 'entryType';
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       project: {
         relation: Model.BelongsToOneRelation,
@@ -337,7 +354,7 @@ export default class EntryType extends Model {
     };
   }
 
-  $beforeValidate(jsonSchema, json, opt) {
+  $beforeValidate(jsonSchema: object, json: any) {
     // Validate top-level fields
     let errors = validate(json, entryTypeConstraints);
     if (errors) {
@@ -370,7 +387,7 @@ export default class EntryType extends Model {
     return jsonSchema;
   }
 
-  static get jsonSchema() {
+  static get jsonSchema(): object {
     return {
       'type': 'object',
       'properties': {
@@ -809,27 +826,25 @@ export default class EntryType extends Model {
     };
   }
 
-  static getById(id, trx?: Transaction) {
+  static getById(id: number, trx?: Transaction): QueryBuilderOption<EntryType> {
     return EntryType.query(trx)
       .where('id', id)
       .first();
   }
 
-  static existsInProject(id, projectId, trx?: Transaction) {
-    return EntryType.query(trx)
+  static async existsInProject(id: number, projectId: number, trx?: Transaction): Promise<boolean> {
+    const result = await EntryType.query(trx)
       .where({id, projectId})
       .count('*')
-      .first()
-      .then(result => {
-        return !!parseInt(result.count);
-      });
+      .first() as any;
+    return !!parseInt(result.count);
   }
 
-  async validateEntryFields(fields, projectId) {
-    const constraints = {};
+  async validateEntryFields(fields: any, projectId: number): Promise<any> {
+    const constraints: any = {};
     for (let field of this.fields) {
       if (field.disabled) continue;
-      let fieldConstraints = {};
+      let fieldConstraints: any = {};
       if (field.required) fieldConstraints.presence = true;
       if (field.fieldType === 'TEXT') {
         if (field.format === 'uri') {

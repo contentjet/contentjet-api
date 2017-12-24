@@ -14,12 +14,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
-    "allowJs": true,
-    "typeRoots": [
-      "./node_modules/@types/",
-      "./node_modules/validate.js/",
-      "./node_modules/objection.js/"
-    ]
+    "allowJs": true
   },
   "include": [
     "src/**/*"

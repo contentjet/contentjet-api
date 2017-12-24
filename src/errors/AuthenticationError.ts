@@ -1,4 +1,4 @@
-const BaseError = require('./BaseError');
+import BaseError from './BaseError';
 
 class AuthenticationError extends BaseError {
 
@@ -10,4 +10,4 @@ class AuthenticationError extends BaseError {
 
 }
 
-module.exports = AuthenticationError;
+export default AuthenticationError;

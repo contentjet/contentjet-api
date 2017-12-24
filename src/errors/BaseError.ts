@@ -1,6 +1,11 @@
 class BaseError extends Error {
 
-  constructor(message) {
+  name: string;
+  message: string;
+  status: number;
+  expose: boolean;
+
+  constructor(message: string) {
     super(message);
     this.expose = true;
   }
@@ -15,4 +20,4 @@ class BaseError extends Error {
 
 }
 
-module.exports = BaseError;
+export default BaseError;

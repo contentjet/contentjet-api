@@ -1,6 +1,8 @@
-const BaseError = require('./BaseError');
+import BaseError from './BaseError';
 
 class ValidationError extends BaseError {
+
+  errors?: any[];
 
   constructor(message = 'A validation error occurred') {
     super(message);
@@ -9,11 +11,11 @@ class ValidationError extends BaseError {
   }
 
   toJSON() {
-    let json = super.toJSON();
+    let json = super.toJSON() as any;
     json.errors = this.errors;
     return json;
   }
 
 }
 
-module.exports = ValidationError;
+export default ValidationError;

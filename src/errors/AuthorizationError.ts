@@ -1,4 +1,4 @@
-const BaseError = require('./BaseError');
+import BaseError from './BaseError';
 
 class AuthorizationError extends BaseError {
 
@@ -10,4 +10,4 @@ class AuthorizationError extends BaseError {
 
 }
 
-module.exports = AuthorizationError;
+export default AuthorizationError;
