@@ -4,3 +4,4 @@ config/config.production.js
 config/config.staging.js
 config/config.test.js
 media
+dist

@@ -1,4 +1,4 @@
-const path = require('path');
+import path = require('path');
 
 const config = require('./config');
 const MailBackend = require(config.MAIL_BACKEND);
@@ -11,27 +11,27 @@ const router = require('koa-router')();
 import {Model} from 'objection';
 const ObjectionValidationError = require('objection').ValidationError;
 Model.knex(require('knex')(config.DATABASE));
-import _ = require('lodash');
+import {get, pick} from 'lodash';
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const yaml = require('yamljs');
 
-const ProjectViewSet = require('./viewsets/ProjectViewSet');
-const UserViewSet = require('./viewsets/UserViewSet');
-const WebHookViewSet = require('./viewsets/WebHookViewSet');
-const ProjectInviteViewSet = require('./viewsets/ProjectInviteViewSet');
-const MediaViewSet = require('./viewsets/MediaViewSet');
-const MediaTagViewSet = require('./viewsets/MediaTagViewSet');
-const EntryTypeViewSet = require('./viewsets/EntryTypeViewSet');
-const EntryViewSet = require('./viewsets/EntryViewSet');
-const EntryTagViewSet = require('./viewsets/EntryTagViewSet');
+import ProjectViewSet = require('./viewsets/ProjectViewSet');
+import UserViewSet = require('./viewsets/UserViewSet');
+import WebHookViewSet = require('./viewsets/WebHookViewSet');
+import ProjectInviteViewSet = require('./viewsets/ProjectInviteViewSet');
+import MediaViewSet = require('./viewsets/MediaViewSet');
+import MediaTagViewSet = require('./viewsets/MediaTagViewSet');
+import EntryTypeViewSet = require('./viewsets/EntryTypeViewSet');
+import EntryViewSet = require('./viewsets/EntryViewSet');
+import EntryTagViewSet = require('./viewsets/EntryTagViewSet');
 
 import Project from './models/Project';
 import WebHook from './models/WebHook';
 
-const NotFoundError = require('./errors/NotFoundError');
-const ValidationError = require('./errors/ValidationError');
-const AuthenticationError = require('./errors/AuthenticationError');
+import NotFoundError = require('./errors/NotFoundError');
+import ValidationError = require('./errors/ValidationError');
+import AuthenticationError = require('./errors/AuthenticationError');
 
 // Instantiate storage backend and expose on context prototype
 const storage = new StorageBackend();
@@ -115,13 +115,13 @@ app
     webHooks.forEach(async (webHook: WebHook) => {
       for (let action of actions) {
         let event = `${modelClass.tableName}${actionToEventMap[action]}`;
-        if (!_.get(webHook, event)) continue;
+        if (!get(webHook, event)) continue;
         // For bulkDelete action data is an array of the deleted record ids
         const payload:IWebHookEventPayload = {
           dateTime: new Date(),
-          project: _.pick(project, ['id', 'name']),
-          webHook: _.pick(webHook, ['id', 'name', 'url']),
-          target: actionToEventMap[action] === 'BulkDeleted' ? data : _.pick(data, 'id')
+          project: pick(project, ['id', 'name']),
+          webHook: pick(webHook, ['id', 'name', 'url']),
+          target: actionToEventMap[action] === 'BulkDeleted' ? data : pick(data, 'id')
         };
         try {
           await axios.post(webHook.url, payload);
