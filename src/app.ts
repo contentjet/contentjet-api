@@ -3,15 +3,15 @@ const path = require('path');
 const config = require('./config');
 const MailBackend = require(config.MAIL_BACKEND);
 const StorageBackend = require(config.STORAGE_BACKEND);
-const Koa = require('koa');
+import * as Koa from 'koa';
 const bodyParser = require('koa-bodyparser');
 const cors = require('kcors');
 const send = require('koa-send');
 const router = require('koa-router')();
-const Model = require('objection').Model;
+import {Model} from 'objection';
 const ObjectionValidationError = require('objection').ValidationError;
 Model.knex(require('knex')(config.DATABASE));
-const _ = require('lodash');
+import _ = require('lodash');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const yaml = require('yamljs');
@@ -26,17 +26,17 @@ const EntryTypeViewSet = require('./viewsets/EntryTypeViewSet');
 const EntryViewSet = require('./viewsets/EntryViewSet');
 const EntryTagViewSet = require('./viewsets/EntryTagViewSet');
 
-const Entry = require('./models/Entry');
-const EntryTag = require('./models/EntryTag');
-const EntryType = require('./models/EntryType');
-const Media = require('./models/Media');
-const MediaTag = require('./models/MediaTag');
-const Permission = require('./models/Permission');
+// const Entry = require('./models/Entry');
+// const EntryTag = require('./models/EntryTag');
+// const EntryType = require('./models/EntryType');
+// const Media = require('./models/Media');
+// const MediaTag = require('./models/MediaTag');
+// const Permission = require('./models/Permission');
 const Project = require('./models/Project');
-const ProjectInvite = require('./models/ProjectInvite');
-const Role = require('./models/Role');
-const User = require('./models/User');
-const WebHook = require('./models/WebHook');
+// const ProjectInvite = require('./models/ProjectInvite');
+// const Role = require('./models/Role');
+// const User = require('./models/User');
+// const WebHook = require('./models/WebHook');
 
 const NotFoundError = require('./errors/NotFoundError');
 const ValidationError = require('./errors/ValidationError');
@@ -52,7 +52,7 @@ const spec = yaml.load('spec.yml');
 
 // Attach routes
 router.use('/user/', new UserViewSet(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/', async (ctx, next) => {
+router.use('/project/:projectId(\\d+)/', async (ctx: Koa.Context, next: Function) => {
   const project = await Project.getById(ctx.params.projectId);
   if (!project) throw new NotFoundError();
   ctx.state.project = project;
@@ -66,7 +66,7 @@ router.use('/project/:projectId(\\d+)/media-tag/', new MediaTagViewSet(viewSetOp
 router.use('/project/:projectId(\\d+)/entry-type/', new EntryTypeViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry-tag/', new EntryTagViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry/', new EntryViewSet(viewSetOptions).routes());
-router.get('/spec', function (ctx) {
+router.get('/spec', function (ctx: Koa.Context) {
   ctx.body = spec;
 });
 
@@ -77,23 +77,30 @@ const mailBackend = new MailBackend();
 app.context.sendMail = mailBackend.sendMail;
 
 // Attach our models to the app instance
-app.models = {
-  Entry,
-  EntryTag,
-  EntryType,
-  Media,
-  MediaTag,
-  Permission,
-  Project,
-  ProjectInvite,
-  Role,
-  User,
-  WebHook
-};
+// app.models = {
+//   Entry,
+//   EntryTag,
+//   EntryType,
+//   Media,
+//   MediaTag,
+//   Permission,
+//   Project,
+//   ProjectInvite,
+//   Role,
+//   User,
+//   WebHook
+// };
+
+interface IWebHookEventPayload {
+  dateTime: Date;
+  project: Object;
+  webHook: Object;
+  target: number[] | number;
+}
 
 app
   .use(cors())
-  .use(async (ctx, next) => {
+  .use(async (ctx: Koa.Context, next: Function) => {
     try {
       await next();
       // Catch Koa's stadard 404 response and throw our own error
@@ -115,12 +122,12 @@ app
       if (config.DEBUG) console.log(err.stack);
     }
   })
-  .use(async (ctx, next) => {
+  .use(async (ctx: Koa.Context, next: Function) => {
     await next();
     const {project, viewsetResult} = ctx.state;
     if (!viewsetResult || !project) return;
     const {modelClass, action, data} = viewsetResult;
-    const actionToEventMap = {
+    const actionToEventMap:{[index:string]: string} = {
       'update': 'Updated',
       'create': 'Created',
       'delete': 'Deleted',
@@ -129,21 +136,17 @@ app
     const actions = Object.keys(actionToEventMap);
     if (!actions.includes(action)) return;
     const webHooks = await project.getActiveWebHooks();
-    webHooks.forEach(async (webHook) => {
+    webHooks.forEach(async (webHook: WebHook) => {
       for (let action of actions) {
         let event = `${modelClass.tableName}${actionToEventMap[action]}`;
         if (!_.get(webHook, event)) continue;
-        let payload = {
+        // For bulkDelete action data is an array of the deleted record ids
+        const payload:IWebHookEventPayload = {
           dateTime: new Date(),
           project: _.pick(project, ['id', 'name']),
           webHook: _.pick(webHook, ['id', 'name', 'url']),
+          target: actionToEventMap[action] === 'BulkDeleted' ? data : _.pick(data, 'id')
         };
-        // For bulkDelete action data is an array of the deleted record ids
-        if (actionToEventMap[action] === 'BulkDeleted') {
-          payload.target = data;
-        } else {
-          payload.target = _.pick(data, 'id');
-        }
         try {
           await axios.post(webHook.url, payload);
         } catch (err) {
@@ -155,7 +158,7 @@ app
 
 if (config.SERVE_MEDIA) {
   app.use(
-    async (ctx, next) => {
+    async (ctx: Koa.Context, next: Function) => {
       if (ctx.path.match(/^\/media\/.*$/)) {
         await send(ctx, path.join(config.MEDIA_ROOT, ctx.path.replace('/media/', '')));
       } else {
@@ -169,7 +172,7 @@ app
   .use(bodyParser())
   .use(router.routes())
   .use(router.allowedMethods())
-  .use(async (ctx, next) => {
+  .use(async (ctx: Koa.Context) => {
     ctx.status = 404;
     ctx.body = {
       message: 'Not found',

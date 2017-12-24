@@ -1,12 +1,18 @@
-const Model = require('objection').Model;
+import {Model, RelationMappings} from 'objection';
 
-class ProjectMembership extends Model {
+export default class ProjectMembership extends Model {
 
-  static get tableName() {
+  id: number;
+  userId: number;
+  projectId: number;
+  membershipType: string;
+  membershipIsActive: boolean;
+
+  static get tableName(): string {
     return 'projectmembership';
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       user: {
         relation: Model.BelongsToOneRelation,
@@ -28,5 +34,3 @@ class ProjectMembership extends Model {
   }
 
 }
-
-module.exports = ProjectMembership;

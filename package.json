@@ -10,7 +10,8 @@
     "test": "NODE_ENV=test ./node_modules/.bin/mocha models/**/*.test.js",
     "lint": "./node_modules/.bin/eslint -c .eslintrc .",
     "create-admin-user": "node ./scripts/create-admin-user.js",
-    "postinstall": "node ./scripts/init-config.js"
+    "postinstall": "node ./scripts/init-config.js",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
@@ -46,9 +47,14 @@
   },
   "false": {},
   "devDependencies": {
-    "nodemon": "^1.12.1",
+    "@types/knex": "0.0.67",
+    "@types/koa": "^2.0.43",
+    "@types/lodash": "^4.14.91",
+    "@types/node": "^8.5.2",
     "chai": "^4.0.1",
     "chai-http": "^3.0.0",
-    "mocha": "^3.4.2"
+    "mocha": "^3.4.2",
+    "nodemon": "^1.12.1",
+    "typescript": "^2.6.2"
   }
 }

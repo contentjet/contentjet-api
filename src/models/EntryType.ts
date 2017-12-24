@@ -1,10 +1,7 @@
-const Model = require('objection').Model;
-const Project = require('./Project');
-const User = require('./User');
-const ValidationError = require('../errors/ValidationError');
-const _ = require('lodash');
-const validate = require('../utils/validate');
-
+import {Model, Transaction} from 'objection';
+import ValidationError = require('../errors/ValidationError');
+import _ = require('lodash');
+import validate = require('../utils/validate');
 
 const entryTypeConstraints = {
   name: {
@@ -303,7 +300,9 @@ const fieldTypeConstraints = {
 
 const fieldTypes = Object.keys(fieldTypeConstraints);
 
-class EntryType extends Model {
+export default class EntryType extends Model {
+
+  fields: object[];
 
   static get tableName() {
     return 'entryType';
@@ -313,7 +312,7 @@ class EntryType extends Model {
     return {
       project: {
         relation: Model.BelongsToOneRelation,
-        modelClass: Project,
+        modelClass: `${__dirname}/Project`,
         join: {
           from: 'entryType.projectId',
           to: 'project.id'
@@ -321,7 +320,7 @@ class EntryType extends Model {
       },
       user: {
         relation: Model.BelongsToOneRelation,
-        modelClass: User,
+        modelClass: `${__dirname}/User`,
         join: {
           from: 'entryType.userId',
           to: 'user.id'
@@ -802,13 +801,13 @@ class EntryType extends Model {
     };
   }
 
-  static getById(id, trx) {
+  static getById(id, trx: Transaction) {
     return EntryType.query(trx)
       .where('id', id)
       .first();
   }
 
-  static existsInProject(id, projectId, trx) {
+  static existsInProject(id, projectId, trx: Transaction) {
     return EntryType.query(trx)
       .where({id, projectId})
       .count('*')
@@ -895,12 +894,10 @@ class EntryType extends Model {
     return validate.async(fields, constraints);
   }
 
-  static deleteAll(trx) {
+  static deleteAll(trx: Transaction) {
     return EntryType
       .query(trx)
       .delete();
   }
 
 }
-
-module.exports = EntryType;

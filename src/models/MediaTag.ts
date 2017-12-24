@@ -1,13 +1,17 @@
-const Model = require('objection').Model;
-const _ = require('lodash');
+import {Model, Transaction, RelationMappings, QueryBuilder} from 'objection';
+import _ = require('lodash');
 
-class MediaTag extends Model {
+export default class MediaTag extends Model {
 
-  static get tableName() {
+  id: number;
+  projectId: number;
+  name: string;
+
+  static get tableName(): string {
     return 'mediaTag';
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       project: {
         relation: Model.BelongsToOneRelation,
@@ -32,7 +36,7 @@ class MediaTag extends Model {
     };
   }
 
-  static get jsonSchema() {
+  static get jsonSchema(): object {
     return {
       type: 'object',
       additionalProperties: false,
@@ -53,20 +57,20 @@ class MediaTag extends Model {
     };
   }
 
-  static getInProject(projectId, trx) {
+  static getInProject(projectId: number, trx: Transaction): QueryBuilder<MediaTag> {
     return MediaTag
       .query(trx)
       .where('projectId', projectId);
   }
 
-  static async bulkGetOrCreate(names, projectId, trx) {
+  static async bulkGetOrCreate(names: string[], projectId: number, trx: Transaction): Promise<MediaTag[]> {
     const existingTags = await MediaTag
       .query(trx)
       .where('projectId', projectId)
       .whereIn('name', names);
     if (existingTags.length === names.length) return existingTags;
-    const existingTagNames = existingTags.map(entryTag => entryTag.name);
-    const tagsToCreate = _.difference(names, existingTagNames).map(name => {
+    const existingTagNames = existingTags.map(mediaTag => mediaTag.name);
+    const tagsToCreate: {name: string, projectId: number}[] = _.difference(names, existingTagNames).map(name => {
       return {name, projectId};
     });
     const newTags = await MediaTag
@@ -77,5 +81,3 @@ class MediaTag extends Model {
   }
 
 }
-
-module.exports = MediaTag;

@@ -1,20 +1,27 @@
-const Model = require('objection').Model;
+import {Model, RelationMappings, QueryBuilder, Transaction} from 'objection';
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const Project = require('./Project');
-const User = require('./User');
 
 class ProjectInvite extends Model {
 
-  static get tableName() {
+  id: number;
+  projectId: number;
+  name: string;
+  email: string;
+  userId: number;
+  accepted: boolean;
+  createdAt: Date;
+  modifiedAt: Date;
+
+  static get tableName(): string {
     return 'projectInvite';
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       project: {
         relation: Model.BelongsToOneRelation,
-        modelClass: Project,
+        modelClass: `${__dirname}/Project`,
         join: {
           from: 'projectInvite.projectId',
           to: 'project.id'
@@ -22,7 +29,7 @@ class ProjectInvite extends Model {
       },
       user: {
         relation: Model.BelongsToOneRelation,
-        modelClass: User,
+        modelClass: `${__dirname}/User`,
         join: {
           from: 'projectInvite.userId',
           to: 'user.id'
@@ -31,7 +38,7 @@ class ProjectInvite extends Model {
     };
   }
 
-  static get jsonSchema() {
+  static get jsonSchema(): object {
     return {
       type: 'object',
       additionalProperties: false,
@@ -64,13 +71,13 @@ class ProjectInvite extends Model {
     };
   }
 
-  static generateInviteToken(projectInviteId, projectName, projectId) {
+  static generateInviteToken(projectInviteId: number, projectName: string, projectId: number): Promise<string> {
     return new Promise((resolve, reject) => {
       jwt.sign(
         {projectInviteId, projectName, projectId},
         `invite${config.SECRET_KEY}`,
         {expiresIn: '7 days'},
-        function (err, token) {
+        function (err: object, token: string) {
           if (err) {
             reject(err);
           } else {
@@ -81,12 +88,12 @@ class ProjectInvite extends Model {
     });
   }
 
-  static verifyInviteToken(token) {
+  static verifyInviteToken(token: string): Promise<object> {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
         `invite${config.SECRET_KEY}`,
-        function (err, payload) {
+        function (err: object, payload: object) {
           if (err) {
             reject(err);
           } else {
@@ -97,7 +104,7 @@ class ProjectInvite extends Model {
     });
   }
 
-  static bulkDelete(arrayOfIds, projectId, trx) {
+  static bulkDelete(arrayOfIds: number[], projectId: number, trx: Transaction): QueryBuilder<ProjectInvite> {
     return ProjectInvite
       .query(trx)
       .whereIn('id', arrayOfIds)
@@ -105,7 +112,7 @@ class ProjectInvite extends Model {
       .delete();
   }
 
-  static accept(id, trx) {
+  static accept(id: number, trx: Transaction) {
     return ProjectInvite
       .query(trx)
       .patch({accepted: true})

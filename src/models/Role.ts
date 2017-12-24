@@ -1,8 +1,9 @@
-const Model = require('objection').Model;
-const Permission = require('./Permission');
+import {Model} from 'objection';
 
 
 class Role extends Model {
+
+  name: string;
 
   static get tableName() {
     return 'role';
@@ -12,7 +13,7 @@ class Role extends Model {
     return {
       permissions: {
         relation: Model.ManyToManyRelation,
-        modelClass: Permission,
+        modelClass: `${__dirname}/Permission`,
         join: {
           from: 'role.id',
           through: {
@@ -54,7 +55,7 @@ class Role extends Model {
     };
   }
 
-  static getOrCreate(name) {
+  static getOrCreate(name: string) {
     return Role
       .query()
       .where('name', name)
@@ -65,7 +66,7 @@ class Role extends Model {
       });
   }
 
-  static create(name) {
+  static create(name: string) {
     return Role
       .query()
       .insert({name});

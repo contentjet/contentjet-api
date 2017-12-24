@@ -1,22 +1,33 @@
-const config = require('../config');
-const Model = require('objection').Model;
-const Project = require('./Project');
-const User = require('./User');
-const MediaTag = require('./MediaTag');
-const url = require('url');
-const _ = require('lodash');
+import {Model, Transaction, RelationMappings, QueryBuilder} from 'objection';
+import MediaTag from './MediaTag';
+import config = require('../config');
+import url = require('url');
+import _ = require('lodash');
 
-class Media extends Model {
+export default class Media extends Model {
 
-  static get tableName() {
+  projectId: number
+  userId: number
+  name: string
+  file: string
+  thumbnail: string
+  mimeType: string
+  size: number
+  width: number
+  height: number
+  description: string
+  createdAt: string
+  modifiedAt: string
+
+  static get tableName(): string {
     return 'media';
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       project: {
         relation: Model.BelongsToOneRelation,
-        modelClass: Project,
+        modelClass: `${__dirname}/Project`,
         join: {
           from: 'media.projectId',
           to: 'project.id'
@@ -24,7 +35,7 @@ class Media extends Model {
       },
       user: {
         relation: Model.BelongsToOneRelation,
-        modelClass: User,
+        modelClass: `${__dirname}/User`,
         join: {
           from: 'media.userId',
           to: 'user.id'
@@ -32,7 +43,7 @@ class Media extends Model {
       },
       tags: {
         relation: Model.ManyToManyRelation,
-        modelClass: MediaTag,
+        modelClass: `${__dirname}/MediaTag`,
         join: {
           from: 'media.id',
           through: {
@@ -45,7 +56,7 @@ class Media extends Model {
     };
   }
 
-  static get jsonSchema() {
+  static get jsonSchema(): object {
     return {
       type: 'object',
       additionalProperties: false,
@@ -114,39 +125,40 @@ class Media extends Model {
     };
   }
 
-  static getInProject(projectId, trx) {
+  static getInProject(projectId: number, trx: Transaction): QueryBuilder<Media> {
     return Media
       .query(trx)
       .eager('tags')
       .where('media.projectId', projectId);
   }
 
-  toJSON() {
+  toJSON(): any {
     // The file and thumbnail fields holds the storage-relative path to the file. We change
     // the output of this value by making it relative to MEDIA_URL.
-    const data = super.toJSON();
+    const data: any = super.toJSON();
     data.file = url.resolve(config.MEDIA_URL, data.file);
     if (data.thumbnail) data.thumbnail = url.resolve(config.MEDIA_URL, data.thumbnail);
     // If tags is present (like when eagerly fetched) only return tag names.
-    if ('tags' in data) data.tags = data.tags.map(tag => tag.name);
+    const {tags} = data;
+    if (tags) data.tags = tags.map((tag: {name: string}) => tag.name);
     return data;
   }
 
-  static bulkDelete(arrayOfIds, projectId, trx) {
+  static bulkDelete(arrayOfIds: number[], projectId: number, trx: Transaction): QueryBuilder<Media> {
     return Media.query(trx)
       .whereIn('id', arrayOfIds)
       .andWhere('projectId', projectId)
       .delete();
   }
 
-  async getTags(trx) {
+  getTags(trx: Transaction): QueryBuilder<MediaTag> {
     return this.$relatedQuery('tags', trx);
   }
 
-  async setTags(mediaTags, trx) {
-    const incomingTagIds = mediaTags.map(entryTag => entryTag.id);
+  async setTags(mediaTags: MediaTag[], trx: Transaction): Promise<MediaTag[]> {
+    const incomingTagIds = mediaTags.map(mediaTag => mediaTag.id);
     const existingTags = await this.getTags(trx);
-    const existingTagIds = existingTags.map(entryTag => entryTag.id);
+    const existingTagIds = existingTags.map(mediaTag => mediaTag.id);
     const idsToUnrelate = _.difference(existingTagIds, incomingTagIds);
     const idsToRelate = _.difference(incomingTagIds, existingTagIds);
     // Unrelate any existing tags not in mediaTags
@@ -158,5 +170,3 @@ class Media extends Model {
   }
 
 }
-
-module.exports = Media;

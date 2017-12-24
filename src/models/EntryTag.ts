@@ -1,13 +1,17 @@
-const Model = require('objection').Model;
-const _ = require('lodash');
+import {Model, Transaction, RelationMappings, QueryBuilder} from 'objection';
+import _ = require('lodash');
 
-class EntryTag extends Model {
+export default class EntryTag extends Model {
 
-  static get tableName() {
+  id: number;
+  projectId: number;
+  name: string;
+
+  static get tableName(): string {
     return 'entryTag';
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       project: {
         relation: Model.BelongsToOneRelation,
@@ -32,7 +36,7 @@ class EntryTag extends Model {
     };
   }
 
-  static get jsonSchema() {
+  static get jsonSchema(): object {
     return {
       type: 'object',
       additionalProperties: false,
@@ -53,13 +57,13 @@ class EntryTag extends Model {
     };
   }
 
-  static getInProject(projectId, trx) {
+  static getInProject(projectId: number, trx: Transaction): QueryBuilder<EntryTag> {
     return EntryTag
       .query(trx)
       .where('entryTag.projectId', projectId);
   }
 
-  static async bulkGetOrCreate(names, projectId, trx) {
+  static async bulkGetOrCreate(names: string[], projectId: number, trx: Transaction): Promise<EntryTag[]> {
     const existingTags = await EntryTag
       .query(trx)
       .where('projectId', projectId)
@@ -77,5 +81,3 @@ class EntryTag extends Model {
   }
 
 }
-
-module.exports = EntryTag;

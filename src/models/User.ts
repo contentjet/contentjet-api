@@ -1,18 +1,28 @@
 const config = require('../config');
-const Model = require('objection').Model;
+import {Model, QueryBuilder, QueryBuilderSingle, QueryBuilderOption, RelationMappings,Transaction} from 'objection';
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const ValidationError = require('../errors/ValidationError');
 const Role = require('./Role');
-const Permission = require('./Permission');
+import Permission from './Permission';
 
-class User extends Model {
+export default class User extends Model {
+
+  id: number;
+  email: string
+  password: string
+  name: string
+  isActive: boolean;
+  isAdmin: boolean;
+  createdAt: Date;
+  modifiedAt: Date;
+  _permissions?: Permission[];
 
   static get tableName() {
     return 'user';
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       roles: {
         relation: Model.ManyToManyRelation,
@@ -29,7 +39,7 @@ class User extends Model {
     };
   }
 
-  static get jsonSchema() {
+  static get jsonSchema(): object {
     return {
       type: 'object',
       additionalProperties: false,
@@ -65,7 +75,7 @@ class User extends Model {
     };
   }
 
-  static authenticate(email, password) {
+  static authenticate(email: string, password: string): QueryBuilderOption<User> {
     const hash = crypto.createHash('sha256');
     const hashedPassword = hash.update(`${config.SECRET_KEY}${password}`).digest('hex');
     return User
@@ -75,36 +85,37 @@ class User extends Model {
       .first();
   }
 
-  static getById(id, trx) {
+  static getById(id: number, trx: Transaction): QueryBuilderOption<User> {
     return User
       .query(trx)
       .where('id', id)
       .first();
   }
 
-  static existsWithEmail(email, trx) {
-    return User.query(trx)
+  static async existsWithEmail(email: string, trx: Transaction): Promise<boolean> {
+    const result = await User.query(trx)
       .count('*')
       .where('email', email)
-      .first()
-      .then(result => parseInt(result.count) === 1);
+      .first() as any;
+    return parseInt(result.count) === 1;
   }
 
-  static async create(email, name, password, isActive = false, isAdmin = false, trx) {
+  static async create(email: string, name: string, password: string, isActive = false, isAdmin = false, trx: Transaction): Promise<User> {
     const exists = await User.existsWithEmail(email, trx);
     if (exists) throw new ValidationError('A user with this email already exists');
     const hash = crypto.createHash('sha256');
     const hashedPassword = hash.update(`${config.SECRET_KEY}${password}`).digest('hex');
-    return User
+    return await User
       .query(trx)
       .insert({email, name, password: hashedPassword, isActive, isAdmin})
-      .returning('*');
+      .returning('*')
+      .first() as User;
   }
 
-  static setPassword(userId, password) {
+  static async setPassword(userId: number, password: string) {
     const hash = crypto.createHash('sha256');
     const hashedPassword = hash.update(`${config.SECRET_KEY}${password}`).digest('hex');
-    return User
+    return await User
       .query()
       .patch({password: hashedPassword})
       .where('id', userId)
@@ -112,19 +123,19 @@ class User extends Model {
       .first();
   }
 
-  static deleteAll() {
+  static deleteAll(): QueryBuilder<User> {
     return User
       .query()
       .delete();
   }
 
-  static generateSignUpToken(userId) {
+  static generateSignUpToken(userId: number): Promise<string> {
     return new Promise((resolve, reject) => {
       jwt.sign(
         {userId},
         `sign-up${config.SECRET_KEY}`,
         {expiresIn: '7 days'},
-        function (err, token) {
+        function (err: Object, token: string) {
           if (err) {
             reject(err);
           } else {
@@ -135,12 +146,12 @@ class User extends Model {
     });
   }
 
-  static verifySignUpToken(token) {
+  static verifySignUpToken(token: string): Promise<object> {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
         `sign-up${config.SECRET_KEY}`,
-        function (err, payload) {
+        function (err: Object, payload: Object) {
           if (err) {
             reject(err);
           } else {
@@ -151,13 +162,13 @@ class User extends Model {
     });
   }
 
-  static generatePasswordResetToken(userId) {
+  static generatePasswordResetToken(userId: number): Promise<string> {
     return new Promise((resolve, reject) => {
       jwt.sign(
         {userId},
         `password-reset${config.SECRET_KEY}`,
         {expiresIn: '12 hours'},
-        function (err, token) {
+        function (err: object, token: string) {
           if (err) {
             reject(err);
           } else {
@@ -168,12 +179,12 @@ class User extends Model {
     });
   }
 
-  static verifyPasswordResetToken(token) {
+  static verifyPasswordResetToken(token: string): object {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
         `password-reset${config.SECRET_KEY}`,
-        function (err, payload) {
+        function (err: object, payload: object) {
           if (err) {
             reject(err);
           } else {
@@ -184,20 +195,20 @@ class User extends Model {
     });
   }
 
-  assignRole(role) {
+  assignRole(roleId: number): QueryBuilder<Model> {
     return this
       .$relatedQuery('roles')
-      .relate(role.id);
+      .relate(roleId);
   }
 
-  unassignRole(role) {
+  unassignRole(roleId: number): QueryBuilder<Model> {
     return this
       .$relatedQuery('roles')
       .unrelate()
-      .where('id', role.id);
+      .where('id', roleId);
   }
 
-  getPermissions() {
+  getPermissions(): Promise<Permission[]> {
     if (this._permissions) return Promise.resolve(this._permissions);
     return Permission
       .query()
@@ -213,25 +224,23 @@ class User extends Model {
       });
   }
 
-  hasPermission(permissionName) {
+  hasPermission(permissionName: string): Promise<boolean> {
     return this.getPermissions().then(permissions => {
       if (!permissions) return false;
       return permissions.map(p => p.name).includes(permissionName);
     });
   }
 
-  delete() {
+  delete(): QueryBuilderSingle<number> {
     return User
       .query()
       .deleteById(this.id);
   }
 
-  $formatJson(json) {
-    json = super.$formatJson(json);
-    if ('password' in json) delete json.password;
-    return json;
+  $formatJson(json: object): object {
+    const data: any = super.$formatJson(json);
+    if ('password' in data) delete data.password;
+    return data;
   }
 
 }
-
-module.exports = User;

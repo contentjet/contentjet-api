@@ -1,15 +1,31 @@
-const moment = require('moment');
-const _ = require('lodash');
-const Model = require('objection').Model;
-const Media = require('./Media');
+import moment = require('moment');
+import _ = require('lodash');
+import {Model, Transaction, QueryBuilder, RelationMappings} from 'objection';
+import Media from './Media';
+import EntryTag from './EntryTag';
 
-class Entry extends Model {
+export interface IEntryField {
+  name: string,
+  fieldType: string
+}
 
-  static get tableName() {
+export default class Entry extends Model {
+
+  id: number;
+  entryTypeId: number;
+  userId: number;
+  modifiedByUserId: number;
+  name: string;
+  published: Date;
+  fields: IEntryField[]
+  createdAt: Date;
+  modifiedAt: Date;
+
+  static get tableName(): string {
     return 'entry';
   }
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings {
     return {
       entryType: {
         relation: Model.BelongsToOneRelation,
@@ -50,7 +66,7 @@ class Entry extends Model {
     };
   }
 
-  static get jsonSchema() {
+  static get jsonSchema(): object {
     return {
       type: 'object',
       additionalProperties: false,
@@ -98,7 +114,7 @@ class Entry extends Model {
     };
   }
 
-  static getInProject(projectId, trx) {
+  static getInProject(projectId: number, trx: Transaction): QueryBuilder<{}> {
     return Entry
       .query(trx)
       .eager('[user, modifiedByUser, tags, entryType]')
@@ -107,7 +123,7 @@ class Entry extends Model {
       .orderBy('entry.modifiedAt', 'desc');
   }
 
-  static bulkDelete(arrayOfIds, projectId, trx) {
+  static bulkDelete(arrayOfIds: number[], projectId: number, trx: Transaction): QueryBuilder<Entry> {
     return Entry.query(trx)
       .join('entryType', 'entry.entryTypeId', 'entryType.id')
       .join('project', 'project.id', 'entryType.projectId')
@@ -121,7 +137,7 @@ class Entry extends Model {
       .filter(entryTypeField => !entryTypeField.disabled)
       .map(entryTypeField => {
         const {name, fieldType} = entryTypeField;
-        const obj = {name, fieldType};
+        const obj:{name: string, fieldType: string, value: any} = {name, fieldType, value: null};
         if (fieldType === 'TEXT' || fieldType === 'LONGTEXT') {
           obj.value = _.get(entryFields, entryTypeField.name, '');
         } else if (fieldType === 'BOOLEAN') {
@@ -146,14 +162,14 @@ class Entry extends Model {
       });
   }
 
-  getFieldValue(fieldName, fieldType) {
+  getFieldValue(fieldName: string, fieldType: string): any {
     const field = this.fields.find(
       field => field.name === fieldName && field.fieldType === fieldType
     );
     return _.get(field, 'value');
   }
 
-  async internalFieldsToExternal(entryTypeFields, trx) {
+  async internalFieldsToExternal(entryTypeFields, trx: Transaction) {
     const obj = {};
     for (const entryTypeField of entryTypeFields) {
       let value = this.getFieldValue(entryTypeField.name, entryTypeField.fieldType);
@@ -183,11 +199,11 @@ class Entry extends Model {
     return obj;
   }
 
-  async getTags(trx) {
+  getTags(trx: Transaction): QueryBuilder<EntryTag> {
     return this.$relatedQuery('tags', trx);
   }
 
-  async setTags(entryTags, trx) {
+  async setTags(entryTags: EntryTag[], trx: Transaction): Promise<EntryTag[]> {
     const incomingTagIds = entryTags.map(entryTag => entryTag.id);
     const existingTags = await this.getTags(trx);
     const existingTagIds = existingTags.map(entryTag => entryTag.id);
@@ -202,5 +218,3 @@ class Entry extends Model {
   }
 
 }
-
-module.exports = Entry;

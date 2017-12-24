@@ -1,17 +1,37 @@
-const Model = require('objection').Model;
+import {Model} from 'objection';
 
-class WebHook extends Model {
+export default class WebHook extends Model {
 
-  static get tableName() {
+  id: number;
+  projectId: number;
+  name: string;
+  isActive: boolean;
+  url: string;
+  projectUpdated: boolean;
+  projectDeleted: boolean;
+  entryTypeCreated: boolean;
+  entryTypeUpdated: boolean;
+  entryTypeDeleted: boolean;
+  entryCreated: boolean;
+  entryUpdated: boolean;
+  entryDeleted: boolean;
+  entryDeletedBulk: boolean;
+  mediaCreated: boolean;
+  mediaUpdated: boolean;
+  mediaDeleted: boolean;
+  mediaDeletedBulk: boolean;
+  createdAt: Date;
+  modifiedAt: Date;
+
+  static get tableName(): string {
     return 'webHook';
   }
 
   static get relationMappings() {
-    const Project = require('./Project');
     return {
       project: {
         relation: Model.BelongsToOneRelation,
-        modelClass: Project,
+        modelClass: `${__dirname}/Project`,
         join: {
           from: 'webHook.projectId',
           to: 'project.id'
@@ -127,5 +147,3 @@ class WebHook extends Model {
   }
 
 }
-
-module.exports = WebHook;
