@@ -1,9 +1,6 @@
-import Project from './Project';
-import EntryType from './EntryType';
-import User from './User';
+import {Project, EntryType, User} from '../app';
 import {get} from 'lodash';
 import {assert} from 'chai';
-
 
 const textField = {
   name: 'testTextField',

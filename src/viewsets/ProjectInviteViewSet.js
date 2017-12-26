@@ -15,11 +15,11 @@ const validate = require('../utils/validate');
 
 const projectInviteHTML = mjml2html(
   fs.readFileSync(
-    path.resolve(__dirname, '../templates/mail/project-invite.mjml'), 'utf8'
+    path.resolve(__dirname, '../../templates/mail/project-invite.mjml'), 'utf8'
   )
 ).html;
 const projectInviteTXT = fs.readFileSync(
-  path.resolve(__dirname, '../templates/mail/project-invite.txt'), 'utf8'
+  path.resolve(__dirname, '../../templates/mail/project-invite.txt'), 'utf8'
 );
 
 const createConstraints = {

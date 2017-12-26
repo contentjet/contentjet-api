@@ -157,3 +157,15 @@ app
   });
 
 export default app;
+export { default as Entry } from './models/Entry';
+export { default as EntryTag } from './models/EntryTag';
+export { default as EntryType } from './models/EntryType';
+export { default as Media } from './models/Media';
+export { default as MediaTag } from './models/MediaTag';
+export { default as Permission } from './models/Permission';
+export { default as Project } from './models/Project';
+export { default as ProjectInvite } from './models/ProjectInvite';
+export { default as ProjectMembership } from './models/ProjectMembership';
+export { default as Role } from './models/Role';
+export { default as User } from './models/User';
+export { default as WebHook } from './models/WebHook';

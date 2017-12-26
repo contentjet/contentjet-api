@@ -2,8 +2,7 @@ const config = require('../config');
 import {Model, QueryBuilder, QueryBuilderSingle, QueryBuilderOption, RelationMappings,Transaction} from 'objection';
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const ValidationError = require('../errors/ValidationError');
-const Role = require('./Role');
+import ValidationError from '../errors/ValidationError';
 import Permission from './Permission';
 
 export default class User extends Model {
@@ -26,7 +25,7 @@ export default class User extends Model {
     return {
       roles: {
         relation: Model.ManyToManyRelation,
-        modelClass: Role,
+        modelClass: `${__dirname}/Role`,
         join: {
           from: 'user.id',
           through: {

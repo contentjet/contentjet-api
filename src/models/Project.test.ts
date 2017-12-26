@@ -1,6 +1,4 @@
-import User from './User';
-import Project from './Project';
-import WebHook from './WebHook';
+import {Project, WebHook, User} from '../app';
 import {get} from 'lodash';
 import {assert} from 'chai';
 

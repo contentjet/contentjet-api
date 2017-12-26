@@ -7,7 +7,7 @@
     "dev": "./node_modules/.bin/nodemon server.js",
     "migrate": "./node_modules/.bin/knex migrate:latest; node ./scripts/create-permissions.js",
     "rollback": "./node_modules/.bin/knex migrate:rollback",
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha models/**/*.test.js",
+    "test": "NODE_ENV=test mocha dist/models/**/*.test.js",
     "lint": "./node_modules/.bin/eslint -c .eslintrc .",
     "create-admin-user": "node ./scripts/create-admin-user.js",
     "postinstall": "node ./scripts/init-config.js",

@@ -17,19 +17,19 @@ const validate = require('../utils/validate');
 
 const signUpHTML = mjml2html(
   fs.readFileSync(
-    path.resolve(__dirname, '../templates/mail/sign-up-verify.mjml'), 'utf8'
+    path.resolve(__dirname, '../../templates/mail/sign-up-verify.mjml'), 'utf8'
   )
 ).html;
 const signUpTXT = fs.readFileSync(
-  path.resolve(__dirname, '../templates/mail/sign-up-verify.txt'), 'utf8'
+  path.resolve(__dirname, '../../templates/mail/sign-up-verify.txt'), 'utf8'
 );
 const requestPasswordResetHTML = mjml2html(
   fs.readFileSync(
-    path.resolve(__dirname, '../templates/mail/request-password-reset.mjml'), 'utf8'
+    path.resolve(__dirname, '../../templates/mail/request-password-reset.mjml'), 'utf8'
   )
 ).html;
 const requestPasswordResetTXT = fs.readFileSync(
-  path.resolve(__dirname, '../templates/mail/request-password-reset.txt'), 'utf8'
+  path.resolve(__dirname, '../../templates/mail/request-password-reset.txt'), 'utf8'
 );
 
 const signUpConstraints = {
