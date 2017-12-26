@@ -180,8 +180,8 @@ export default class Entry extends Model {
     return get(field, 'value');
   }
 
-  async internalFieldsToExternal(entryTypeFields, trx?: Transaction) {
-    const obj = {};
+  async internalFieldsToExternal(entryTypeFields: IEntryTypeField[], trx?: Transaction): Promise<IExternalEntryFields> {
+    const obj: IExternalEntryFields = {};
     for (const entryTypeField of entryTypeFields) {
       let value = this.getFieldValue(entryTypeField.name, entryTypeField.fieldType);
       if (isArray(value)) {
@@ -189,7 +189,7 @@ export default class Entry extends Model {
         // the order of the ids stored in the field's value.
         if (entryTypeField.fieldType === 'MEDIA') {
           const mediaResult = await Media.query(trx).whereIn('id', value);
-          const orderedMedia = [];
+          const orderedMedia: Media[] = [];
           value.forEach(id => {
             const media = mediaResult.find(m => m.id === id);
             if (media) orderedMedia.push(media);
@@ -197,7 +197,7 @@ export default class Entry extends Model {
           value = orderedMedia;
         } else if (entryTypeField.fieldType === 'LINK') {
           const entryResult = await Entry.query(trx).whereIn('id', value);
-          const orderedEntries = [];
+          const orderedEntries: Entry[] = [];
           value.forEach(id => {
             const entry = entryResult.find(e => e.id === id);
             if (entry) orderedEntries.push(entry);
