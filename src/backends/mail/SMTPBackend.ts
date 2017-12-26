@@ -1,18 +1,19 @@
 const config = require('../../config');
-const BaseMailService = require('./BaseMailService');
-const nodemailer = require('nodemailer');
+import IMailService from './IMailService';
+import * as nodemailer from 'nodemailer';
+import * as Mail from 'nodemailer/lib/mailer';
 
+class SMTPBackend implements IMailService {
 
-class SMTPBackend extends BaseMailService {
+  transport: Mail;
 
   constructor() {
-    super();
     const {options, defaults} = config.MAIL_BACKEND_CONFIG.smtp;
     this.transport = nodemailer.createTransport(options, defaults);
     this.sendMail = this.sendMail.bind(this);
   }
 
-  sendMail(data) {
+  sendMail(data: Mail.Options): Promise<nodemailer.SentMessageInfo> {
     return this.transport.sendMail(data);
   }
 
