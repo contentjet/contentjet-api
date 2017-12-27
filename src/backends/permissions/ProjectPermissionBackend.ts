@@ -1,9 +1,10 @@
-const BasePermissionBackend = require('./BasePermissionBackend');
+import IPermissionBackend from './IPermissionBackend';
+import * as Koa from 'koa';
 
 
-class ProjectPermissionBackend extends BasePermissionBackend {
+export default class ProjectPermissionBackend implements IPermissionBackend {
 
-  async hasPermission(ctx, permissionName, options) {
+  async hasPermission(ctx: Koa.Context, permissionName: string): Promise<boolean> {
     const {user, project} = ctx.state;
     if (!user) return false;
     if (['project:list', 'project:create'].includes(permissionName)) return true;
@@ -33,5 +34,3 @@ class ProjectPermissionBackend extends BasePermissionBackend {
     }
   }
 }
-
-module.exports = ProjectPermissionBackend;
