@@ -1,18 +1,17 @@
 import path = require('path');
 
 const config = require('./config');
-const MailBackend = require(config.MAIL_BACKEND);
-const StorageBackend = require(config.STORAGE_BACKEND);
+const MailBackend = require(config.MAIL_BACKEND).default;
+const StorageBackend = require(config.STORAGE_BACKEND).default;
 import * as Koa from 'koa';
 const bodyParser = require('koa-bodyparser');
 const cors = require('kcors');
 const send = require('koa-send');
 const router = require('koa-router')();
-import {Model} from 'objection';
-const ObjectionValidationError = require('objection').ValidationError;
+import {Model, ValidationError as ObjectionValidationError} from 'objection';
 Model.knex(require('knex')(config.DATABASE));
 import {get, pick} from 'lodash';
-const axios = require('axios');
+import axios from 'axios';
 const jwt = require('jsonwebtoken');
 const yaml = require('yamljs');
 
@@ -103,7 +102,7 @@ app
     const {project, viewsetResult} = ctx.state;
     if (!viewsetResult || !project) return;
     const {modelClass, action, data} = viewsetResult;
-    const actionToEventMap:{[index:string]: string} = {
+    const actionToEventMap: {[index:string]: string} = {
       'update': 'Updated',
       'create': 'Created',
       'delete': 'Deleted',
@@ -113,11 +112,11 @@ app
     if (!actions.includes(action)) return;
     const webHooks = await project.getActiveWebHooks();
     webHooks.forEach(async (webHook: WebHook) => {
-      for (let action of actions) {
-        let event = `${modelClass.tableName}${actionToEventMap[action]}`;
+      for (const action of actions) {
+        const event = `${modelClass.tableName}${actionToEventMap[action]}`;
         if (!get(webHook, event)) continue;
         // For bulkDelete action data is an array of the deleted record ids
-        const payload:IWebHookEventPayload = {
+        const payload: IWebHookEventPayload = {
           dateTime: new Date(),
           project: pick(project, ['id', 'name']),
           webHook: pick(webHook, ['id', 'name', 'url']),

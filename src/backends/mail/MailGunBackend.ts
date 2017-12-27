@@ -4,7 +4,7 @@ import * as mg from 'nodemailer-mailgun-transport';
 import * as nodemailer from 'nodemailer';
 import * as Mail from 'nodemailer/lib/mailer';
 
-class MailGunBackend implements IMailService {
+export default class MailGunBackend implements IMailService {
 
   transport: Mail;
 
@@ -18,5 +18,3 @@ class MailGunBackend implements IMailService {
   }
 
 }
-
-module.exports = MailGunBackend;

@@ -3,7 +3,7 @@ import IMailService from './IMailService';
 import * as nodemailer from 'nodemailer';
 import * as Mail from 'nodemailer/lib/mailer';
 
-class SMTPBackend implements IMailService {
+export default class SMTPBackend implements IMailService {
 
   transport: Mail;
 
@@ -18,5 +18,3 @@ class SMTPBackend implements IMailService {
   }
 
 }
-
-module.exports = SMTPBackend;
