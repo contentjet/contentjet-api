@@ -1,5 +1,7 @@
-function createUserTable(knex) {
-  return knex.schema.createTableIfNotExists('user', function (table) {
+import * as knex from 'knex';
+
+function createUserTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('user', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.string('email').unique();
     table.string('password', 64);
@@ -11,8 +13,8 @@ function createUserTable(knex) {
   });
 }
 
-function createProjectTable(knex) {
-  return knex.schema.createTableIfNotExists('project', function (table) {
+function createProjectTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('project', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.string('name', 128);
     table.text('metadata').defaultTo('');
@@ -24,8 +26,8 @@ function createProjectTable(knex) {
   });
 }
 
-function createProjectMembershipTable(knex) {
-  return knex.schema.createTableIfNotExists('projectmembership', function (table) {
+function createProjectMembershipTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('projectmembership', function (table: knex.CreateTableBuilder) {
     table.integer('userId').unsigned();
     table.integer('projectId').unsigned();
     table.string('membershipType', 128);
@@ -37,26 +39,26 @@ function createProjectMembershipTable(knex) {
   });
 }
 
-function createWebhookTable(knex) {
-  return knex.schema.createTableIfNotExists('webHook', function (table) {
+function createWebhookTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('webHook', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.integer('projectId').unsigned();
     table.string('name', 128);
     table.boolean('isActive').defaultTo(false);
     table.string('url', 512);
-    table.boolean('projectUpdated').defaultsTo(false);
-    table.boolean('projectDeleted').defaultsTo(false);
-    table.boolean('entryTypeCreated').defaultsTo(false);
-    table.boolean('entryTypeUpdated').defaultsTo(false);
-    table.boolean('entryTypeDeleted').defaultsTo(false);
-    table.boolean('entryCreated').defaultsTo(false);
-    table.boolean('entryUpdated').defaultsTo(false);
-    table.boolean('entryDeleted').defaultsTo(false);
-    table.boolean('entryDeletedBulk').defaultsTo(false);
-    table.boolean('mediaCreated').defaultsTo(false);
-    table.boolean('mediaUpdated').defaultsTo(false);
-    table.boolean('mediaDeleted').defaultsTo(false);
-    table.boolean('mediaDeletedBulk').defaultsTo(false);
+    table.boolean('projectUpdated').defaultTo(false);
+    table.boolean('projectDeleted').defaultTo(false);
+    table.boolean('entryTypeCreated').defaultTo(false);
+    table.boolean('entryTypeUpdated').defaultTo(false);
+    table.boolean('entryTypeDeleted').defaultTo(false);
+    table.boolean('entryCreated').defaultTo(false);
+    table.boolean('entryUpdated').defaultTo(false);
+    table.boolean('entryDeleted').defaultTo(false);
+    table.boolean('entryDeletedBulk').defaultTo(false);
+    table.boolean('mediaCreated').defaultTo(false);
+    table.boolean('mediaUpdated').defaultTo(false);
+    table.boolean('mediaDeleted').defaultTo(false);
+    table.boolean('mediaDeletedBulk').defaultTo(false);
     table.timestamp('createdAt').defaultTo(knex.fn.now());
     table.timestamp('modifiedAt').defaultTo(knex.fn.now());
     // Constraints
@@ -64,14 +66,14 @@ function createWebhookTable(knex) {
   });
 }
 
-function createProjectinviteTable(knex) {
-  return knex.schema.createTableIfNotExists('projectInvite', function (table) {
+function createProjectinviteTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('projectInvite', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.integer('projectId').unsigned();
     table.string('name', 128);
     table.string('email');
     table.integer('userId').unsigned();
-    table.boolean('accepted').defaultsTo(false);
+    table.boolean('accepted').defaultTo(false);
     table.timestamp('createdAt').defaultTo(knex.fn.now());
     table.timestamp('modifiedAt').defaultTo(knex.fn.now());
     // Constraints
@@ -80,8 +82,8 @@ function createProjectinviteTable(knex) {
   });
 }
 
-function createMediatagTable(knex) {
-  return knex.schema.createTableIfNotExists('mediaTag', function (table) {
+function createMediatagTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('mediaTag', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.integer('projectId').unsigned();
     table.string('name', 128);
@@ -91,8 +93,8 @@ function createMediatagTable(knex) {
   });
 }
 
-function createMediaTable(knex) {
-  return knex.schema.createTableIfNotExists('media', function (table) {
+function createMediaTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('media', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.integer('projectId').unsigned();
     table.integer('userId').unsigned();
@@ -103,7 +105,7 @@ function createMediaTable(knex) {
     table.integer('size').unsigned();
     table.integer('width').unsigned();
     table.integer('height').unsigned();
-    table.text('description').defaultsTo('');
+    table.text('description').defaultTo('');
     table.timestamp('createdAt').defaultTo(knex.fn.now());
     table.timestamp('modifiedAt').defaultTo(knex.fn.now());
     // Constraints
@@ -112,8 +114,8 @@ function createMediaTable(knex) {
   });
 }
 
-function createMedia_MediatagTable(knex) {
-  return knex.schema.createTableIfNotExists('media_mediaTag', function (table) {
+function createMedia_MediatagTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('media_mediaTag', function (table: knex.CreateTableBuilder) {
     table.integer('mediaId').unsigned();
     table.integer('mediaTagId').unsigned();
     // Constraints
@@ -123,14 +125,14 @@ function createMedia_MediatagTable(knex) {
   });
 }
 
-function createEntrytypeTable(knex) {
-  return knex.schema.createTableIfNotExists('entryType', function (table) {
+function createEntrytypeTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('entryType', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.integer('projectId').unsigned();
     table.integer('userId').unsigned();
     table.string('name', 128);
-    table.text('metadata').defaultsTo('');
-    table.string('description', 128).defaultsTo('');
+    table.text('metadata').defaultTo('');
+    table.string('description', 128).defaultTo('');
     table.jsonb('fields');
     table.timestamp('createdAt').defaultTo(knex.fn.now());
     table.timestamp('modifiedAt').defaultTo(knex.fn.now());
@@ -140,8 +142,8 @@ function createEntrytypeTable(knex) {
   });
 }
 
-function createEntrytagTable(knex) {
-  return knex.schema.createTableIfNotExists('entryTag', function (table) {
+function createEntrytagTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('entryTag', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.integer('projectId').unsigned();
     table.string('name', 128);
@@ -151,8 +153,8 @@ function createEntrytagTable(knex) {
   });
 }
 
-function createEntryTable(knex) {
-  return knex.schema.createTableIfNotExists('entry', function (table) {
+function createEntryTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('entry', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.integer('entryTypeId').unsigned();
     table.integer('userId').unsigned();
@@ -169,8 +171,8 @@ function createEntryTable(knex) {
   });
 }
 
-function createEntry_EntrytagTable(knex) {
-  return knex.schema.createTableIfNotExists('entry_entryTag', function (table) {
+function createEntry_EntrytagTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('entry_entryTag', function (table: knex.CreateTableBuilder) {
     table.integer('entryId').unsigned();
     table.integer('entryTagId').unsigned();
     // Constraints
@@ -180,22 +182,22 @@ function createEntry_EntrytagTable(knex) {
   });
 }
 
-function createPermissionTable(knex) {
-  return knex.schema.createTableIfNotExists('permission', function (table) {
+function createPermissionTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('permission', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.string('name', 128).unique();
   });
 }
 
-function createRoleTable(knex) {
-  return knex.schema.createTableIfNotExists('role', function (table) {
+function createRoleTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('role', function (table: knex.CreateTableBuilder) {
     table.increments();
     table.string('name', 128).unique();
   });
 }
 
-function createRole_PermissionTable(knex) {
-  return knex.schema.createTableIfNotExists('role_permission', function (table) {
+function createRole_PermissionTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('role_permission', function (table: knex.CreateTableBuilder) {
     table.integer('roleId').unsigned();
     table.integer('permissionId').unsigned();
     // Constraints
@@ -205,8 +207,8 @@ function createRole_PermissionTable(knex) {
   });
 }
 
-function createUser_RoleTable(knex) {
-  return knex.schema.createTableIfNotExists('user_role', function (table) {
+function createUser_RoleTable(knex: knex) {
+  return knex.schema.createTableIfNotExists('user_role', function (table: knex.CreateTableBuilder) {
     table.integer('userId').unsigned();
     table.integer('roleId').unsigned();
     // Constraints
@@ -216,7 +218,7 @@ function createUser_RoleTable(knex) {
   });
 }
 
-exports.up = function(knex, Promise) {
+exports.up = function(knex: knex) {
   return createUserTable(knex)
     .then(() => createProjectTable(knex))
     .then(() => createProjectMembershipTable(knex))
@@ -235,7 +237,7 @@ exports.up = function(knex, Promise) {
     .then(() => createUser_RoleTable(knex));
 };
 
-exports.down = function(knex, Promise) {
+exports.down = function(knex: knex) {
   const tables = [
     'user',
     'project',
