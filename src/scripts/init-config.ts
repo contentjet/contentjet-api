@@ -1,5 +1,5 @@
-const uuid = require('uuid');
-const fs = require('fs');
+import * as uuid from 'uuid';
+import * as fs from 'fs';
 
 const secretKey = uuid.v4().replace(/-/g, '');
 

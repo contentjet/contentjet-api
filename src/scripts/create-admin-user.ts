@@ -1,5 +1,5 @@
-const inquirer = require('inquirer');
-const {User} = require('../app').models;
+import * as inquirer from 'inquirer';
+import {User} from '../app';
 
 async function main() {
   try {
@@ -9,7 +9,7 @@ async function main() {
         name: 'name',
         message: 'Enter your name',
         suffix: ':',
-        validate: function (value) {
+        validate: function (value: string) {
           if (value.length >= 1 && value.length <= 128) return true;
           return 'Value must be between 1 and 128 characters long.';
         }
@@ -41,4 +41,5 @@ async function main() {
     process.exit(1);
   }
 }
+
 main();

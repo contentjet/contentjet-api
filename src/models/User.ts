@@ -1,5 +1,5 @@
 const config = require('../config');
-import {Model, QueryBuilder, QueryBuilderSingle, QueryBuilderOption, RelationMappings,Transaction} from 'objection';
+import {Model, QueryBuilder, QueryBuilderSingle, QueryBuilderOption, RelationMappings, Transaction} from 'objection';
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 import ValidationError from '../errors/ValidationError';

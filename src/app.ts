@@ -25,8 +25,22 @@ import EntryTypeViewSet = require('./viewsets/EntryTypeViewSet');
 import EntryViewSet = require('./viewsets/EntryViewSet');
 import EntryTagViewSet = require('./viewsets/EntryTagViewSet');
 
+// import Project from './models/Project';
+// import WebHook from './models/WebHook';
+
+import Entry from './models/Entry';
+import EntryTag from './models/EntryTag';
+import EntryType from './models/EntryType';
+import Media from './models/Media';
+import MediaTag from './models/MediaTag';
+import Permission from './models/Permission';
 import Project from './models/Project';
+import ProjectInvite from './models/ProjectInvite';
+import ProjectMembership from './models/ProjectMembership';
+import Role from './models/Role';
+import User from './models/User';
 import WebHook from './models/WebHook';
+
 
 import NotFoundError from './errors/NotFoundError';
 import ValidationError from './errors/ValidationError';
@@ -168,3 +182,17 @@ export { default as ProjectMembership } from './models/ProjectMembership';
 export { default as Role } from './models/Role';
 export { default as User } from './models/User';
 export { default as WebHook } from './models/WebHook';
+export const models = {
+  Entry,
+  EntryTag,
+  EntryType,
+  Media,
+  MediaTag,
+  Permission,
+  Project,
+  ProjectInvite,
+  ProjectMembership,
+  Role,
+  User,
+  WebHook
+};
