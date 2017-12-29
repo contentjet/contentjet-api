@@ -1,7 +1,7 @@
 const config = require('../../config');
-const jwt = require('jsonwebtoken');
+import * as jwt from 'jsonwebtoken';
 
-function generateAuthToken(payload) {
+export function generateAuthToken(payload: string | object | Buffer): Promise<any> {
   return new Promise((resolve, reject) => {
     jwt.sign(payload, config.SECRET_KEY, {expiresIn: config.TOKEN_EXPIRY}, function (err, token) {
       if (err) {
@@ -18,9 +18,9 @@ function generateAuthToken(payload) {
   });
 }
 
-function verifyAuthToken(token) {
+export function verifyAuthToken(token: string): Promise<any> {
   return new Promise((resolve, reject) => {
-    jwt.verify(token, config.SECRET_KEY, function (err, payload) {
+    jwt.verify(token, config.SECRET_KEY, function (err: any, payload: any) {
       if (err) {
         reject(err);
       } else {
@@ -30,13 +30,7 @@ function verifyAuthToken(token) {
   });
 }
 
-async function refreshAuthToken(token) {
+export async function refreshAuthToken(token: string) {
   const payload = await verifyAuthToken(token);
   return await generateAuthToken({userId: payload.userId});
 }
-
-module.exports = {
-  generateAuthToken,
-  verifyAuthToken,
-  refreshAuthToken
-};

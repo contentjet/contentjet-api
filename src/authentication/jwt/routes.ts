@@ -1,8 +1,9 @@
-const User = require('../../models/User');
-const AuthenticationError = require('../../errors/AuthenticationError');
-const ValidationError = require('../../errors/ValidationError');
-const {generateAuthToken, refreshAuthToken} = require('./utils');
-const validate = require('../../utils/validate');
+import * as Koa from 'koa';
+import User from '../../models/User';
+import AuthenticationError from '../../errors/AuthenticationError';
+import ValidationError from '../../errors/ValidationError';
+import {generateAuthToken, refreshAuthToken} from './utils';
+import validate from '../../utils/validate';
 
 
 const authenticationConstraints = {
@@ -26,7 +27,7 @@ const tokenRefreshConstraints = {
   }
 };
 
-async function authenticate(ctx) {
+export async function authenticate(ctx: Koa.Context) {
   const errors = validate(ctx.request.body, authenticationConstraints);
   if (errors) {
     const err = new ValidationError();
@@ -41,7 +42,7 @@ async function authenticate(ctx) {
   ctx.body = await generateAuthToken({userId: ctx.state.user.id});
 }
 
-async function tokenRefresh(ctx) {
+export async function tokenRefresh(ctx: Koa.Context) {
   const errors = validate(ctx.request.body, tokenRefreshConstraints);
   if (errors) {
     const err = new ValidationError();
@@ -51,8 +52,3 @@ async function tokenRefresh(ctx) {
   const {refresh_token} = ctx.request.body;
   ctx.body = await refreshAuthToken(refresh_token);
 }
-
-module.exports = {
-  authenticate,
-  tokenRefresh
-};

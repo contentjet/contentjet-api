@@ -48,8 +48,10 @@
   "false": {},
   "devDependencies": {
     "@types/chai": "^4.0.10",
+    "@types/jsonwebtoken": "^7.2.5",
     "@types/knex": "0.0.67",
     "@types/koa": "^2.0.43",
+    "@types/koa-bodyparser": "^3.0.26",
     "@types/lodash": "^4.14.91",
     "@types/mocha": "^2.2.45",
     "@types/moment": "^2.13.0",
