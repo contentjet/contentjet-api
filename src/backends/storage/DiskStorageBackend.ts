@@ -1,5 +1,5 @@
-const path = require('path');
-const mkdirp = require('mkdirp');
+import * as path from 'path';
+import * as mkdirp from 'mkdirp';
 import * as Koa from 'koa';
 import IStorageBackend from './IStorageBackend';
 const multer = require('koa-multer');
