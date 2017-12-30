@@ -1,5 +1,6 @@
 const config = require('../config');
 import * as Koa from 'koa';
+import * as Router from 'koa-router';
 import AuthorizationError from '../errors/AuthorizationError';
 
 // Instantiate all permission backends
@@ -9,8 +10,8 @@ const permissionBackends = config.PERMISSION_BACKENDS.map((backend: string) => {
 });
 
 // requirePermission middleware factory
-export function requirePermission(permissionName: string) {
-  return async (ctx: Koa.Context, next: Function) => {
+export function requirePermission(permissionName: string): Router.IMiddleware {
+  return async function (ctx: Koa.Context, next: Function): Promise<void> {
     for (let backend of permissionBackends) {
       const hasPermission = await backend.hasPermission(ctx, permissionName);
       if (hasPermission) {
