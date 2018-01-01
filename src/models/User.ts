@@ -1,9 +1,15 @@
 const config = require('../config');
-import {Model, QueryBuilder, QueryBuilderSingle, QueryBuilderOption, RelationMappings, Transaction} from 'objection';
+import {Model, QueryBuilder, QueryBuilderOption, RelationMappings, Transaction, QueryBuilderDelete} from 'objection';
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 import ValidationError from '../errors/ValidationError';
 import Permission from './Permission';
+
+interface ISignUpTokenPayload {
+  userId: number
+};
+
+interface IPasswordResetTokenPayload extends ISignUpTokenPayload {};
 
 export default class User extends Model {
 
@@ -92,7 +98,8 @@ export default class User extends Model {
   }
 
   static async existsWithEmail(email: string, trx?: Transaction): Promise<boolean> {
-    const result = await User.query(trx)
+    const result = await User
+      .query(trx)
       .count('*')
       .where('email', email)
       .first() as any;
@@ -117,21 +124,22 @@ export default class User extends Model {
     return await User
       .query()
       .patch({password: hashedPassword})
-      .where('id', userId)
       .returning('*')
+      .where('id', userId)
       .first();
   }
 
-  static deleteAll(): QueryBuilder<User> {
+  static deleteAll(): QueryBuilderDelete<User> {
     return User
       .query()
       .delete();
   }
 
   static generateSignUpToken(userId: number): Promise<string> {
+    const payload: ISignUpTokenPayload = {userId};
     return new Promise((resolve, reject) => {
       jwt.sign(
-        {userId},
+        payload,
         `sign-up${config.SECRET_KEY}`,
         {expiresIn: '7 days'},
         function (err: Object, token: string) {
@@ -145,12 +153,12 @@ export default class User extends Model {
     });
   }
 
-  static verifySignUpToken(token: string): Promise<object> {
+  static verifySignUpToken(token: string): Promise<ISignUpTokenPayload> {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
         `sign-up${config.SECRET_KEY}`,
-        function (err: Object, payload: Object) {
+        function (err: Object, payload: ISignUpTokenPayload) {
           if (err) {
             reject(err);
           } else {
@@ -162,9 +170,10 @@ export default class User extends Model {
   }
 
   static generatePasswordResetToken(userId: number): Promise<string> {
+    const payload: IPasswordResetTokenPayload = {userId};
     return new Promise((resolve, reject) => {
       jwt.sign(
-        {userId},
+        payload,
         `password-reset${config.SECRET_KEY}`,
         {expiresIn: '12 hours'},
         function (err: object, token: string) {
@@ -178,12 +187,12 @@ export default class User extends Model {
     });
   }
 
-  static verifyPasswordResetToken(token: string): object {
+  static verifyPasswordResetToken(token: string): Promise<IPasswordResetTokenPayload> {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
         `password-reset${config.SECRET_KEY}`,
-        function (err: object, payload: object) {
+        function (err: object, payload: IPasswordResetTokenPayload) {
           if (err) {
             reject(err);
           } else {
@@ -230,7 +239,7 @@ export default class User extends Model {
     });
   }
 
-  delete(): QueryBuilderSingle<number> {
+  delete(): QueryBuilderDelete<User> {
     return User
       .query()
       .deleteById(this.id);

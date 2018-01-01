@@ -1,8 +1,10 @@
 import * as moment from 'moment';
 import {get, isArray, difference} from 'lodash';
-import {Model, Transaction, QueryBuilder, RelationMappings} from 'objection';
+import {Model, Transaction, QueryBuilder, RelationMappings, QueryBuilderDelete} from 'objection';
 import Media from './Media';
 import EntryTag from './EntryTag';
+import EntryType from './EntryType';
+import User from './EntryType';
 import {IEntryTypeField} from './EntryType';
 
 export interface IEntryField {
@@ -18,6 +20,13 @@ interface IObjectWithId {
   id: number;
 }
 
+export interface IEntryWithRelations extends Entry {
+  user: User;
+  modifiedByUser: User;
+  tags: EntryTag[];
+  entryType: EntryType;
+}
+
 export default class Entry extends Model {
 
   id: number;
@@ -29,6 +38,11 @@ export default class Entry extends Model {
   fields: IEntryField[]
   createdAt: Date;
   modifiedAt: Date;
+
+  user?: User;
+  modifiedByUser?: User;
+  tags?: EntryTag[];
+  entryType?: EntryType;
 
   static get tableName(): string {
     return 'entry';
@@ -123,16 +137,21 @@ export default class Entry extends Model {
     };
   }
 
-  static getInProject(projectId: number, trx?: Transaction): QueryBuilder<{}> {
+  static getInProject(projectId: number, trx?: Transaction): QueryBuilder<Entry> {
     return Entry
       .query(trx)
-      .eager('[user, modifiedByUser, tags, entryType]')
       .joinRelation('entryType')
       .where('entryType.projectId', projectId)
-      .orderBy('entry.modifiedAt', 'desc');
+      .orderBy('entry.modifiedAt', 'desc') as any;
   }
 
-  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilder<Entry> {
+  static getInProjectWithRelations(projectId: number, trx?: Transaction): QueryBuilder<Entry> {
+    return Entry
+      .getInProject(projectId, trx)
+      .eager('[user, modifiedByUser, tags, entryType]') as any;
+  }
+
+  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilderDelete<Entry> {
     return Entry.query(trx)
       .join('entryType', 'entry.entryTypeId', 'entryType.id')
       .join('project', 'project.id', 'entryType.projectId')

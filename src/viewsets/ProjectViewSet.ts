@@ -1,13 +1,14 @@
-const Project = require('../models/Project');
-const BaseViewSet = require('./BaseViewSet');
-const ValidationError = require('../errors/ValidationError');
-const validate = require('../utils/validate');
-const {requireAuthentication} = require('../authentication/jwt/middleware');
-const {requirePermission} = require('../authorization/middleware');
+import * as Koa from 'koa';
+import Project from '../models/Project';
+import BaseViewSet from './BaseViewSet';
+import ValidationError from '../errors/ValidationError';
+import validate from '../utils/validate';
+import {requireAuthentication} from '../authentication/jwt/middleware';
+import {requirePermission} from '../authorization/middleware';
 
-class ProjectViewSet extends BaseViewSet {
+export default class ProjectViewSet extends BaseViewSet<Project> {
 
-  constructor(options) {
+  constructor(options: any) {
     super(Project, options);
     const id = this.getIdRouteParameter();
     this.updateMember = this.updateMember.bind(this);
@@ -18,7 +19,7 @@ class ProjectViewSet extends BaseViewSet {
     return [requireAuthentication];
   }
 
-  getListQueryBuilder(ctx) {
+  getListQueryBuilder(ctx: Koa.Context) {
     // We only list projects where the authenticated user is the project owner
     // OR where they are a member.
     const {user} = ctx.state;
@@ -28,46 +29,46 @@ class ProjectViewSet extends BaseViewSet {
       .eager('user')
       .leftJoinRelation('members')
       .where('project.userId', user.id)
-      .orWhere(function () {
+      .orWhere(function (this: any) {
         this.where({
           'members.id': user.id,
           'members_join.membershipIsActive': true
         });
-      });
+      }) as any;
   }
 
-  getRetrieveQueryBuilder(ctx) {
+  getRetrieveQueryBuilder() {
     return Project
       .query()
       .eager('[user, members]');
   }
 
-  getCreateQueryBuilder(ctx) {
+  getCreateQueryBuilder() {
     return Project
       .query()
       .eager('[user, members]');
   }
 
-  getUpdateQueryBuilder(ctx) {
+  getUpdateQueryBuilder() {
     return Project
       .query()
       .eager('[user, members]');
   }
 
-  async create(ctx, next) {
+  async create(ctx: Koa.Context) {
     ctx.request.body.userId = ctx.state.user.id;
     delete ctx.request.body.user;
     delete ctx.request.body.members;
-    return super.create(ctx, next);
+    return super.create(ctx);
   }
 
-  async update(ctx, next) {
+  async update(ctx: Koa.Context) {
     delete ctx.request.body.user;
     delete ctx.request.body.members;
-    return super.update(ctx, next);
+    return super.update(ctx);
   }
 
-  async updateMember(ctx, next) {
+  async updateMember(ctx: Koa.Context) {
     const {project} = ctx.state;
     try {
       await validate.async(
@@ -98,5 +99,3 @@ class ProjectViewSet extends BaseViewSet {
   }
 
 }
-
-module.exports = ProjectViewSet;

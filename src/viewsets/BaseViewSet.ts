@@ -1,20 +1,34 @@
-import * as Router from 'koa-router';
 import * as Koa from 'koa';
+import * as Router from 'koa-router';
 import {clone} from 'lodash';
-import {Model, ModelClass, QueryBuilder} from 'objection';
+import {ModelClass, QueryBuilder} from 'objection';
 import * as moment from 'moment';
-const NotFoundError = require('../errors/NotFoundError');
+import NotFoundError from '../errors/NotFoundError';
+import DatabaseError from '../errors/DatabaseError';
 import {requirePermission} from '../authorization/middleware';
+import IStorageBackend from '../backends/storage/IStorageBackend';
 
 
-class BaseViewSet {
+interface IViewSetOptions {
+  disabledActions?: ReadonlyArray<string>;
+  storage: IStorageBackend;
+}
+
+export interface IPaginatedResult {
+    page: number;
+    totalPages: number;
+    totalRecords: number;
+    results: any[];
+}
+
+export default abstract class BaseViewSet<MC> {
 
   Model: ModelClass<any>;
-  options: any;
+  options: IViewSetOptions;
   router: Router;
 
-  constructor(Model: ModelClass<any>, options: any) {
-    this.Model = Model;
+  constructor(M: ModelClass<any>, options: IViewSetOptions) {
+    this.Model = M;
     this.options = options;
 
     const {disabledActions = []} = options;
@@ -63,27 +77,27 @@ class BaseViewSet {
     return [];
   }
 
-  getPageSize(ctx: Koa.Context): number {
+  getPageSize(_ctx: Koa.Context): number {
     return 30;
   }
 
-  getListQueryBuilder(ctx: Koa.Context): QueryBuilder<any> {
+  getListQueryBuilder(_ctx: Koa.Context): QueryBuilder<MC> {
     return this.Model.query();
   }
 
-  getRetrieveQueryBuilder(ctx: Koa.Context): QueryBuilder<any> {
+  getRetrieveQueryBuilder(_ctx: Koa.Context): QueryBuilder<MC> {
     return this.Model.query();
   }
 
-  getCreateQueryBuilder(ctx: Koa.Context): QueryBuilder<any> {
+  getCreateQueryBuilder(_ctx: Koa.Context): QueryBuilder<MC> {
     return this.Model.query();
   }
 
-  getUpdateQueryBuilder(ctx: Koa.Context): QueryBuilder<any> {
+  getUpdateQueryBuilder(_ctx: Koa.Context): QueryBuilder<MC> {
     return this.Model.query();
   }
 
-  getDeleteQueryBuilder(ctx: Koa.Context): QueryBuilder<any> {
+  getDeleteQueryBuilder(_ctx: Koa.Context): QueryBuilder<MC> {
     return this.Model.query();
   }
 
@@ -91,7 +105,7 @@ class BaseViewSet {
     return [requirePermission(`${this.Model.tableName}:list`)];
   }
 
-  async list(ctx: Koa.Context) {
+  async list(ctx: Koa.Context): Promise<IPaginatedResult | MC[]> {
     const limit = this.getPageSize(ctx);
     let page = parseInt(ctx.request.query.page || 1);
     if (page < 1) page = 1;
@@ -103,7 +117,7 @@ class BaseViewSet {
         totalPages: Math.ceil(result.total / limit),
         totalRecords: result.total,
         results: result.results
-      };
+      } as IPaginatedResult;
     } else {
       result = await this.getListQueryBuilder(ctx);
     }
@@ -120,10 +134,12 @@ class BaseViewSet {
     return [requirePermission(`${this.Model.tableName}:create`)];
   }
 
-  async create(ctx: Koa.Context) {
+  async create(ctx: Koa.Context): Promise<MC> {
     const model = await this.getCreateQueryBuilder(ctx)
       .insert(ctx.request.body)
-      .returning('*');
+      .returning('*')
+      .first();
+    if (!model) throw new DatabaseError();
     ctx.status = 201;
     ctx.body = model;
     ctx.state.viewsetResult = {
@@ -138,9 +154,10 @@ class BaseViewSet {
     return [requirePermission(`${this.Model.tableName}:retrieve`)];
   }
 
-  async retrieve(ctx: Koa.Context): Promise<Model> {
+  async retrieve(ctx: Koa.Context): Promise<MC> {
     const id = ctx.params[this.getIdRouteParameter()];
-    const model = await this.getRetrieveQueryBuilder(ctx)
+    const model = await this
+      .getRetrieveQueryBuilder(ctx)
       .where(`${this.Model.tableName}.id`, id)
       .first();
     if (!model) throw new NotFoundError();
@@ -165,9 +182,9 @@ class BaseViewSet {
     data.modifiedAt = moment().format();
     const model = await this.getUpdateQueryBuilder(ctx)
       .update(data)
+      .returning('*')
       .where(`${this.Model.tableName}.id`, id)
-      .first()
-      .returning('*');
+      .first();
     if (model) {
       ctx.body = model;
       ctx.state.viewsetResult = {
@@ -188,8 +205,8 @@ class BaseViewSet {
   async delete(ctx: Koa.Context): Promise<void> {
     const id = ctx.params[this.getIdRouteParameter()];
     await this.getDeleteQueryBuilder(ctx)
-      .delete()
-      .where(`${this.Model.tableName}.id`, id);
+      .where(`${this.Model.tableName}.id`, id)
+      .delete();
     ctx.status = 204;
     ctx.state.viewsetResult = {
       action: 'delete',
@@ -203,5 +220,3 @@ class BaseViewSet {
   }
 
 }
-
-export default BaseViewSet;

@@ -1,17 +1,18 @@
-const fs = require('fs');
-const path = require('path');
-const url = require('url');
-const ejs = require('ejs');
+import * as Koa from 'koa';
+import fs = require('fs');
+import path = require('path');
+import url = require('url');
+import * as ejs from 'ejs';
 const { mjml2html } = require('mjml');
 const config = require('../config');
-const _ = require('lodash');
-const BaseViewSet = require('./BaseViewSet');
-const ProjectInvite = require('../models/ProjectInvite');
-const ValidationError = require('../errors/ValidationError');
-const {requireAuthentication} = require('../authentication/jwt/middleware');
-const {requirePermission} = require('../authorization/middleware');
-const transaction = require('objection').transaction;
-const validate = require('../utils/validate');
+import {cloneDeep} from 'lodash';
+import BaseViewSet from './BaseViewSet';
+import ProjectInvite from '../models/ProjectInvite';
+import ValidationError from '../errors/ValidationError';
+import {requireAuthentication} from '../authentication/jwt/middleware';
+import {requirePermission} from '../authorization/middleware';
+import {transaction} from 'objection';
+import validate from '../utils/validate';
 
 const projectInviteHTML = mjml2html(
   fs.readFileSync(
@@ -41,10 +42,10 @@ const acceptConstraints = {
   }
 };
 
-class ProjectInviteViewSet extends BaseViewSet {
+export default class ProjectInviteViewSet extends BaseViewSet<ProjectInvite> {
 
-  constructor(options) {
-    const clonedOptions = _.cloneDeep(options);
+  constructor(options: any) {
+    const clonedOptions = cloneDeep(options);
     clonedOptions.disabledActions = ['update'];
     super(ProjectInvite, clonedOptions);
     this.accept = this.accept.bind(this);
@@ -57,18 +58,18 @@ class ProjectInviteViewSet extends BaseViewSet {
     return [requireAuthentication];
   }
 
-  getListQueryBuilder(ctx) {
+  getListQueryBuilder() {
     // Only list pending invites
     return ProjectInvite
       .query()
       .where('accepted', false);
   }
 
-  getPageSize(ctx) {
+  getPageSize() {
     return 0;
   }
 
-  async create(ctx, next) {
+  async create(ctx: Koa.Context) {
     const errors = validate(ctx.request.body, createConstraints);
     if (errors) {
       const err = new ValidationError();
@@ -93,7 +94,7 @@ class ProjectInviteViewSet extends BaseViewSet {
     ctx.request.body.userId = ctx.state.user.id;
     ctx.request.body.projectId = ctx.state.project.id;
     ctx.request.body.accepted = false;
-    const projectInvite = await super.create(ctx, next);
+    const projectInvite = await super.create(ctx);
     let token = await ProjectInvite.generateInviteToken(
       projectInvite.id, project.name, project.id
     );
@@ -110,13 +111,14 @@ class ProjectInviteViewSet extends BaseViewSet {
       text: ejs.render(projectInviteTXT, context),
       html: ejs.render(projectInviteHTML, context)
     };
-    ctx.sendMail(mailOptions, (err, info) => {
+    ctx.sendMail(mailOptions, (err: any, info: any) => {
       if (err) return console.log(err);
       console.log('Message sent: %s', info.messageId);
     });
+    return projectInvite;
   }
 
-  async accept(ctx, next) {
+  async accept(ctx: Koa.Context) {
     const errors = validate(ctx.request.body, acceptConstraints);
     if (errors) {
       const err = new ValidationError();
@@ -136,7 +138,7 @@ class ProjectInviteViewSet extends BaseViewSet {
     });
   }
 
-  async bulkDelete(ctx, next) {
+  async bulkDelete(ctx: Koa.Context) {
     const arrayOfIds = ctx.request.body;
     const error = validate.single(arrayOfIds, { arrayOfIds: true });
     if (error) throw new ValidationError(error[0]);
@@ -146,5 +148,3 @@ class ProjectInviteViewSet extends BaseViewSet {
   }
 
 }
-
-module.exports = ProjectInviteViewSet;

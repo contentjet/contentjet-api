@@ -1,4 +1,4 @@
-import {Model, QueryBuilder, QueryBuilderOption, QueryBuilderSingle, Transaction, RelationMappings} from 'objection';
+import {Model, QueryBuilder, QueryBuilderOption, QueryBuilderDelete, Transaction, RelationMappings} from 'objection';
 import ProjectMembership from './ProjectMembership';
 import User from './User';
 import WebHook from './WebHook';
@@ -170,7 +170,7 @@ export default class Project extends Model {
       .where('id', userId);
   }
 
-  updateUserMembership(userId: number, membershipIsActive: boolean, membershipType?: string, trx?: Transaction): QueryBuilder<number> {
+  updateUserMembership(userId: number, membershipIsActive: boolean, membershipType?: string, trx?: Transaction): QueryBuilder<ProjectMembership> {
     return ProjectMembership
       .query(trx)
       .patch({membershipType, membershipIsActive})
@@ -180,7 +180,7 @@ export default class Project extends Model {
       });
   }
 
-  delete(trx?: Transaction): QueryBuilderSingle<number> {
+  delete(trx?: Transaction): QueryBuilderDelete<Project> {
     return Project
       .query(trx)
       .deleteById(this.id);

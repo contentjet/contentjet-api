@@ -1,19 +1,22 @@
-const fs = require('fs');
-const path = require('path');
-const url = require('url');
-const ejs = require('ejs');
-const _ = require('lodash');
+import * as Koa from 'koa';
+import * as Router from 'koa-router';
+import fs = require('fs');
+import path = require('path');
+import url = require('url');
+import * as ejs from 'ejs';
+import {cloneDeep} from 'lodash';
 const { mjml2html } = require('mjml');
-const transaction = require('objection').transaction;
-const User = require('../models/User');
-const Project = require('../models/Project');
-const ProjectInvite = require('../models/ProjectInvite');
-const BaseViewSet = require('./BaseViewSet');
-const ValidationError = require('../errors/ValidationError');
+import {transaction} from 'objection';
+import User from '../models/User';
+import Project from '../models/Project';
+import ProjectInvite from '../models/ProjectInvite';
+import BaseViewSet from './BaseViewSet';
+import ValidationError from '../errors/ValidationError';
+import NotFoundError from '../errors/NotFoundError';
 const config = require('../config');
-const {authenticate, tokenRefresh} = require('../authentication/jwt/routes');
-const {requireAuthentication} = require('../authentication/jwt/middleware');
-const validate = require('../utils/validate');
+import {authenticate, tokenRefresh} from '../authentication/jwt/routes';
+import {requireAuthentication} from '../authentication/jwt/middleware';
+import validate from '../utils/validate';
 
 const signUpHTML = mjml2html(
   fs.readFileSync(
@@ -86,10 +89,10 @@ const requestPasswordResetConstraints = {
   }
 };
 
-class UserViewSet extends BaseViewSet {
+export default class UserViewSet extends BaseViewSet<User> {
 
-  constructor(options) {
-    const clonedOptions = _.cloneDeep(options);
+  constructor(options: any) {
+    const clonedOptions = cloneDeep(options);
     clonedOptions.disabledActions = ['create', 'delete', 'update'];
     super(User, clonedOptions);
     this.retrieveMe = this.retrieveMe.bind(this);
@@ -109,30 +112,35 @@ class UserViewSet extends BaseViewSet {
   }
 
   getListMiddleware() {
-    return [requireAuthentication].concat(super.getListMiddleware());
+    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    return middleware.concat(super.getListMiddleware());
   }
 
   getCreateMiddleware() {
-    return [requireAuthentication].concat(super.getCreateMiddleware());
+    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    return middleware.concat(super.getCreateMiddleware());
   }
 
   getRetrieveMiddleware() {
-    return [requireAuthentication].concat(super.getRetrieveMiddleware());
+    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    return middleware.concat(super.getRetrieveMiddleware());
   }
 
   getUpdateMiddleware() {
-    return [requireAuthentication].concat(super.getUpdateMiddleware());
+    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    return middleware.concat(super.getUpdateMiddleware());
   }
 
   getDeleteMiddleware() {
-    return [requireAuthentication].concat(super.getDeleteMiddleware());
+    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    return middleware.concat(super.getDeleteMiddleware());
   }
 
-  retrieveMe(ctx, next) {
+  retrieveMe(ctx: Koa.Context) {
     ctx.body = ctx.state.user;
   }
 
-  async updateMe(ctx, next) {
+  async updateMe(ctx: Koa.Context) {
     const errors = validate(ctx.request.body, updateMeConstraints);
     if (errors) {
       const err = new ValidationError();
@@ -151,7 +159,7 @@ class UserViewSet extends BaseViewSet {
     ctx.body = user;
   }
 
-  async signUp(ctx, next) {
+  async signUp(ctx: Koa.Context) {
     const errors = validate(ctx.request.body, signUpConstraints);
     if (errors) {
       const err = new ValidationError();
@@ -172,6 +180,7 @@ class UserViewSet extends BaseViewSet {
       // Get the project from the invite...
       const {projectId, projectInviteId} = invitePayload;
       const project = await Project.getById(projectId, trx);
+      if (!project) throw new NotFoundError('Project does not exist');
       // ... mark the invite as accepted...
       await ProjectInvite.accept(projectInviteId, trx);
       // ... and make the user a member of the project.
@@ -191,7 +200,7 @@ class UserViewSet extends BaseViewSet {
           text: ejs.render(signUpTXT, context),
           html: ejs.render(signUpHTML, context)
         };
-        ctx.sendMail(mailOptions, (err, info) => {
+        ctx.sendMail(mailOptions, (err: any, info: any) => {
           if (err) return console.log(err);
           console.log('Message sent: %s', info.messageId);
         });
@@ -201,20 +210,20 @@ class UserViewSet extends BaseViewSet {
     });
   }
 
-  async verify(ctx, next) {
+  async verify(ctx: Koa.Context) {
     const {token} = ctx.request.body;
     if (!token) throw new ValidationError('Verification token is required');
     const {userId} = await User.verifySignUpToken(token);
     const user = await User
       .query()
       .patch({ isActive: true })
-      .where('id', userId)
       .returning('*')
+      .where('id', userId)
       .first();
     ctx.body = user;
   }
 
-  async requestPasswordReset(ctx, next) {
+  async requestPasswordReset(ctx: Koa.Context) {
     const errors = validate(ctx.request.body, requestPasswordResetConstraints);
     if (errors) {
       const err = new ValidationError();
@@ -240,14 +249,14 @@ class UserViewSet extends BaseViewSet {
       text: ejs.render(requestPasswordResetTXT, context),
       html: ejs.render(requestPasswordResetHTML, context)
     };
-    ctx.sendMail(mailOptions, (err, info) => {
+    ctx.sendMail(mailOptions, (err: any, info: any) => {
       if (err) return console.log(err);
       console.log('Message sent: %s', info.messageId);
     });
     ctx.body = user;
   }
 
-  async setPassword(ctx, next) {
+  async setPassword(ctx: Koa.Context) {
     const errors = validate(ctx.request.body, setPasswordConstraints);
     if (errors) {
       const err = new ValidationError();
@@ -261,5 +270,3 @@ class UserViewSet extends BaseViewSet {
   }
 
 }
-
-module.exports = UserViewSet;

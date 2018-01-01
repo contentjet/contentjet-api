@@ -1,8 +1,8 @@
-import {Model, Transaction, RelationMappings, QueryBuilder} from 'objection';
+import {Model, Transaction, RelationMappings, QueryBuilderDelete, QueryBuilder} from 'objection';
 import MediaTag from './MediaTag';
 import config = require('../config');
 import url = require('url');
-import _ = require('lodash');
+import {difference} from 'lodash';
 
 export default class Media extends Model {
 
@@ -145,7 +145,7 @@ export default class Media extends Model {
     return data;
   }
 
-  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilder<Media> {
+  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilderDelete<Media> {
     return Media.query(trx)
       .whereIn('id', arrayOfIds)
       .andWhere('projectId', projectId)
@@ -160,8 +160,8 @@ export default class Media extends Model {
     const incomingTagIds = mediaTags.map(mediaTag => mediaTag.id);
     const existingTags = await this.getTags(trx);
     const existingTagIds = existingTags.map(mediaTag => mediaTag.id);
-    const idsToUnrelate = _.difference(existingTagIds, incomingTagIds);
-    const idsToRelate = _.difference(incomingTagIds, existingTagIds);
+    const idsToUnrelate = difference(existingTagIds, incomingTagIds);
+    const idsToRelate = difference(incomingTagIds, existingTagIds);
     // Unrelate any existing tags not in mediaTags
     const p1 = this.$relatedQuery('tags', trx).unrelate().whereIn('id', idsToUnrelate);
     // Relate incoming mediaTags

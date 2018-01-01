@@ -15,18 +15,15 @@ import axios from 'axios';
 const jwt = require('jsonwebtoken');
 const yaml = require('yamljs');
 
-import ProjectViewSet = require('./viewsets/ProjectViewSet');
-import UserViewSet = require('./viewsets/UserViewSet');
-import WebHookViewSet = require('./viewsets/WebHookViewSet');
-import ProjectInviteViewSet = require('./viewsets/ProjectInviteViewSet');
-import MediaViewSet = require('./viewsets/MediaViewSet');
-import MediaTagViewSet = require('./viewsets/MediaTagViewSet');
-import EntryTypeViewSet = require('./viewsets/EntryTypeViewSet');
-import EntryViewSet = require('./viewsets/EntryViewSet');
-import EntryTagViewSet = require('./viewsets/EntryTagViewSet');
-
-// import Project from './models/Project';
-// import WebHook from './models/WebHook';
+import ProjectViewSet from './viewsets/ProjectViewSet';
+import UserViewSet from './viewsets/UserViewSet';
+import WebHookViewSet from './viewsets/WebHookViewSet';
+import ProjectInviteViewSet from './viewsets/ProjectInviteViewSet';
+import MediaViewSet from './viewsets/MediaViewSet';
+import MediaTagViewSet from './viewsets/MediaTagViewSet';
+import EntryTypeViewSet from './viewsets/EntryTypeViewSet';
+import EntryViewSet from './viewsets/EntryViewSet';
+import EntryTagViewSet from './viewsets/EntryTagViewSet';
 
 import Entry from './models/Entry';
 import EntryTag from './models/EntryTag';

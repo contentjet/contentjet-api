@@ -1,6 +1,12 @@
-import {Model, RelationMappings, QueryBuilder, Transaction} from 'objection';
+import {Model, RelationMappings, QueryBuilderDelete, Transaction} from 'objection';
 const jwt = require('jsonwebtoken');
 const config = require('../config');
+
+interface IInvitePayload {
+  projectInviteId: number;
+  projectName: string;
+  projectId: number;
+}
 
 export default class ProjectInvite extends Model {
 
@@ -74,7 +80,7 @@ export default class ProjectInvite extends Model {
   static generateInviteToken(projectInviteId: number, projectName: string, projectId: number): Promise<string> {
     return new Promise((resolve, reject) => {
       jwt.sign(
-        {projectInviteId, projectName, projectId},
+        {projectInviteId, projectName, projectId} as IInvitePayload,
         `invite${config.SECRET_KEY}`,
         {expiresIn: '7 days'},
         function (err: object, token: string) {
@@ -88,12 +94,12 @@ export default class ProjectInvite extends Model {
     });
   }
 
-  static verifyInviteToken(token: string): Promise<object> {
+  static verifyInviteToken(token: string): Promise<IInvitePayload> {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
         `invite${config.SECRET_KEY}`,
-        function (err: object, payload: object) {
+        function (err: object, payload: IInvitePayload) {
           if (err) {
             reject(err);
           } else {
@@ -104,7 +110,7 @@ export default class ProjectInvite extends Model {
     });
   }
 
-  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilder<ProjectInvite> {
+  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilderDelete<ProjectInvite> {
     return ProjectInvite
       .query(trx)
       .whereIn('id', arrayOfIds)
@@ -116,11 +122,11 @@ export default class ProjectInvite extends Model {
     return ProjectInvite
       .query(trx)
       .patch({accepted: true})
+      .returning('*')
       .where({
         'id': id,
         'accepted': false
       })
-      .returning('*')
       .first();
   }
 
