@@ -1,19 +1,19 @@
-import path = require('path');
+import * as path from 'path';
 
 const config = require('./config');
 const MailBackend = require(config.MAIL_BACKEND).default;
 const StorageBackend = require(config.STORAGE_BACKEND).default;
 import * as Koa from 'koa';
-const bodyParser = require('koa-bodyparser');
-const cors = require('kcors');
-const send = require('koa-send');
-const router = require('koa-router')();
+import * as bodyParser from 'koa-bodyparser';
+import * as cors from 'kcors';
+import * as send from 'koa-send';
+import * as Router from 'koa-router';
 import {Model, ValidationError as ObjectionValidationError} from 'objection';
 Model.knex(require('knex')(config.DATABASE));
 import {get, pick} from 'lodash';
 import axios from 'axios';
-const jwt = require('jsonwebtoken');
-const yaml = require('yamljs');
+import * as jwt from 'jsonwebtoken';
+import * as yaml from 'yamljs';
 
 import ProjectViewSet from './viewsets/ProjectViewSet';
 import UserViewSet from './viewsets/UserViewSet';
@@ -38,20 +38,20 @@ import Role from './models/Role';
 import User from './models/User';
 import WebHook from './models/WebHook';
 
-
 import NotFoundError from './errors/NotFoundError';
 import ValidationError from './errors/ValidationError';
 import AuthenticationError from './errors/AuthenticationError';
 
-// Instantiate storage backend and expose on context prototype
-const storage = new StorageBackend();
-
-const viewSetOptions = { storage };
-
 // Load the OpenAPI spec from disk converting YAML to JSON
 const spec = yaml.load('spec.yml');
 
-// Attach routes
+// Instantiate storage backend and attach it to the viewSetOptions
+const viewSetOptions = {
+  storage: new StorageBackend()
+};
+
+// Instantiate root router and attach routes
+const router = new Router();
 router.use('/user/', new UserViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/', async (ctx: Koa.Context, next: Function) => {
   const project = await Project.getById(ctx.params.projectId);
@@ -167,18 +167,7 @@ app
   });
 
 export default app;
-export { default as Entry } from './models/Entry';
-export { default as EntryTag } from './models/EntryTag';
-export { default as EntryType } from './models/EntryType';
-export { default as Media } from './models/Media';
-export { default as MediaTag } from './models/MediaTag';
-export { default as Permission } from './models/Permission';
-export { default as Project } from './models/Project';
-export { default as ProjectInvite } from './models/ProjectInvite';
-export { default as ProjectMembership } from './models/ProjectMembership';
-export { default as Role } from './models/Role';
-export { default as User } from './models/User';
-export { default as WebHook } from './models/WebHook';
+
 export const models = {
   Entry,
   EntryTag,

@@ -1,4 +1,7 @@
-import {Project, EntryType, User} from '../app';
+import '../app';
+import Project from './Project';
+import EntryType from './EntryType';
+import User from './User';
 import {get} from 'lodash';
 import {assert} from 'chai';
 
@@ -97,7 +100,6 @@ const listField = {
 };
 
 describe('EntryType', function () {
-
   let user1: User;
   let project1: Project;
   let entryType1: EntryType;
