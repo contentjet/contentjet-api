@@ -1,6 +1,12 @@
+import DiskStorageBackend from '../backends/storage/DiskStorageBackend';
+import ModelPermissionBackend from '../backends/permissions/ModelPermissionBackend';
+import ProjectPermissionBackend from '../backends/permissions/ProjectPermissionBackend';
+
 if (!process.env.NODE_ENV) throw new Error('NODE_ENV not set');
 
-module.exports = {
+const MEDIA_ROOT = 'media/';
+
+export default {
   PORT: 3000,
   // Secret key used for hashing passwords and generating tokens
   SECRET_KEY: null,
@@ -26,7 +32,7 @@ module.exports = {
   // The duration in seconds an authentication token (JWT) is valid for
   TOKEN_EXPIRY: 3600,
   // When false the user will receive a signup confirmation email. When true
-  // the user will NOT receive a confirmation email and will be have isActive = true
+  // the user will NOT receive a confirmation email and will have isActive = true
   // set immediately upon signup. Recommended this remains false in production.
   ACTIVE_ON_SIGNUP: false,
   // When true, stack traces will be logged.
@@ -36,24 +42,16 @@ module.exports = {
     origin: '*'
   },
   // Email sending service
-  MAIL_BACKEND: './backends/mail/MailGunBackend',
-  MAIL_BACKEND_CONFIG: {
-    mailGun: {
-      auth: {
-        api_key: '',
-        domain: ''
-      }
-    }
-  },
+  MAIL_BACKEND: null,
   // Email address used in the 'from' field of all email sent by this app
   MAIL_FROM: 'noreply@example.com',
   PERMISSION_BACKENDS: [
-    './backends/permissions/ModelPermissionBackend',
-    './backends/permissions/ProjectPermissionBackend'
+    new ModelPermissionBackend(),
+    new ProjectPermissionBackend()
   ],
-  STORAGE_BACKEND: './backends/storage/DiskStorageBackend',
-  // File system path to media directory
-  MEDIA_ROOT: 'media/',
+  // File storage service
+  STORAGE_BACKEND: new DiskStorageBackend(MEDIA_ROOT),
+  MEDIA_ROOT: MEDIA_ROOT,
   // When true files in MEDIA_ROOT will served at the path /media.
   // Use in production is strongly discouraged.
   SERVE_MEDIA: false,

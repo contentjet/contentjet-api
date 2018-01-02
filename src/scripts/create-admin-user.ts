@@ -1,5 +1,6 @@
 import * as inquirer from 'inquirer';
-import {User} from '../app';
+import '../app';
+import User from '../models/User';
 
 async function main() {
   try {

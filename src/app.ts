@@ -1,8 +1,6 @@
 import * as path from 'path';
 
-const config = require('./config');
-const MailBackend = require(config.MAIL_BACKEND).default;
-const StorageBackend = require(config.STORAGE_BACKEND).default;
+import config from './config';
 import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
 import * as cors from 'kcors';
@@ -47,7 +45,7 @@ const spec = yaml.load('spec.yml');
 
 // Instantiate storage backend and attach it to the viewSetOptions
 const viewSetOptions = {
-  storage: new StorageBackend()
+  storage: config.STORAGE_BACKEND
 };
 
 // Instantiate root router and attach routes
@@ -74,13 +72,13 @@ router.get('/spec', function (ctx: Koa.Context) {
 const app = new Koa();
 
 // Instantiate mail backend and expose sendMail method on context prototype
-const mailBackend = new MailBackend();
+const mailBackend = config.MAIL_BACKEND;
 app.context.sendMail = mailBackend.sendMail;
 
 interface IWebHookEventPayload {
   dateTime: Date;
-  project: Object;
-  webHook: Object;
+  project: object;
+  webHook: object;
   target: number[] | number;
 }
 

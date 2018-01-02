@@ -1,6 +1,6 @@
-const config = require('../config');
+import config from '../config';
 import {Model, QueryBuilder, QueryBuilderOption, RelationMappings, Transaction, QueryBuilderDelete} from 'objection';
-const jwt = require('jsonwebtoken');
+import * as jwt from 'jsonwebtoken';
 const crypto = require('crypto');
 import ValidationError from '../errors/ValidationError';
 import Permission from './Permission';
@@ -142,7 +142,7 @@ export default class User extends Model {
         payload,
         `sign-up${config.SECRET_KEY}`,
         {expiresIn: '7 days'},
-        function (err: Object, token: string) {
+        function (err: object, token: string) {
           if (err) {
             reject(err);
           } else {
@@ -158,11 +158,12 @@ export default class User extends Model {
       jwt.verify(
         token,
         `sign-up${config.SECRET_KEY}`,
-        function (err: Object, payload: ISignUpTokenPayload) {
+        undefined,
+        function (err: object, decoded: string | object) {
           if (err) {
             reject(err);
           } else {
-            resolve(payload);
+            resolve(decoded as ISignUpTokenPayload);
           }
         }
       );
@@ -192,11 +193,12 @@ export default class User extends Model {
       jwt.verify(
         token,
         `password-reset${config.SECRET_KEY}`,
-        function (err: object, payload: IPasswordResetTokenPayload) {
+        undefined,
+        function (err: object, decoded: string | object) {
           if (err) {
             reject(err);
           } else {
-            resolve(payload);
+            resolve(decoded as IPasswordResetTokenPayload);
           }
         }
       );

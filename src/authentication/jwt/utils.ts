@@ -1,4 +1,4 @@
-const config = require('../../config');
+import config from '../../config';
 import * as jwt from 'jsonwebtoken';
 
 export function generateAuthToken(payload: string | object | Buffer): Promise<any> {

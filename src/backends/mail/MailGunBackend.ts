@@ -1,4 +1,3 @@
-const config = require('../../config');
 import IMailService from './IMailService';
 import * as mg from 'nodemailer-mailgun-transport';
 import * as nodemailer from 'nodemailer';
@@ -8,8 +7,14 @@ export default class MailGunBackend implements IMailService {
 
   transport: Mail;
 
-  constructor() {
-    this.transport = nodemailer.createTransport(mg(config.MAIL_BACKEND_CONFIG.mailGun));
+  constructor(apiKey: string, domain: string) {
+    const mgOptions = {
+      auth: {
+        api_key: apiKey,
+        domain: domain
+      }
+    };
+    this.transport = nodemailer.createTransport(mg(mgOptions));
     this.sendMail = this.sendMail.bind(this);
   }
 

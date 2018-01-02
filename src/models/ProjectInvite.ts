@@ -1,6 +1,6 @@
 import {Model, RelationMappings, QueryBuilderDelete, Transaction} from 'objection';
-const jwt = require('jsonwebtoken');
-const config = require('../config');
+import * as jwt from 'jsonwebtoken';
+import config from '../config';
 
 interface IInvitePayload {
   projectInviteId: number;
@@ -99,11 +99,12 @@ export default class ProjectInvite extends Model {
       jwt.verify(
         token,
         `invite${config.SECRET_KEY}`,
-        function (err: object, payload: IInvitePayload) {
+        undefined,
+        function (err: any, decoded: string | object) {
           if (err) {
             reject(err);
           } else {
-            resolve(payload);
+            resolve(decoded as IInvitePayload);
           }
         }
       );

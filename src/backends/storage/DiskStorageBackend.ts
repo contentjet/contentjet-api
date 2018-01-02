@@ -3,9 +3,16 @@ import * as mkdirp from 'mkdirp';
 import * as Koa from 'koa';
 import IStorageBackend from './IStorageBackend';
 const multer = require('koa-multer');
-const config = require('../../config');
 
 export default class DiskStorageBackend implements IStorageBackend {
+
+  mediaRoot: string;
+
+  constructor(mediaRoot: string) {
+    this.mediaRoot = mediaRoot;
+    this.middleware = this.middleware.bind(this);
+    this.getRelativePath = this.getRelativePath.bind(this);
+  }
 
   async middleware(ctx: Koa.Context, next: Function) {
     // Each uploaded file goes into a directory matching it's project id
@@ -13,7 +20,7 @@ export default class DiskStorageBackend implements IStorageBackend {
     const now = new Date();
     const dir = path.resolve(
       path.join(
-        config.MEDIA_ROOT,
+        this.mediaRoot,
         String(ctx.state.project.id),
         `${now.getFullYear()}-${now.getMonth() + 1}`
       )
@@ -35,7 +42,7 @@ export default class DiskStorageBackend implements IStorageBackend {
   }
 
   getRelativePath(path_: string): string {
-    return path.relative(config.MEDIA_ROOT, path_);
+    return path.relative(this.mediaRoot, path_);
   }
 
 }

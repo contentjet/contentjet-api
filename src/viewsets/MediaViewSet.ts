@@ -1,4 +1,4 @@
-const config = require('../config');
+import config from '../config';
 import * as Koa from 'koa';
 import Media from '../models/Media';
 import MediaTag from '../models/MediaTag';

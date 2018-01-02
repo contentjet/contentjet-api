@@ -1,6 +1,6 @@
 import {Model, Transaction, RelationMappings, QueryBuilderDelete, QueryBuilder} from 'objection';
 import MediaTag from './MediaTag';
-import config = require('../config');
+import config from '../config';
 import url = require('url');
 import {difference} from 'lodash';
 

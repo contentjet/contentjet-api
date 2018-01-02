@@ -4,7 +4,7 @@ import path = require('path');
 import url = require('url');
 import * as ejs from 'ejs';
 const { mjml2html } = require('mjml');
-const config = require('../config');
+import config from '../config';
 import {cloneDeep} from 'lodash';
 import BaseViewSet from './BaseViewSet';
 import ProjectInvite from '../models/ProjectInvite';

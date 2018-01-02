@@ -13,7 +13,7 @@ import ProjectInvite from '../models/ProjectInvite';
 import BaseViewSet from './BaseViewSet';
 import ValidationError from '../errors/ValidationError';
 import NotFoundError from '../errors/NotFoundError';
-const config = require('../config');
+import config from '../config';
 import {authenticate, tokenRefresh} from '../authentication/jwt/routes';
 import {requireAuthentication} from '../authentication/jwt/middleware';
 import validate from '../utils/validate';
