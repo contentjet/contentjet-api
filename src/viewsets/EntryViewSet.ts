@@ -64,7 +64,7 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
   getListQueryBuilder(ctx: Koa.Context) {
     let queryBuilder = Entry
       .getInProject(ctx.state.project.id)
-      .eager('[tags, entryType]');
+      .eager('[tags, entryType, modifiedByUser, user]');
     let {tags, entryType, nonPublished, search} = ctx.request.query as IEntryListQuery;
     // We only include entries where published date is in the past. If nonPublished
     // query parameter is present we include BOTH published and non-published entries.
