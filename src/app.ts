@@ -43,7 +43,7 @@ import AuthenticationError from './errors/AuthenticationError';
 // Load the OpenAPI spec from disk converting YAML to JSON
 const spec = yaml.load('spec.yml');
 
-// Instantiate storage backend and attach it to the viewSetOptions
+// Attach it to the viewSetOptions
 const viewSetOptions = {
   storage: config.STORAGE_BACKEND
 };

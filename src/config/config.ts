@@ -51,6 +51,7 @@ export default {
   ],
   // File storage service
   STORAGE_BACKEND: new DiskStorageBackend(MEDIA_ROOT),
+  // File system path of storage directory. Required when storage backend is DiskStorageBackend.
   MEDIA_ROOT: MEDIA_ROOT,
   // When true files in MEDIA_ROOT will served at the path /media.
   // Use in production is strongly discouraged.
