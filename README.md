@@ -2,6 +2,8 @@
 
 A Node based back end for contentjet, a powerful headless API-first CMS. Built with [Koa](http://koajs.com/), [Objection](http://vincit.github.io/objection.js/) and [PostgreSQL](https://www.postgresql.org/).
 
+Contentjet is composed of 2 discreet applications, the backend API contentjet-api (this repository) and the frontend HTML user interface [contentjet-ui](https://github.com/contentjet/contentjet-ui).
+
 ## Requirements
 
 * Node 8+
@@ -20,10 +22,9 @@ npm install knex -g
 #### 2. Configuration
 
 Configuration is resolved at run-time based on the current value of the `NODE_ENV` environment variable.
-For example `config.development.js` will be loaded when `NODE_ENV=development`. The environment specific config will be _shallowly_ merged with the default configuration found in `config/config.js`.
+For example `dist/config/config.development.js` will be loaded when `NODE_ENV=development`. The environment specific config will be _shallowly_ merged with the default configuration found in `dist/config/config.js`.
 
-Note `config/config.production.js` is created for you automatically with the minimum set of options for you to fill out. Be sure to check out `config/config.js`
-to see comments on all possible options.
+Note `dist/config/config.production.js` is created for you automatically with the minimum set of options for you to fill out. Be sure to check out `dist/config/config.js` to see comments on all possible options.
 
 #### 3. Database migration
 
