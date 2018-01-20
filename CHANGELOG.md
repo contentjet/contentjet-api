@@ -1,3 +1,8 @@
+# 0.3.0
+* Codebase converted to Typescript
+* Backends are no longer specified as paths in the config, rather they
+are instantiated and attached directly the config object
+
 # 0.2.0
 * Added OpenAPI 3.0 specification at `/spec`
 * The `create-admin-user` script now correctly creates the user with `isAdmin=true`
