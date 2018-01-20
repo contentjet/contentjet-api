@@ -2,8 +2,6 @@ import DiskStorageBackend from '../backends/storage/DiskStorageBackend';
 import ModelPermissionBackend from '../backends/permissions/ModelPermissionBackend';
 import ProjectPermissionBackend from '../backends/permissions/ProjectPermissionBackend';
 
-if (!process.env.NODE_ENV) throw new Error('NODE_ENV not set');
-
 const MEDIA_ROOT = 'media/';
 
 export default {

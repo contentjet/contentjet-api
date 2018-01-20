@@ -3,6 +3,8 @@ import IPermissionBackend from '../backends/permissions/IPermissionBackend';
 import IMailService from '../backends/mail/IMailService';
 import IStorageBackend from '../backends/storage/IStorageBackend';
 
+if (!process.env.NODE_ENV) throw new Error('NODE_ENV not set');
+
 interface IConfig {
   PORT: number;
   SECRET_KEY: string;
