@@ -24,7 +24,7 @@ npm install knex -g
 Configuration is resolved at run-time based on the current value of the `NODE_ENV` environment variable.
 For example `dist/config/config.production.js` will be loaded when `NODE_ENV=production`. The environment specific config will be _shallowly_ merged with the default configuration found in `dist/config/config.js`.
 
-Note `dist/config/config.production.js` is created for you automatically with the minimum set of options for you to fill out. Be sure to check out `dist/config/config.js` to see comments on all possible options.
+_Note `dist/config/config.production.js` is created for you automatically with the minimum set of options for you to fill out. Be sure to check out `dist/config/config.js` to see comments on all possible options_.
 
 ### 3. Configure mail backend
 

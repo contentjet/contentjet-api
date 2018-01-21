@@ -2,6 +2,7 @@
 * Codebase converted to Typescript
 * Backends are no longer specified as paths in the config, rather they
 are instantiated and attached directly the config object
+* Improved README
 
 # 0.2.0
 * Added OpenAPI 3.0 specification at `/spec`
