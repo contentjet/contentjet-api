@@ -28,7 +28,7 @@ Note `dist/config/config.production.js` is created for you automatically with th
 
 #### 3. Configure mail backend
 
-Mail must be configured by editing `dist/config/config.production.js` and instantiating a mail backend and attaching it to the `MAIL_BACKEND` and also assigning a 'from' email address to `MAIL_FROM`. Contentjet comes with 2 backends out-of-the-box, [Mailgun](https://www.mailgun.com/) (recommended) or SMTP. These mail backends are simply thin wrappers around [nodemailer](https://nodemailer.com).
+Mail **must** be configured by editing `dist/config/config.production.js` and instantiating a mail backend and attaching it to the `MAIL_BACKEND` property. An email address must also be assigned to the to the `MAIL_FROM` property. Contentjet comes with 2 backends out-of-the-box, [Mailgun](https://www.mailgun.com/) (recommended) or SMTP. These mail backends are simply thin wrappers around [nodemailer](https://nodemailer.com).
 
 ##### MailGun
 
