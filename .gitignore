@@ -1,6 +1,11 @@
 node_modules
-config/config.development.js
-config/config.production.js
-config/config.staging.js
-config/config.test.js
+src/config/config.development.ts
+src/config/config.production.ts
+src/config/config.staging.ts
+src/config/config.test.ts
+dist/config/config.development.js
+dist/config/config.production.js
+dist/config/config.staging.js
+dist/config/config.test.js
 media
+dist

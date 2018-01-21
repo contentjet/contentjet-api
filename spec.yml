@@ -1272,7 +1272,6 @@ components:
                 - 'plaintext'
                 - 'uri'
                 - 'email'
-          additionalProperties: false
           required:
             - 'fieldType'
             - 'minLength'
@@ -1300,7 +1299,6 @@ components:
               enum:
                 - 'plaintext'
                 - 'markdown'
-          additionalProperties: false
           required:
             - 'fieldType'
             - 'minLength'
@@ -1323,7 +1321,6 @@ components:
               type: string
               minLength: 1
               maxLength: 32
-          additionalProperties: false
           required:
             - 'fieldType'
             - 'labelTrue'
@@ -1346,7 +1343,6 @@ components:
               enum:
                 - 'number'
                 - 'integer'
-          additionalProperties: false
           required:
             - 'fieldType'
             - 'minValue'
@@ -1366,7 +1362,6 @@ components:
               enum:
                 - 'datetime'
                 - 'date'
-          additionalProperties: false
           required:
             - 'fieldType'
             - 'format'
@@ -1390,7 +1385,6 @@ components:
               enum:
                 - 'single'
                 - 'multiple'
-          additionalProperties: false
           required:
             - 'fieldType'
             - 'choices'
@@ -1409,7 +1403,6 @@ components:
               enum:
                 - 'rgb'
                 - 'rgba'
-          additionalProperties: false
           required:
             - 'fieldType'
             - 'format'
@@ -1430,7 +1423,6 @@ components:
               type: integer
               minimum: 1
               maximum: 1000
-          additionalProperties: false
           required:
             - 'fieldType'
             - 'minLength'
@@ -1452,7 +1444,6 @@ components:
               type: integer
               minimum: 1
               maximum: 1000
-          additionalProperties: false
           required:
             - 'fieldType'
             - 'minLength'
@@ -1474,7 +1465,6 @@ components:
               type: integer
               minimum: 1
               maximum: 1000
-          additionalProperties: false
           required:
             - 'fieldType'
             - 'minLength'
