@@ -26,7 +26,35 @@ For example `dist/config/config.production.js` will be loaded when `NODE_ENV=pro
 
 Note `dist/config/config.production.js` is created for you automatically with the minimum set of options for you to fill out. Be sure to check out `dist/config/config.js` to see comments on all possible options.
 
-#### 3. Database migration
+#### 3. Configure mail backend
+
+Mail must be configured by instantiating a mail backend and attaching it to the `MAIL_BACKEND` property in your `dist/config/config.production.js` file. Contentjet comes with 2 backends out-of-the-box, [Mailgun](https://www.mailgun.com/) (recommended) or SMTP. These mail backends are simply thin wrappers around [nodemailer](https://nodemailer.com).
+
+##### MailGun
+
+```
+const MailGunBackend = require('../backends/permissions/MailGunBackend');
+exports.default = {
+  ...
+  MAIL_BACKEND: new MailGunBackend.default('your-api-key', 'your-domain'),
+  ...
+};
+```
+
+##### SMTP
+
+See the [nodemailer SMTP documentation](https://nodemailer.com/smtp/) for options.
+
+```
+const SMTPBackend = require('../backends/permissions/SMTPBackend');
+exports.default = {
+  ...
+  MAIL_BACKEND: new SMTPBackend.default(options, defaults),
+  ...
+};
+```
+
+#### 4. Database migration
 
 Run the following command to create the required tables in your database.
 
@@ -42,7 +70,7 @@ You must create at least one administrator user.
 npm run create-admin-user
 ```
 
-#### 5. Run
+#### 6. Run
 
 Start the server.
 
@@ -53,4 +81,4 @@ npm start
 ## Development
 
 To run the app in development be sure to set `NODE_ENV=development` and create
-a development config file by copying `src/config/config.ts` to `src/config/config.development.ts` making sure to fill in a value for the `SECRET_KEY` property. Once you have migrated your database and created an administrator (see Quick Start above) you can start the development server by running `npm run dev`.
+a development config file by copying `src/config/config.ts` to `src/config/config.development.ts` making sure to fill in a value for the `SECRET_KEY` property. Once you have migrated your database, configured a mail backend and created an administrator (see Quick Start above) you can start the development server by running `npm run dev`. Alternatively, run a one-off build with `npm run build`.
