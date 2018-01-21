@@ -1,3 +1,6 @@
+# 0.3.1
+* Build output no longer gitignored
+
 # 0.3.0
 * Codebase converted to Typescript
 * Backends are no longer specified as paths in the config, rather they
