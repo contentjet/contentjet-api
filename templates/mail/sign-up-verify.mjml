@@ -1,6 +1,7 @@
 <mjml>
   <mj-body>
     <mj-container background-color="#f7f7f7">
+      <mj-spacer height="10px" />
       <mj-section background-color="#fff">
         <mj-column>
           <mj-text>
@@ -17,6 +18,7 @@
           </mj-button>
         </mj-column>
       </mj-section>
+      <mj-spacer height="10px" />
     </mj-container>
   </mj-body>
 </mjml>
