@@ -151,13 +151,17 @@ export default class Entry extends Model {
       .eager('[user, modifiedByUser, tags, entryType]') as any;
   }
 
-  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilderDelete<Entry> {
-    return Entry.query(trx)
+  static async bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): Promise<number> {
+    const entries = await Entry.query(trx)
       .join('entryType', 'entry.entryTypeId', 'entryType.id')
       .join('project', 'project.id', 'entryType.projectId')
       .whereIn('entry.id', arrayOfIds)
-      .andWhere('project.id', projectId)
-      .delete();
+      .andWhere('project.id', projectId);
+    const entryIds = entries.map(entry => entry.id);
+    const numDeleted = await Entry.query(trx)
+      .whereIn('entry.id', entryIds)
+      .delete()
+    return numDeleted;
   }
 
   static externalFieldsToInternal(entryTypeFields: IEntryTypeField[], entryFields: IExternalEntryFields) {
