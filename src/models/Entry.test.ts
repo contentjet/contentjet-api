@@ -18,7 +18,7 @@ const textField = {
   format: 'plaintext'
 };
 
-describe.only('Entry', function () {
+describe('Entry', function () {
 
   let user1: User;
   let project1: Project;
