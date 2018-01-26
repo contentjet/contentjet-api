@@ -109,8 +109,8 @@ function createMediaTable(knex: knex) {
     table.timestamp('createdAt').defaultTo(knex.fn.now());
     table.timestamp('modifiedAt').defaultTo(knex.fn.now());
     // Constraints
-    table.foreign('projectId').references('project.id');
-    table.foreign('userId').references('user.id');
+    table.foreign('projectId').references('project.id').onDelete('CASCADE');
+    table.foreign('userId').references('user.id').onDelete('CASCADE');
   });
 }
 
@@ -137,8 +137,8 @@ function createEntrytypeTable(knex: knex) {
     table.timestamp('createdAt').defaultTo(knex.fn.now());
     table.timestamp('modifiedAt').defaultTo(knex.fn.now());
     // Constraints
-    table.foreign('projectId').references('project.id');
-    table.foreign('userId').references('user.id');
+    table.foreign('projectId').references('project.id').onDelete('CASCADE');
+    table.foreign('userId').references('user.id').onDelete('CASCADE');
   });
 }
 
@@ -148,7 +148,7 @@ function createEntrytagTable(knex: knex) {
     table.integer('projectId').unsigned();
     table.string('name', 128);
     // Constraints
-    table.foreign('projectId').references('project.id');
+    table.foreign('projectId').references('project.id').onDelete('CASCADE');
     table.unique(['projectId', 'name']);
   });
 }
@@ -165,9 +165,9 @@ function createEntryTable(knex: knex) {
     table.timestamp('createdAt').defaultTo(knex.fn.now());
     table.timestamp('modifiedAt').defaultTo(knex.fn.now());
     // Constraints
-    table.foreign('entryTypeId').references('entryType.id');
-    table.foreign('userId').references('user.id');
-    table.foreign('modifiedByUserId').references('user.id');
+    table.foreign('entryTypeId').references('entryType.id').onDelete('CASCADE');
+    table.foreign('userId').references('user.id').onDelete('CASCADE');
+    table.foreign('modifiedByUserId').references('user.id').onDelete('CASCADE');
   });
 }
 
