@@ -4,7 +4,7 @@
 * Added Entry tests
 * Fixed missing createdAt and modifiedAt fields from EntryType schema
 * Added vertical spacing to email templates main section
-* `npm test` now runs `npm run build` for running tests
+* `npm test` now runs `npm run build` before running tests
 
 # 0.3.1
 * Build output no longer gitignored

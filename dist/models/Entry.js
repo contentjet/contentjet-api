@@ -107,13 +107,17 @@ class Entry extends objection_1.Model {
             .getInProject(projectId, trx)
             .eager('[user, modifiedByUser, tags, entryType]');
     }
-    static bulkDelete(arrayOfIds, projectId, trx) {
-        return Entry.query(trx)
+    static async bulkDelete(arrayOfIds, projectId, trx) {
+        const entries = await Entry.query(trx)
             .join('entryType', 'entry.entryTypeId', 'entryType.id')
             .join('project', 'project.id', 'entryType.projectId')
             .whereIn('entry.id', arrayOfIds)
-            .andWhere('project.id', projectId)
+            .andWhere('project.id', projectId);
+        const entryIds = entries.map(entry => entry.id);
+        const numDeleted = await Entry.query(trx)
+            .whereIn('entry.id', entryIds)
             .delete();
+        return numDeleted;
     }
     static externalFieldsToInternal(entryTypeFields, entryFields) {
         return entryTypeFields
@@ -205,6 +209,12 @@ class Entry extends objection_1.Model {
         const p2 = this.$relatedQuery('tags', trx).relate(idsToRelate);
         await Promise.all([p1, p2]);
         return entryTags;
+    }
+    static async deleteAll(trx) {
+        const num = await Entry
+            .query(trx)
+            .delete();
+        return num;
     }
 }
 exports.default = Entry;

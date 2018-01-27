@@ -408,6 +408,14 @@ class EntryType extends objection_1.Model {
                             }
                         ]
                     }
+                },
+                'createdAt': {
+                    'type': 'string',
+                    'format': 'date-time'
+                },
+                'modifiedAt': {
+                    'type': 'string',
+                    'format': 'date-time'
                 }
             },
             'required': [
