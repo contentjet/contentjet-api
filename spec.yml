@@ -1504,6 +1504,12 @@ components:
               - $ref: '#/components/schemas/MEDIA'
               - $ref: '#/components/schemas/LINK'
               - $ref: '#/components/schemas/LIST'
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
 
     Entry:
       properties:
