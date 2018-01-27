@@ -456,13 +456,13 @@ export default class EntryType extends Model {
             ]
           }
         },
-        createdAt: {
-          type: 'string',
-          format: 'date-time'
+        'createdAt': {
+          'type': 'string',
+          'format': 'date-time'
         },
-        modifiedAt: {
-          type: 'string',
-          format: 'date-time'
+        'modifiedAt': {
+          'type': 'string',
+          'format': 'date-time'
         }
       },
       'required': [
