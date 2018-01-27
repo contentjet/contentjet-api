@@ -1,3 +1,11 @@
+# 0.4.0
+* All foreign keys now CASCADE on delete
+* Fixed issued with Entry.bulkDelete causing database error
+* Added Entry tests
+* Fixed missing createdAt and modifiedAt fields from EntryType schema
+* Added vertical spacing to email templates main section
+* `npm test` now runs `npm run build` before running tests
+
 # 0.3.1
 * Build output no longer gitignored
 
