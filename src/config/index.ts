@@ -24,7 +24,7 @@ const config: any = {
       host: env('DB_HOST') || 'localhost',
       database: env('DB_NAME') || 'contentjet-api',
       user: env('DB_USER') || 'postgres',
-      password: env('DB_PASSWORD') || 'password'
+      password: env('DB_PASS') || 'password'
     },
     pool: {
       min: parseInt(env('DB_POOL_MIN') || '2'),

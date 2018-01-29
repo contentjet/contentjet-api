@@ -10,7 +10,6 @@
     "rollback": "knex --knexfile dist/knexfile.js migrate:rollback",
     "test": "npm run build && mocha dist/models/**/*.test.js",
     "create-admin-user": "node ./dist/scripts/create-admin-user.js",
-    "postinstall": "node ./dist/scripts/init-config.js",
     "build": "tsc"
   },
   "author": "Will Dady",
