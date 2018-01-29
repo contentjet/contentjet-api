@@ -1,3 +1,4 @@
+require('dotenv').config();
 import config from './config';
 import app from './app';
 

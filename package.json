@@ -8,7 +8,7 @@
     "dev": "npm run build && concurrently \"tsc --watch\" \"nodemon dist/server.js\"",
     "migrate": "npm run build && knex --knexfile dist/knexfile.js migrate:latest && node dist/scripts/create-permissions.js",
     "rollback": "knex --knexfile dist/knexfile.js migrate:rollback",
-    "test": "NODE_ENV=test npm run build && mocha dist/models/**/*.test.js",
+    "test": "npm run build && mocha dist/models/**/*.test.js",
     "create-admin-user": "node ./dist/scripts/create-admin-user.js",
     "postinstall": "node ./dist/scripts/init-config.js",
     "build": "tsc"
@@ -18,6 +18,7 @@
   "dependencies": {
     "axios": "^0.16.2",
     "body-parser": "^1.17.2",
+    "dotenv": "^4.0.0",
     "ejs": "^2.5.7",
     "eslint": "^4.8.0",
     "inquirer": "^3.3.0",

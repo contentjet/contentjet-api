@@ -8,3 +8,4 @@ dist/config/config.production.js
 dist/config/config.staging.js
 dist/config/config.test.js
 media
+.env
