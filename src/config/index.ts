@@ -13,7 +13,9 @@ interface IConfig {
   TOKEN_EXPIRY: number;
   ACTIVE_ON_SIGNUP: boolean;
   DEBUG: boolean;
-  CORS: any;
+  CORS: {
+    origin: string
+  };
   MAIL_BACKEND: IMailService;
   MAIL_FROM: string;
   PERMISSION_BACKENDS: IPermissionBackend[];
