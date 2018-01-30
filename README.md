@@ -42,6 +42,22 @@ DB_USER=postgres
 DB_PASS=password
 ```
 
+#### URLs
+
+The application needs to know where it's hosted.
+
+FRONTEND_URL is the url hosting [contentjet-ui][contentjet-ui].
+
+```
+FRONTEND_URL=https://example.com
+```
+
+BACKEND_URL is the url hosting _this_ application ([contentjet-api][contentjet-api]).
+
+```
+BACKEND_URL=https://api.example.com
+```
+
 #### Mail
 
 A mail backend **must** be configured. There are 2 backends out-of-the-box, [Mailgun](https://www.mailgun.com/) (recommended) or SMTP. Each mail backend is simply a thin wrapper around [nodemailer](https://nodemailer.com). Depending on which backend you choose you will need to set the following variables.
@@ -66,7 +82,7 @@ SMTP_AUTH_USER=your-smtp-user
 SMTP_AUTH_PASS=your-smtp-pass
 ```
 
-Environment variables can either be exported directly or you may optionally create a `.env` file in the root of the project and specify them there. Note any _exported_ variables will take precedence over those defined in `.env`. See [dotenv](https://github.com/motdotla/dotenv) for more details.
+Environment variables can either be exported directly or you may optionally create a `.env` file in the root of the repository and specify them there. Note any _exported_ variables will take precedence over those defined in `.env`. See [dotenv](https://github.com/motdotla/dotenv) for more details.
 
 ### 3. Database migration
 
@@ -97,3 +113,6 @@ npm start
 To run the app in development you must install _all_ dependencies by running `npm install`.
 
 Once you have migrated your database, configured a mail backend and created an administrator (see Quick Start above) you can start the development server by running `npm run dev`. Alternatively, run a one-off build with `npm run build`.
+
+[contentjet-ui]: https://github.com/contentjet/contentjet-ui
+[contentjet-api]: https://github.com/contentjet/contentjet-api

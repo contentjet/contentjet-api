@@ -13,8 +13,10 @@ function env(name: string, required: boolean = false): string {
 
 const MEDIA_ROOT = env('MEDIA_ROOT') || 'media/';
 
+const PORT = parseInt(env('PORT') || '3000');
+
 const config: any = {
-  PORT: parseInt(env('PORT') || '3000'),
+  PORT: PORT,
   // Secret key used for hashing passwords and generating tokens
   SECRET_KEY: env('SECRET_KEY', true),
   // Database connection options. See http://knexjs.org/#Installation-client
@@ -36,6 +38,8 @@ const config: any = {
   },
   // The url where contentjet-ui is hosted
   FRONTEND_URL: env('FRONTEND_URL') || 'http://localhost:9000',
+  // The url where contentjet-api (this app) is hosted
+  BACKEND_URL: env('BACKEND_URL') || `http://localhost:${PORT}`,
   // The duration in seconds an authentication token (JWT) is valid for
   TOKEN_EXPIRY: parseInt(env('TOKEN_EXPIRY') || '3000'),
   // When false the user will receive a signup confirmation email. When true
