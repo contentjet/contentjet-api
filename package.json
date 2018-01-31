@@ -6,6 +6,7 @@
     "type": "git",
     "url": "https://github.com/contentjet/contentjet-api"
   },
+  "private": false,
   "main": "index.js",
   "scripts": {
     "start": "node dist/server.js",
