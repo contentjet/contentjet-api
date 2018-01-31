@@ -17,7 +17,7 @@
     "build": "tsc"
   },
   "author": "Will Dady",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "axios": "^0.16.2",
     "body-parser": "^1.17.2",
