@@ -16,6 +16,7 @@ const MEDIA_ROOT = env('MEDIA_ROOT') || 'media/';
 const PORT = parseInt(env('PORT') || '3000');
 
 const config: any = {
+  NODE_ENV: env('NODE_ENV', true),
   PORT: PORT,
   // Secret key used for hashing passwords and generating tokens
   SECRET_KEY: env('SECRET_KEY', true),
