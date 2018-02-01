@@ -1,6 +1,5 @@
-import * as path from 'path';
-
 import config from './config';
+import * as path from 'path';
 import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
 import * as cors from 'kcors';

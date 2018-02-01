@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const path = require("path");
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const DiskStorageBackend_1 = require("../backends/storage/DiskStorageBackend");
 const ModelPermissionBackend_1 = require("../backends/permissions/ModelPermissionBackend");
 const ProjectPermissionBackend_1 = require("../backends/permissions/ProjectPermissionBackend");
@@ -25,6 +27,7 @@ const config = {
         client: 'postgresql',
         connection: {
             host: env('DB_HOST') || 'localhost',
+            port: parseInt(env('DB_PORT') || '5432'),
             database: env('DB_NAME') || 'contentjet-api',
             user: env('DB_USER') || 'postgres',
             password: env('DB_PASS') || 'password'

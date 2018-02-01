@@ -1,3 +1,5 @@
+import * as path from 'path';
+require('dotenv').config({path: path.resolve(__dirname, '../../.env')});
 import DiskStorageBackend from '../backends/storage/DiskStorageBackend';
 import ModelPermissionBackend from '../backends/permissions/ModelPermissionBackend';
 import ProjectPermissionBackend from '../backends/permissions/ProjectPermissionBackend';
@@ -25,6 +27,7 @@ const config: any = {
     client: 'postgresql', // Do not change. Only postgres is supported.
     connection: {
       host: env('DB_HOST') || 'localhost',
+      port: parseInt(env('DB_PORT') || '5432'),
       database: env('DB_NAME') || 'contentjet-api',
       user: env('DB_USER') || 'postgres',
       password: env('DB_PASS') || 'password'

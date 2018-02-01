@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const path = require("path");
 const config_1 = require("./config");
+const path = require("path");
 const Koa = require("koa");
 const bodyParser = require("koa-bodyparser");
 const cors = require("kcors");
