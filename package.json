@@ -1,23 +1,28 @@
 {
   "name": "contentjet-api",
-  "version": "0.4.0",
-  "description": "",
+  "version": "0.5.0",
+  "description": "A Node based back end for contentjet, a powerful headless API-first CMS.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/contentjet/contentjet-api"
+  },
+  "private": false,
   "main": "index.js",
   "scripts": {
     "start": "node dist/server.js",
     "dev": "npm run build && concurrently \"tsc --watch\" \"nodemon dist/server.js\"",
-    "migrate": "npm run build && knex --knexfile dist/knexfile.js migrate:latest && node dist/scripts/create-permissions.js",
+    "migrate": "knex --knexfile dist/knexfile.js migrate:latest && node dist/scripts/create-permissions.js",
     "rollback": "knex --knexfile dist/knexfile.js migrate:rollback",
-    "test": "NODE_ENV=test npm run build && mocha dist/models/**/*.test.js",
+    "test": "./test.sh",
     "create-admin-user": "node ./dist/scripts/create-admin-user.js",
-    "postinstall": "node ./dist/scripts/init-config.js",
     "build": "tsc"
   },
   "author": "Will Dady",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "axios": "^0.16.2",
     "body-parser": "^1.17.2",
+    "dotenv": "^4.0.0",
     "ejs": "^2.5.7",
     "eslint": "^4.8.0",
     "inquirer": "^3.3.0",
@@ -69,7 +74,6 @@
     "@types/uuid": "^3.4.3",
     "@types/yamljs": "^0.2.30",
     "chai": "^4.0.1",
-    "chai-http": "^3.0.0",
     "concurrently": "^3.5.1",
     "mocha": "^3.4.2",
     "nodemon": "^1.12.1",

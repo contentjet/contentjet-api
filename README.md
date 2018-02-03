@@ -21,42 +21,71 @@ npm install knex -g
 
 ### 2. Configuration
 
-Configuration is resolved at run-time based on the current value of the `NODE_ENV` environment variable.
-For example `dist/config/config.production.js` will be loaded when `NODE_ENV=production`. The environment specific config will be _shallowly_ merged with the default configuration found in `dist/config/config.js`.
+The app is configurable through the use of environment variables. For a complete list of all options refer to `src/config/index.ts`. While _most_ options have default fallbacks you will need to provide values for the following:
 
-_Note `dist/config/config.production.js` is created for you automatically with the minimum set of options for you to fill out. Be sure to check out `dist/config/config.js` to see comments on all possible options_.
+#### Secret key
 
-### 3. Configure mail backend
-
-Mail **must** be configured by editing `dist/config/config.production.js` and instantiating a mail backend and attaching it to the `MAIL_BACKEND` property. An email address must also be assigned to the `MAIL_FROM` property. Contentjet comes with 2 backends out-of-the-box, [Mailgun](https://www.mailgun.com/) (recommended) or SMTP. These mail backends are simply thin wrappers around [nodemailer](https://nodemailer.com).
-
-#### MailGun
+Secret key is used in the hashing of passwords and tokens. You must supply a random string to this value and be sure to keep it secret!
 
 ```
-const MailGunBackend = require('../backends/permissions/MailGunBackend');
-exports.default = {
-  ...
-  MAIL_BACKEND: new MailGunBackend.default('your-api-key', 'your-domain'),
-  MAIL_FROM: 'noreply@yourdomain.com',
-  ...
-};
+SECRET_KEY=yoursupersecretkey
 ```
 
-#### SMTP
+#### Database
 
-See the [nodemailer SMTP documentation](https://nodemailer.com/smtp/) for options.
+Database connection settings. Note only PostgreSQL is supported.
 
 ```
-const SMTPBackend = require('../backends/permissions/SMTPBackend');
-exports.default = {
-  ...
-  MAIL_BACKEND: new SMTPBackend.default(options, defaults),
-  MAIL_FROM: 'noreply@yourdomain.com',
-  ...
-};
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=contentjet-api
+DB_USER=postgres
+DB_PASS=password
 ```
 
-### 4. Database migration
+#### URLs
+
+The application needs to know where it's hosted.
+
+FRONTEND_URL is the url hosting [contentjet-ui][contentjet-ui].
+
+```
+FRONTEND_URL=https://example.com
+```
+
+BACKEND_URL is the url hosting _this_ application ([contentjet-api][contentjet-api]).
+
+```
+BACKEND_URL=https://api.example.com
+```
+
+#### Mail
+
+A mail backend **must** be configured. There are 2 backends out-of-the-box, [Mailgun](https://www.mailgun.com/) (recommended) or SMTP. Each mail backend is simply a thin wrapper around [nodemailer](https://nodemailer.com). Depending on which backend you choose you will need to set the following variables.
+
+##### MailGun
+
+```
+MAIL_BACKEND=mailgun
+MAIL_FROM=noreply@your-domain.com
+MAILGUN_API_KEY=your-api-key
+MAILGUN_DOMAIN=your-domain
+```
+
+##### SMTP
+
+```
+MAIL_BACKEND=smtp
+MAIL_FROM=noreply@your-domain.com
+SMTP_HOST=your-smtp-host
+SMTP_PORT=your-smtp-host-port
+SMTP_AUTH_USER=your-smtp-user
+SMTP_AUTH_PASS=your-smtp-pass
+```
+
+Environment variables can either be exported directly or you may optionally create a `.env` file in the root of the repository and specify them there. Note any _exported_ variables will take precedence over those defined in `.env`. See [dotenv](https://github.com/motdotla/dotenv) for more details.
+
+### 3. Database migration
 
 Run the following command to create the required tables in your database.
 
@@ -72,7 +101,7 @@ You must create at least one administrator user.
 npm run create-admin-user
 ```
 
-### 6. Run
+### 5. Run
 
 Start the server.
 
@@ -82,7 +111,9 @@ npm start
 
 ## Development
 
-To run the app in development you must install _all_ dependencies by running `npm install`, set `NODE_ENV=development` and create
-a development config file by copying `src/config/config.ts` to `src/config/config.development.ts` making sure to fill in a value for the `SECRET_KEY` property.
+To run the app in development you must install _all_ dependencies by running `npm install`.
 
 Once you have migrated your database, configured a mail backend and created an administrator (see Quick Start above) you can start the development server by running `npm run dev`. Alternatively, run a one-off build with `npm run build`.
+
+[contentjet-ui]: https://github.com/contentjet/contentjet-ui
+[contentjet-api]: https://github.com/contentjet/contentjet-api

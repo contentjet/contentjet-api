@@ -11,7 +11,7 @@ class ProjectPermissionBackend {
             return false;
         if (user.isAdmin)
             return true;
-        if (!(await project.isActiveMember(user)))
+        if (!(await project.isActiveMember(user.id)))
             return false;
         switch (permissionName) {
             case 'project:delete':
@@ -30,7 +30,7 @@ class ProjectPermissionBackend {
             case 'webHook:list':
             case 'webHook:retrieve':
             case 'webHook:delete':
-                return await project.isActiveMember(user, 'admin');
+                return await project.isActiveMember(user.id, 'admin');
             default:
                 return true;
         }

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const path = require("path");
 const config_1 = require("./config");
+const path = require("path");
 const Koa = require("koa");
 const bodyParser = require("koa-bodyparser");
 const cors = require("kcors");
@@ -37,8 +37,6 @@ const WebHook_1 = require("./models/WebHook");
 const NotFoundError_1 = require("./errors/NotFoundError");
 const ValidationError_1 = require("./errors/ValidationError");
 const AuthenticationError_1 = require("./errors/AuthenticationError");
-// Load the OpenAPI spec from disk converting YAML to JSON
-const spec = yaml.load('spec.yml');
 // Attach it to the viewSetOptions
 const viewSetOptions = {
     storage: config_1.default.STORAGE_BACKEND
@@ -46,7 +44,7 @@ const viewSetOptions = {
 // Instantiate root router and attach routes
 const router = new Router();
 router.use('/user/', new UserViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/', async (ctx, next) => {
+router.use('/project/:projectId(\\d+)/', async function (ctx, next) {
     const project = await Project_1.default.getById(ctx.params.projectId);
     if (!project)
         throw new NotFoundError_1.default();
@@ -61,16 +59,21 @@ router.use('/project/:projectId(\\d+)/media-tag/', new MediaTagViewSet_1.default
 router.use('/project/:projectId(\\d+)/entry-type/', new EntryTypeViewSet_1.default(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry-tag/', new EntryTagViewSet_1.default(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry/', new EntryViewSet_1.default(viewSetOptions).routes());
+// Load the OpenAPI spec from disk converting YAML to JSON and dynamically populating
+// the servers array with our config.BACKEND_URL.
+const spec = yaml.load('spec.yml');
+if (!spec.servers)
+    spec.servers = [];
+spec.servers.push({ url: config_1.default.BACKEND_URL });
 router.get('/spec', function (ctx) {
     ctx.body = spec;
 });
 const app = new Koa();
-// Instantiate mail backend and expose sendMail method on context prototype
-const mailBackend = config_1.default.MAIL_BACKEND;
-app.context.sendMail = mailBackend.sendMail;
+// Expose sendMail method on context prototype
+app.context.sendMail = config_1.default.MAIL_BACKEND.sendMail;
 app
     .use(cors())
-    .use(async (ctx, next) => {
+    .use(async function (ctx, next) {
     try {
         await next();
         // Catch Koa's stadard 404 response and throw our own error
@@ -97,7 +100,7 @@ app
             console.log(err.stack);
     }
 })
-    .use(async (ctx, next) => {
+    .use(async function (ctx, next) {
     await next();
     const { project, viewsetResult } = ctx.state;
     if (!viewsetResult || !project)
@@ -135,7 +138,7 @@ app
     });
 });
 if (config_1.default.SERVE_MEDIA) {
-    app.use(async (ctx, next) => {
+    app.use(async function (ctx, next) {
         if (ctx.path.match(/^\/media\/.*$/)) {
             await send(ctx, path.join(config_1.default.MEDIA_ROOT, ctx.path.replace('/media/', '')));
         }
@@ -148,7 +151,7 @@ app
     .use(bodyParser())
     .use(router.routes())
     .use(router.allowedMethods())
-    .use(async (ctx) => {
+    .use(async function (ctx) {
     ctx.status = 404;
     ctx.body = {
         message: 'Not found',

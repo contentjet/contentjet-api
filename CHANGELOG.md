@@ -1,3 +1,11 @@
+# 0.5.0
+* Config is now loaded from environment variables, removed postinstall script
+* Added required BACKEND_URL config variable. This value will be injected into the OpenAPI _servers_ block visible at `/spec`.
+* Added optional DB_PORT config variable
+* Added Dockerfile and docker-start.sh
+* Added EntryType integration test
+* Tests are now ran using Docker with `./test.sh`
+
 # 0.4.0
 * All foreign keys now CASCADE on delete
 * Fixed issued with Entry.bulkDelete causing database error
