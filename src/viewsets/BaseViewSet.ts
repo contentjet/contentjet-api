@@ -1,6 +1,6 @@
 import * as Koa from 'koa';
 import * as Router from 'koa-router';
-import {clone} from 'lodash';
+import {pick} from 'lodash';
 import {ModelClass, QueryBuilder} from 'objection';
 import * as moment from 'moment';
 import NotFoundError from '../errors/NotFoundError';
@@ -105,6 +105,10 @@ export default abstract class BaseViewSet<MC> {
     return [requirePermission(`${this.Model.tableName}:list`)];
   }
 
+  getColumnNames(): string[] {
+    return Object.keys(this.Model.jsonSchema.properties as any);
+  }
+
   async list(ctx: Koa.Context): Promise<IPaginatedResult | MC[]> {
     const limit = this.getPageSize(ctx);
     let page = parseInt(ctx.request.query.page || 1);
@@ -135,8 +139,9 @@ export default abstract class BaseViewSet<MC> {
   }
 
   async create(ctx: Koa.Context): Promise<MC> {
+    const data = pick(ctx.request.body, this.getColumnNames()) as any;
     const model = await this.getCreateQueryBuilder(ctx)
-      .insert(ctx.request.body)
+      .insert(data)
       .returning('*')
       .first();
     if (!model) throw new DatabaseError();
@@ -176,7 +181,7 @@ export default abstract class BaseViewSet<MC> {
 
   async update(ctx: Koa.Context) {
     const id = ctx.params[this.getIdRouteParameter()];
-    const data = clone(ctx.request.body);
+    const data = pick(ctx.request.body, this.getColumnNames()) as any;
     delete data['createdAt'];
     data.id = parseInt(id);
     data.modifiedAt = moment().format();

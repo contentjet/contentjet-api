@@ -72,6 +72,9 @@ class BaseViewSet {
     getListMiddleware() {
         return [middleware_1.requirePermission(`${this.Model.tableName}:list`)];
     }
+    getColumnNames() {
+        return Object.keys(this.Model.jsonSchema.properties);
+    }
     async list(ctx) {
         const limit = this.getPageSize(ctx);
         let page = parseInt(ctx.request.query.page || 1);
@@ -102,8 +105,9 @@ class BaseViewSet {
         return [middleware_1.requirePermission(`${this.Model.tableName}:create`)];
     }
     async create(ctx) {
+        const data = lodash_1.pick(ctx.request.body, this.getColumnNames());
         const model = await this.getCreateQueryBuilder(ctx)
-            .insert(ctx.request.body)
+            .insert(data)
             .returning('*')
             .first();
         if (!model)
@@ -141,7 +145,7 @@ class BaseViewSet {
     }
     async update(ctx) {
         const id = ctx.params[this.getIdRouteParameter()];
-        const data = lodash_1.clone(ctx.request.body);
+        const data = lodash_1.pick(ctx.request.body, this.getColumnNames());
         delete data['createdAt'];
         data.id = parseInt(id);
         data.modifiedAt = moment().format();

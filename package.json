@@ -74,7 +74,6 @@
     "@types/uuid": "^3.4.3",
     "@types/yamljs": "^0.2.30",
     "chai": "^4.0.1",
-    "chai-http": "^3.0.0",
     "concurrently": "^3.5.1",
     "mocha": "^3.4.2",
     "nodemon": "^1.12.1",

@@ -10,7 +10,7 @@ export default class ProjectPermissionBackend implements IPermissionBackend {
     if (['project:list', 'project:create'].includes(permissionName)) return true;
     if (!project) return false;
     if (user.isAdmin) return true;
-    if (!(await project.isActiveMember(user))) return false;
+    if (!(await project.isActiveMember(user.id))) return false;
     switch (permissionName) {
       case 'project:delete':
         return false;
@@ -28,7 +28,7 @@ export default class ProjectPermissionBackend implements IPermissionBackend {
       case 'webHook:list':
       case 'webHook:retrieve':
       case 'webHook:delete':
-        return await project.isActiveMember(user, 'admin');
+        return await project.isActiveMember(user.id, 'admin');
       default:
         return true;
     }

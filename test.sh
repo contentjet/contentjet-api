@@ -26,7 +26,7 @@ export DB_PASS=testpassword
 if ! bash -c "docker start contentjet-api-test" 2> /dev/null;
 then
   echo "Test database container doesn't exist, creating."
-  docker run --name contentjet-api-test -p $DB_PORT:5432 -d -e POSTGRES_DB=$DB_NAME -e POSTGRES_PASSWORD=$DB_PASS postgres:9.5.4
+  docker run --name contentjet-api-test -p $DB_PORT:5432 -d -e POSTGRES_DB=$DB_NAME -e POSTGRES_PASSWORD=$DB_PASS postgres:9.6.2
 else
   echo "Test database container found!"
 fi
@@ -42,4 +42,4 @@ done
 
 node dist/scripts/create-permissions.js
 
-$mocha dist/models/**/*.test.js
+$mocha dist/**/*.test.js
