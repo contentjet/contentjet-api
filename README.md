@@ -16,7 +16,6 @@ Contentjet is composed of 2 discreet applications, the backend API contentjet-ap
 
 ```
 npm install --production
-npm install knex -g
 ```
 
 ### 2. Configuration
@@ -33,7 +32,7 @@ SECRET_KEY=yoursupersecretkey
 
 #### Database
 
-Database connection settings. Note only PostgreSQL is supported.
+Database connection settings. Note only PostgreSQL 9.5+ is supported.
 
 ```
 DB_HOST=localhost
