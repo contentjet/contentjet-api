@@ -39,9 +39,6 @@ import NotFoundError from './errors/NotFoundError';
 import ValidationError from './errors/ValidationError';
 import AuthenticationError from './errors/AuthenticationError';
 
-// Load the OpenAPI spec from disk converting YAML to JSON
-const spec = yaml.load('spec.yml');
-
 // Attach it to the viewSetOptions
 const viewSetOptions = {
   storage: config.STORAGE_BACKEND
@@ -50,7 +47,7 @@ const viewSetOptions = {
 // Instantiate root router and attach routes
 const router = new Router();
 router.use('/user/', new UserViewSet(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/', async (ctx: Koa.Context, next: Function) => {
+router.use('/project/:projectId(\\d+)/', async function (ctx: Koa.Context, next: Function) {
   const project = await Project.getById(ctx.params.projectId);
   if (!project) throw new NotFoundError();
   ctx.state.project = project;
@@ -64,15 +61,20 @@ router.use('/project/:projectId(\\d+)/media-tag/', new MediaTagViewSet(viewSetOp
 router.use('/project/:projectId(\\d+)/entry-type/', new EntryTypeViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry-tag/', new EntryTagViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry/', new EntryViewSet(viewSetOptions).routes());
+
+// Load the OpenAPI spec from disk converting YAML to JSON and dynamically populating
+// the servers array with our config.BACKEND_URL.
+const spec = yaml.load('spec.yml');
+if (!spec.servers) spec.servers = [];
+spec.servers.push({url: config.BACKEND_URL});
 router.get('/spec', function (ctx: Koa.Context) {
   ctx.body = spec;
 });
 
 const app = new Koa();
 
-// Instantiate mail backend and expose sendMail method on context prototype
-const mailBackend = config.MAIL_BACKEND;
-app.context.sendMail = mailBackend.sendMail;
+// Expose sendMail method on context prototype
+app.context.sendMail = config.MAIL_BACKEND.sendMail;
 
 interface IWebHookEventPayload {
   dateTime: Date;
@@ -83,7 +85,7 @@ interface IWebHookEventPayload {
 
 app
   .use(cors())
-  .use(async (ctx: Koa.Context, next: Function) => {
+  .use(async function (ctx: Koa.Context, next: Function) {
     try {
       await next();
       // Catch Koa's stadard 404 response and throw our own error
@@ -105,7 +107,7 @@ app
       if (config.DEBUG) console.log(err.stack);
     }
   })
-  .use(async (ctx: Koa.Context, next: Function) => {
+  .use(async function (ctx: Koa.Context, next: Function) {
     await next();
     const {project, viewsetResult} = ctx.state;
     if (!viewsetResult || !project) return;
@@ -140,22 +142,20 @@ app
   });
 
 if (config.SERVE_MEDIA) {
-  app.use(
-    async (ctx: Koa.Context, next: Function) => {
-      if (ctx.path.match(/^\/media\/.*$/)) {
-        await send(ctx, path.join(config.MEDIA_ROOT, ctx.path.replace('/media/', '')));
-      } else {
-        await next();
-      }
+  app.use(async function (ctx: Koa.Context, next: Function) {
+    if (ctx.path.match(/^\/media\/.*$/)) {
+      await send(ctx, path.join(config.MEDIA_ROOT, ctx.path.replace('/media/', '')));
+    } else {
+      await next();
     }
-  );
+  });
 }
 
 app
   .use(bodyParser())
   .use(router.routes())
   .use(router.allowedMethods())
-  .use(async (ctx: Koa.Context) => {
+  .use(async function (ctx: Koa.Context) {
     ctx.status = 404;
     ctx.body = {
       message: 'Not found',
