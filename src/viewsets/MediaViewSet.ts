@@ -24,9 +24,17 @@ const updateConstraints = {
   }
 };
 
+enum MediaOrderBy {
+  createdAtDesc = '-createdAt',
+  createdAt = 'createdAt',
+  modifiedAtDesc = '-modifiedAt',
+  modifiedAt= 'modifiedAt'
+}
+
 interface IMediaListQuery {
   tags?: string;
   search?: string;
+  orderBy?: MediaOrderBy
 }
 
 export default class MediaViewSet extends BaseViewSet<Media> {
@@ -58,7 +66,7 @@ export default class MediaViewSet extends BaseViewSet<Media> {
 
   getListQueryBuilder(ctx: Koa.Context) {
     let queryBuilder = Media.getInProject(ctx.state.project.id);
-    let {tags, search} = ctx.request.query as IMediaListQuery;
+    const {tags, search, orderBy} = ctx.request.query as IMediaListQuery;
     // Crude search
     if (search) {
       const words = search.split(' ').filter(w => w).map(w => w.toLowerCase());
@@ -79,6 +87,20 @@ export default class MediaViewSet extends BaseViewSet<Media> {
           queryBuilder = queryBuilder.orWhere('tags.name', tag);
         }
       });
+    }
+    // Ordering
+    if (orderBy) {
+      if (orderBy === MediaOrderBy.createdAt) {
+        queryBuilder = queryBuilder.orderBy('media.createdAt');
+      } else if (orderBy === MediaOrderBy.createdAtDesc) {
+        queryBuilder = queryBuilder.orderBy('media.createdAt', 'desc');
+      } else if (orderBy === MediaOrderBy.modifiedAt) {
+        queryBuilder = queryBuilder.orderBy('media.modifiedAt');
+      } else if (orderBy === MediaOrderBy.modifiedAtDesc) {
+        queryBuilder = queryBuilder.orderBy('media.modifiedAt', 'desc');
+      }
+    } else {
+      queryBuilder = queryBuilder.orderBy('media.createdAt', 'desc');
     }
     return queryBuilder;
   }
