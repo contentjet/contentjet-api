@@ -35,6 +35,13 @@ const initialValidationConstraints = {
         tags: true
     }
 };
+var EntryOrderBy;
+(function (EntryOrderBy) {
+    EntryOrderBy["createdAtDesc"] = "-createdAt";
+    EntryOrderBy["createdAt"] = "createdAt";
+    EntryOrderBy["modifiedAtDesc"] = "-modifiedAt";
+    EntryOrderBy["modifiedAt"] = "modifiedAt";
+})(EntryOrderBy || (EntryOrderBy = {}));
 class EntryViewSet extends BaseViewSet_1.default {
     constructor(options) {
         super(Entry_1.default, options);
@@ -54,7 +61,7 @@ class EntryViewSet extends BaseViewSet_1.default {
         let queryBuilder = Entry_1.default
             .getInProject(ctx.state.project.id)
             .eager('[tags, entryType, modifiedByUser, user]');
-        let { tags, entryType, nonPublished, search } = ctx.request.query;
+        let { tags, entryType, nonPublished, search, orderBy } = ctx.request.query;
         // We only include entries where published date is in the past. If nonPublished
         // query parameter is present we include BOTH published and non-published entries.
         if (!nonPublished) {
@@ -88,6 +95,24 @@ class EntryViewSet extends BaseViewSet_1.default {
                     queryBuilder = queryBuilder.orWhere('tags.name', tag);
                 }
             });
+        }
+        // Ordering
+        if (orderBy) {
+            if (orderBy === EntryOrderBy.createdAt) {
+                queryBuilder = queryBuilder.orderBy('entry.createdAt');
+            }
+            else if (orderBy === EntryOrderBy.createdAtDesc) {
+                queryBuilder = queryBuilder.orderBy('entry.createdAt', 'desc');
+            }
+            else if (orderBy === EntryOrderBy.modifiedAt) {
+                queryBuilder = queryBuilder.orderBy('entry.modifiedAt');
+            }
+            else if (orderBy === EntryOrderBy.modifiedAtDesc) {
+                queryBuilder = queryBuilder.orderBy('entry.modifiedAt', 'desc');
+            }
+        }
+        else {
+            queryBuilder = queryBuilder.orderBy('entry.modifiedAt', 'desc');
         }
         return queryBuilder;
     }

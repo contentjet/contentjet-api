@@ -99,8 +99,7 @@ class Entry extends objection_1.Model {
         return Entry
             .query(trx)
             .joinRelation('entryType')
-            .where('entryType.projectId', projectId)
-            .orderBy('entry.modifiedAt', 'desc');
+            .where('entryType.projectId', projectId);
     }
     static getInProjectWithRelations(projectId, trx) {
         return Entry
