@@ -1,5 +1,7 @@
 # contentjet-api
 
+![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square)
+
 A Node based back end for contentjet, a powerful headless API-first CMS. Built with [Koa](http://koajs.com/), [Objection](http://vincit.github.io/objection.js/) and [PostgreSQL](https://www.postgresql.org/).
 
 Contentjet is composed of 2 discreet applications, the backend API contentjet-api (this repository) and the frontend HTML user interface [contentjet-ui](https://github.com/contentjet/contentjet-ui).
