@@ -1,3 +1,7 @@
+# 0.6.0
+* Entries list endpoint now supports `orderBy` parameter
+* Media list endpoint now supports `orderBy` parameter
+
 # 0.5.0
 * Config is now loaded from environment variables, removed postinstall script
 * Added required BACKEND_URL config variable. This value will be injected into the OpenAPI _servers_ block visible at `/spec`.

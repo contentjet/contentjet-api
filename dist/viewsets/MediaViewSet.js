@@ -23,6 +23,13 @@ const updateConstraints = {
         tags: true
     }
 };
+var MediaOrderBy;
+(function (MediaOrderBy) {
+    MediaOrderBy["createdAtDesc"] = "-createdAt";
+    MediaOrderBy["createdAt"] = "createdAt";
+    MediaOrderBy["modifiedAtDesc"] = "-modifiedAt";
+    MediaOrderBy["modifiedAt"] = "modifiedAt";
+})(MediaOrderBy || (MediaOrderBy = {}));
 class MediaViewSet extends BaseViewSet_1.default {
     constructor(options) {
         const clonedOptions = lodash_1.clone(options);
@@ -48,7 +55,7 @@ class MediaViewSet extends BaseViewSet_1.default {
     }
     getListQueryBuilder(ctx) {
         let queryBuilder = Media_1.default.getInProject(ctx.state.project.id);
-        let { tags, search } = ctx.request.query;
+        const { tags, search, orderBy } = ctx.request.query;
         // Crude search
         if (search) {
             const words = search.split(' ').filter(w => w).map(w => w.toLowerCase());
@@ -70,6 +77,24 @@ class MediaViewSet extends BaseViewSet_1.default {
                     queryBuilder = queryBuilder.orWhere('tags.name', tag);
                 }
             });
+        }
+        // Ordering
+        if (orderBy) {
+            if (orderBy === MediaOrderBy.createdAt) {
+                queryBuilder = queryBuilder.orderBy('media.createdAt');
+            }
+            else if (orderBy === MediaOrderBy.createdAtDesc) {
+                queryBuilder = queryBuilder.orderBy('media.createdAt', 'desc');
+            }
+            else if (orderBy === MediaOrderBy.modifiedAt) {
+                queryBuilder = queryBuilder.orderBy('media.modifiedAt');
+            }
+            else if (orderBy === MediaOrderBy.modifiedAtDesc) {
+                queryBuilder = queryBuilder.orderBy('media.modifiedAt', 'desc');
+            }
+        }
+        else {
+            queryBuilder = queryBuilder.orderBy('media.createdAt', 'desc');
         }
         return queryBuilder;
     }

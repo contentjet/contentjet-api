@@ -528,9 +528,10 @@ paths:
     get:
       tags:
         - Entry
-      summary: List published entries
+      summary: List entries
       description: Returns a list of published entries. An entry is published
-        if the date value of it's `published` field is in the past.
+        if the date value of it's `published` field is in the past. Default ordering
+        is by descending modified date (last modified first).
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - name: tags
@@ -556,6 +557,17 @@ paths:
             NOT full-text search.
           schema:
             type: string
+        - name: orderBy
+          in: query
+          description: Order entries by `createdAt` or `modifiedAt`. Direction is ascending
+            but can be changed to descending by prefixing '-' e.g. `?orderBy=-createdAt`
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - -createdAt
+              - modifiedAt
+              - -modifiedAt
       security:
         - OAuth2:
           - 'entry:list'
@@ -741,7 +753,8 @@ paths:
       tags:
         - Media
       summary: List media
-      description: List media
+      description: List media for the specified project. Default ordering is
+        by descending creation date (newest first).
       parameters:
         - $ref: '#/components/parameters/ProjectId'
         - name: tags
@@ -756,6 +769,17 @@ paths:
             NOT full-text search.
           schema:
             type: string
+        - name: orderBy
+          in: query
+          description: Order media by `createdAt` or `modifiedAt`. Direction is ascending
+            but can be changed to descending by prefixing '-' e.g. `?orderBy=-createdAt`
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - -createdAt
+              - modifiedAt
+              - -modifiedAt
       security:
         - OAuth2:
           - 'media:list'
