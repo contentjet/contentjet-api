@@ -141,9 +141,8 @@ export default class Entry extends Model {
   static getInProject(projectId: number, trx?: Transaction): QueryBuilder<Entry> {
     return Entry
       .query(trx)
-      .joinRelation('entryType')
-      .where('entryType.projectId', projectId)
-      .orderBy('entry.modifiedAt', 'desc') as any;
+      .joinRelation<Entry>('entryType')
+      .where('entryType.projectId', projectId);
   }
 
   static getInProjectWithRelations(projectId: number, trx?: Transaction): QueryBuilder<Entry> {

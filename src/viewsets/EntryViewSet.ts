@@ -36,11 +36,19 @@ const initialValidationConstraints = {
   }
 };
 
+enum EntryOrderBy {
+  createdAtDesc = '-createdAt',
+  createdAt = 'createdAt',
+  modifiedAtDesc = '-modifiedAt',
+  modifiedAt= 'modifiedAt'
+}
+
 interface IEntryListQuery {
   tags?: string;
   entryType?: string;
   nonPublished?: string;
   search?: string;
+  orderBy?: EntryOrderBy
 }
 
 export default class EntryViewSet extends BaseViewSet<Entry> {
@@ -65,7 +73,7 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
     let queryBuilder = Entry
       .getInProject(ctx.state.project.id)
       .eager('[tags, entryType, modifiedByUser, user]');
-    let {tags, entryType, nonPublished, search} = ctx.request.query as IEntryListQuery;
+    let {tags, entryType, nonPublished, search, orderBy} = ctx.request.query as IEntryListQuery;
     // We only include entries where published date is in the past. If nonPublished
     // query parameter is present we include BOTH published and non-published entries.
     if (!nonPublished) {
@@ -98,6 +106,20 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
           queryBuilder = queryBuilder.orWhere('tags.name', tag);
         }
       });
+    }
+    // Ordering
+    if (orderBy) {
+      if (orderBy === EntryOrderBy.createdAt) {
+        queryBuilder = queryBuilder.orderBy('entry.createdAt');
+      } else if (orderBy === EntryOrderBy.createdAtDesc) {
+        queryBuilder = queryBuilder.orderBy('entry.createdAt', 'desc');
+      } else if (orderBy === EntryOrderBy.modifiedAt) {
+        queryBuilder = queryBuilder.orderBy('entry.modifiedAt');
+      } else if (orderBy === EntryOrderBy.modifiedAtDesc) {
+        queryBuilder = queryBuilder.orderBy('entry.modifiedAt', 'desc');
+      }
+    } else {
+      queryBuilder = queryBuilder.orderBy('entry.modifiedAt', 'desc');
     }
     return queryBuilder;
   }
