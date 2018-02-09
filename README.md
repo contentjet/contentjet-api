@@ -37,11 +37,11 @@ SECRET_KEY=yoursupersecretkey
 Database connection settings. Note only PostgreSQL 9.5+ is supported.
 
 ```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=contentjet-api
-DB_USER=postgres
-DB_PASS=password
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=contentjet-api
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
 ```
 
 #### URLs
