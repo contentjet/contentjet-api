@@ -1,3 +1,6 @@
+# 0.7.0
+* Renamed database environment variables
+
 # 0.6.0
 * Entries list endpoint now supports `orderBy` parameter
 * Media list endpoint now supports `orderBy` parameter

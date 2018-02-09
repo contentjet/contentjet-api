@@ -26,15 +26,15 @@ const config: any = {
   DATABASE: {
     client: 'postgresql', // Do not change. Only postgres is supported.
     connection: {
-      host: env('DB_HOST') || 'localhost',
-      port: parseInt(env('DB_PORT') || '5432'),
-      database: env('DB_NAME') || 'contentjet-api',
-      user: env('DB_USER') || 'postgres',
-      password: env('DB_PASS') || 'password'
+      host: env('POSTGRES_HOST') || 'localhost',
+      port: parseInt(env('POSTGRES_PORT') || '5432'),
+      database: env('POSTGRES_DB') || 'contentjet-api',
+      user: env('POSTGRES_USER') || 'postgres',
+      password: env('POSTGRES_PASSWORD') || 'password'
     },
     pool: {
-      min: parseInt(env('DB_POOL_MIN') || '2'),
-      max: parseInt(env('DB_POOL_MAX') || '10')
+      min: parseInt(env('POSTGRES_POOL_MIN') || '2'),
+      max: parseInt(env('POSTGRES_POOL_MAX') || '10')
     },
     migrations: {
       tableName: 'knex_migrations'
