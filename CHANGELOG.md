@@ -1,3 +1,6 @@
+# 0.7.1
+* Updated README
+
 # 0.7.0
 * Renamed database environment variables
 
