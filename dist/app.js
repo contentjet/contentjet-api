@@ -72,7 +72,7 @@ const app = new Koa();
 // Expose sendMail method on context prototype
 app.context.sendMail = config_1.default.MAIL_BACKEND.sendMail;
 app
-    .use(cors())
+    .use(cors(config_1.default.CORS))
     .use(async function (ctx, next) {
     try {
         await next();

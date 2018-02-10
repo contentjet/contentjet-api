@@ -84,7 +84,7 @@ interface IWebHookEventPayload {
 }
 
 app
-  .use(cors())
+  .use(cors(config.CORS))
   .use(async function (ctx: Koa.Context, next: Function) {
     try {
       await next();

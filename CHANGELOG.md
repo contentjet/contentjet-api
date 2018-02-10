@@ -1,3 +1,7 @@
+# 0.8.0
+* Fixed issue where cors config was not being passed to middleware
+* Renamed CORS environment variable CORS_ORIGIN
+
 # 0.7.1
 * Updated README
 
