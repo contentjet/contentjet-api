@@ -68,7 +68,14 @@ const spec = yaml.load('spec.yml');
 if (!spec.servers) spec.servers = [];
 spec.servers.push({url: config.BACKEND_URL});
 router.get('/spec', function (ctx: Koa.Context) {
+  ctx.set('Cache-Control', 'max-age=604800');
   ctx.body = spec;
+});
+
+// robots.txt
+router.get('/robots.txt', function (ctx: Koa.Context) {
+  ctx.set('Cache-Control', 'max-age=604800');
+  ctx.body = 'User-agent: *\nDisallow: /';
 });
 
 const app = new Koa();
