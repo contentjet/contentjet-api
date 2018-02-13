@@ -63,13 +63,17 @@ class User extends objection_1.Model {
             ]
         };
     }
+    static hashPassword(password) {
+        return crypto
+            .createHash('sha256')
+            .update(`${config_1.default.SECRET_KEY}${password}`)
+            .digest('hex');
+    }
     static authenticate(email, password) {
-        const hash = crypto.createHash('sha256');
-        const hashedPassword = hash.update(`${config_1.default.SECRET_KEY}${password}`).digest('hex');
         return User
             .query()
             .where('email', email)
-            .andWhere('password', hashedPassword)
+            .andWhere('password', User.hashPassword(password))
             .first();
     }
     static getById(id, trx) {
@@ -90,20 +94,16 @@ class User extends objection_1.Model {
         const exists = await User.existsWithEmail(email, trx);
         if (exists)
             throw new ValidationError_1.default('A user with this email already exists');
-        const hash = crypto.createHash('sha256');
-        const hashedPassword = hash.update(`${config_1.default.SECRET_KEY}${password}`).digest('hex');
         return await User
             .query(trx)
-            .insert({ email, name, password: hashedPassword, isActive, isAdmin })
+            .insert({ email, name, password: User.hashPassword(password), isActive, isAdmin })
             .returning('*')
             .first();
     }
     static async setPassword(userId, password) {
-        const hash = crypto.createHash('sha256');
-        const hashedPassword = hash.update(`${config_1.default.SECRET_KEY}${password}`).digest('hex');
         return await User
             .query()
-            .patch({ password: hashedPassword })
+            .patch({ password: User.hashPassword(password) })
             .returning('*')
             .where('id', userId)
             .first();
@@ -162,6 +162,9 @@ class User extends objection_1.Model {
                 }
             });
         });
+    }
+    verifyPassword(password) {
+        return this.password === User.hashPassword(password);
     }
     assignRole(roleId) {
         return this

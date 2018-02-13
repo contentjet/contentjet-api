@@ -1,3 +1,6 @@
+# 0.9.0
+* Added change-password endpoint
+
 # 0.8.0
 * Fixed issue where cors config was not being passed to middleware
 * Renamed CORS environment variable CORS_ORIGIN
