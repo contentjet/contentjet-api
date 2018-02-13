@@ -89,6 +89,23 @@ const requestPasswordResetConstraints = {
   }
 };
 
+const changePasswordConstraints = {
+  password: {
+    presence: true,
+    length: {
+      minimum: 6,
+      maximum: 64
+    }
+  },
+  newPassword: {
+    presence: true,
+    length: {
+      minimum: 6,
+      maximum: 64
+    }
+  }
+};
+
 export default class UserViewSet extends BaseViewSet<User> {
 
   constructor(options: any) {
@@ -101,6 +118,7 @@ export default class UserViewSet extends BaseViewSet<User> {
     this.verify = this.verify.bind(this);
     this.setPassword = this.setPassword.bind(this);
     this.requestPasswordReset = this.requestPasswordReset.bind(this);
+    this.changePassword = this.changePassword.bind(this);
     this.router.get('me', requireAuthentication, this.retrieveMe);
     this.router.put('me', requireAuthentication, this.updateMe);
     this.router.post('sign-up', this.signUp);
@@ -109,6 +127,7 @@ export default class UserViewSet extends BaseViewSet<User> {
     this.router.post('set-password', this.setPassword);
     this.router.post('authenticate', authenticate);
     this.router.post('token-refresh', requireAuthentication, tokenRefresh);
+    this.router.post('change-password', requireAuthentication, this.changePassword);
   }
 
   getListMiddleware() {
@@ -267,6 +286,19 @@ export default class UserViewSet extends BaseViewSet<User> {
     const {userId} = await User.verifyPasswordResetToken(token);
     const user = await User.setPassword(userId, password);
     ctx.body = user;
+  }
+
+  async changePassword(ctx: Koa.Context) {
+    const errors = validate(ctx.request.body, changePasswordConstraints);
+    if (errors) {
+      const err = new ValidationError();
+      err.errors = errors;
+      throw err;
+    }
+    const {password, newPassword} = ctx.request.body;
+    const {user} = ctx.state;
+    if (!user.verifyPassword(password)) throw new ValidationError('Invalid password');
+    ctx.body = await User.setPassword(user.id, newPassword);
   }
 
 }

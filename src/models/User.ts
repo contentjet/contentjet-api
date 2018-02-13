@@ -80,13 +80,18 @@ export default class User extends Model {
     };
   }
 
+  static hashPassword(password: string) {
+    return crypto
+      .createHash('sha256')
+      .update(`${config.SECRET_KEY}${password}`)
+      .digest('hex');
+  }
+
   static authenticate(email: string, password: string): QueryBuilderOption<User> {
-    const hash = crypto.createHash('sha256');
-    const hashedPassword = hash.update(`${config.SECRET_KEY}${password}`).digest('hex');
     return User
       .query()
       .where('email', email)
-      .andWhere('password', hashedPassword)
+      .andWhere('password', User.hashPassword(password))
       .first();
   }
 
@@ -109,21 +114,17 @@ export default class User extends Model {
   static async create(email: string, name: string, password: string, isActive = false, isAdmin = false, trx?: Transaction): Promise<User> {
     const exists = await User.existsWithEmail(email, trx);
     if (exists) throw new ValidationError('A user with this email already exists');
-    const hash = crypto.createHash('sha256');
-    const hashedPassword = hash.update(`${config.SECRET_KEY}${password}`).digest('hex');
     return await User
       .query(trx)
-      .insert({email, name, password: hashedPassword, isActive, isAdmin})
+      .insert({email, name, password: User.hashPassword(password), isActive, isAdmin})
       .returning('*')
       .first() as User;
   }
 
   static async setPassword(userId: number, password: string) {
-    const hash = crypto.createHash('sha256');
-    const hashedPassword = hash.update(`${config.SECRET_KEY}${password}`).digest('hex');
     return await User
       .query()
-      .patch({password: hashedPassword})
+      .patch({password: User.hashPassword(password)})
       .returning('*')
       .where('id', userId)
       .first();
@@ -203,6 +204,10 @@ export default class User extends Model {
         }
       );
     });
+  }
+
+  verifyPassword(password: string) {
+    return this.password === User.hashPassword(password);
   }
 
   assignRole(roleId: number): QueryBuilder<Model> {
