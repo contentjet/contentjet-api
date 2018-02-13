@@ -258,7 +258,7 @@ export default class UserViewSet extends BaseViewSet<User> {
     let token = await User.generatePasswordResetToken(user.id);
     token = token.replace(/\./g, '~');
     const context = {
-      url: url.resolve(config.FRONTEND_URL, `/change-password/${token}`),
+      url: url.resolve(config.FRONTEND_URL, `/set-password/${token}`),
       name: user.name
     };
     const mailOptions = {
