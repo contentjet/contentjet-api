@@ -54,7 +54,7 @@ const config: any = {
   DEBUG: !!parseInt(env('DEBUG') || '0'),
   // Cross-Origin Resource Sharing. See https://github.com/koajs/cors for options
   CORS: {
-    origin: env('CORS') || '*'
+    origin: env('CORS_ORIGIN') || '*'
   },
   // Email sending service
   MAIL_BACKEND: null,

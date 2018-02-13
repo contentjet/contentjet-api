@@ -17,11 +17,11 @@ export MAIL_FROM=noreply@example.com
 export MAIL_BACKEND=mailgun
 export MAILGUN_API_KEY=not-a-real-key
 export MAILGUN_DOMAIN=example.com
-export DEBUG=1
-export DB_HOST=localhost
-export DB_PORT=5431
-export DB_NAME=contentjet-api-test
-export DB_PASS=testpassword
+export DEBUG=0
+export POSTGRES_HOST=localhost
+export POSTGRES_PORT=5431
+export POSTGRES_DB=contentjet-api-test
+export POSTGRES_PASSWORD=testpassword
 
 if ! bash -c "docker start contentjet-api-test" 2> /dev/null;
 then

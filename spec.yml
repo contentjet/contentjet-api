@@ -285,7 +285,7 @@ paths:
         - User
       summary: Set user password
       description: Sets a user's password. This endpoint requires a JWT token which is part of the unique
-        url emailed to the user when invoking the `/user/request-password-reset` endpoint.
+        url emailed to the user when invoking the `/user/request-password-reset` endpoint. See also `/user/change-password`.
       requestBody:
         required: true
         content:
@@ -305,6 +305,38 @@ paths:
       responses:
         200:
           description: Set password response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /user/change-password:
+    post:
+      tags:
+        - User
+      summary: Change user password
+      description: Changes the authenticated user's password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  minLength: 6
+                  maxLength: 64
+                newPassword:
+                  type: string
+                  minLength: 6
+                  maxLength: 64
+              required:
+                - password
+                - newPassword
+      responses:
+        200:
+          description: Change password response
           content:
             application/json:
               schema:
