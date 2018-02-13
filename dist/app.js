@@ -66,7 +66,13 @@ if (!spec.servers)
     spec.servers = [];
 spec.servers.push({ url: config_1.default.BACKEND_URL });
 router.get('/spec', function (ctx) {
+    ctx.set('Cache-Control', 'max-age=604800');
     ctx.body = spec;
+});
+// robots.txt
+router.get('/robots.txt', function (ctx) {
+    ctx.set('Cache-Control', 'max-age=604800');
+    ctx.body = 'User-agent: *\nDisallow: /';
 });
 const app = new Koa();
 // Expose sendMail method on context prototype
