@@ -62,26 +62,14 @@ BACKEND_URL=https://api.example.com
 
 #### Mail
 
-A mail backend **must** be configured. There are 2 backends out-of-the-box, [Mailgun](https://www.mailgun.com/) (recommended) or SMTP. Each mail backend is simply a thin wrapper around [nodemailer](https://nodemailer.com). Depending on which backend you choose you will need to set the following variables.
-
-##### MailGun
+You MUST provide the following SMTP settings for email sending.
 
 ```
-MAIL_BACKEND=mailgun
-MAIL_FROM=noreply@your-domain.com
-MAILGUN_API_KEY=your-api-key
-MAILGUN_DOMAIN=your-domain
-```
-
-##### SMTP
-
-```
-MAIL_BACKEND=smtp
 MAIL_FROM=noreply@your-domain.com
 SMTP_HOST=your-smtp-host
 SMTP_PORT=your-smtp-host-port
-SMTP_AUTH_USER=your-smtp-user
-SMTP_AUTH_PASS=your-smtp-pass
+SMTP_USER=your-smtp-user
+SMTP_PASSWORD=your-smtp-password
 ```
 
 Environment variables can either be exported directly or you may optionally create a `.env` file in the root of the repository and specify them there. Note any _exported_ variables will take precedence over those defined in `.env`. See [dotenv](https://github.com/motdotla/dotenv) for more details.
