@@ -3,7 +3,6 @@ require('dotenv').config({path: path.resolve(__dirname, '../../.env')});
 import DiskStorageBackend from '../backends/storage/DiskStorageBackend';
 import ModelPermissionBackend from '../backends/permissions/ModelPermissionBackend';
 import ProjectPermissionBackend from '../backends/permissions/ProjectPermissionBackend';
-import MailGunBackend from '../backends/mail/MailGunBackend';
 import SMTPBackend from '../backends/mail/SMTPBackend';
 import {get} from 'lodash';
 
@@ -56,8 +55,6 @@ const config: any = {
   CORS: {
     origin: env('CORS_ORIGIN') || '*'
   },
-  // Email sending service
-  MAIL_BACKEND: null,
   // Email address used in the 'from' field of all email sent by this app
   MAIL_FROM: env('MAIL_FROM', true),
   PERMISSION_BACKENDS: [
@@ -82,24 +79,15 @@ const config: any = {
 };
 
 // Instantiate the mail backend
-const mailBackend = env('MAIL_BACKEND', true);
-if (mailBackend === 'mailgun') {
-  const apiKey = env('MAILGUN_API_KEY', true);
-  const domain = env('MAILGUN_DOMAIN', true);
-  config.MAIL_BACKEND = new MailGunBackend(apiKey, domain);
-} else if (mailBackend === 'smtp') {
-  const options = {
-    host: env('SMTP_HOST', true),
-    port: env('SMTP_PORT', true),
-    auth: {
-      user: env('SMTP_AUTH_USER', true),
-      pass: env('SMTP_AUTH_PASS', true)
-    },
-    secure: !!parseInt(env('SMTP_SECURE') || '0')
-  };
-  config.MAIL_BACKEND = new SMTPBackend(options);
-} else {
-  throw new Error('Invalid config. MAIL_BACKEND is invalid. Must be \'mailgun\' or \'smtp\'.');
-}
+const options = {
+  host: env('SMTP_HOST', true),
+  port: env('SMTP_PORT', true),
+  auth: {
+    user: env('SMTP_USER', true),
+    pass: env('SMTP_PASSWORD', true)
+  },
+  secure: !!parseInt(env('SMTP_SECURE') || '0')
+};
+config.MAIL_BACKEND = new SMTPBackend(options);
 
 export default config;
