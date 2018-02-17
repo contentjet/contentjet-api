@@ -1,4 +1,4 @@
-# 0.9.0
+# 0.9.1
 * Added /robots.txt route
 * Added cache header to /spec route
 * Added change-password endpoint
