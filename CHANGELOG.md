@@ -1,9 +1,8 @@
-# 0.9.1
+# 0.9.0
 * Added /robots.txt route
 * Added cache header to /spec route
-
-# 0.9.0
 * Added change-password endpoint
+* Removed mailgun transport
 
 # 0.8.0
 * Fixed issue where cors config was not being passed to middleware
