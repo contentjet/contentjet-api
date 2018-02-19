@@ -809,7 +809,7 @@ class EntryType extends objection_1.Model {
                 continue;
             let fieldConstraints = {};
             if (field.required)
-                fieldConstraints.presence = true;
+                fieldConstraints.presence = { allowEmpty: false };
             if (field.fieldType === 'TEXT') {
                 if (field.format === 'uri') {
                     fieldConstraints.url = true;

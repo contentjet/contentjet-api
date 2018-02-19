@@ -1,3 +1,7 @@
+# 0.9.2
+* Fixed issue in array length validator
+* Fixed test.sh referencing old environment variables
+
 # 0.9.1
 * Added /robots.txt route
 * Added cache header to /spec route

@@ -26,7 +26,7 @@ export POSTGRES_PASSWORD=testpassword
 if ! bash -c "docker start contentjet-api-test" 2> /dev/null;
 then
   echo "Test database container doesn't exist, creating."
-  docker run --name contentjet-api-test -p $DB_PORT:5432 -d -e POSTGRES_DB=$DB_NAME -e POSTGRES_PASSWORD=$DB_PASS postgres:9.6.2
+  docker run --name contentjet-api-test -p $POSTGRES_PORT:5432 -d -e POSTGRES_DB=$POSTGRES_DB -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD postgres:9.6.2
 else
   echo "Test database container found!"
 fi

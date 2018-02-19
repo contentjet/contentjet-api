@@ -857,7 +857,7 @@ export default class EntryType extends Model {
     for (let field of this.fields) {
       if (field.disabled) continue;
       let fieldConstraints: any = {};
-      if (field.required) fieldConstraints.presence = true;
+      if (field.required) fieldConstraints.presence = { allowEmpty: false };
       if (field.fieldType === 'TEXT') {
         if (field.format === 'uri') {
           fieldConstraints.url = true;
