@@ -37,12 +37,14 @@ validate.validators.boolean = function (value: any): string|undefined {
 validate.validators.arrayLength = function (value: any, options: any): string|undefined {
   if (!validate.isDefined(value)) return;
   if (!validate.isArray(value)) return 'must be an array';
-  if ('is' in options) {
-    if (value.length !== options.is) return `is the wrong length (should be ${options.is})`;
-  } else if ('minimum' in options) {
-    if (value.length < options.minimum) return `length is too short (minimum is ${options.minimum})`;
-  } else if ('maximum' in options) {
-    if (value.length > options.maximum) return `length is too long (maximum is ${options.minimum})`;
+  if ('is' in options && value.length !== options.is) {
+    return `is the wrong length (should be ${options.is})`;
+  }
+  if ('minimum' in options && value.length < options.minimum) {
+    return `length is too short (minimum is ${options.minimum})`;
+  }
+  if ('maximum' in options && value.length > options.maximum) {
+    return `length is too long (maximum is ${options.maximum})`;
   }
   return undefined;
 };
