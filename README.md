@@ -97,7 +97,7 @@ npm run create-admin-user
 Start the server.
 
 ```
-npm start
+npm run dev
 ```
 
 [contentjet-ui]: https://github.com/contentjet/contentjet-ui
