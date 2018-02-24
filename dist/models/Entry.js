@@ -118,11 +118,16 @@ class Entry extends objection_1.Model {
             .delete();
         return numDeleted;
     }
-    static externalFieldsToInternal(entryTypeFields, entryFields) {
+    static externalFieldsToInternal(entryTypeFields, entryFields, existingFields) {
         return entryTypeFields
-            .filter(entryTypeField => !entryTypeField.disabled)
             .map(entryTypeField => {
-            const { name, fieldType } = entryTypeField;
+            const { name, fieldType, disabled } = entryTypeField;
+            if (disabled && existingFields) {
+                const existingField = existingFields.find(f => f.name === name);
+                if (existingField)
+                    return existingField;
+            }
+            ;
             const obj = { name, fieldType, value: null };
             if (fieldType === 'TEXT' || fieldType === 'LONGTEXT') {
                 obj.value = lodash_1.get(entryFields, entryTypeField.name, '');
@@ -164,6 +169,8 @@ class Entry extends objection_1.Model {
     async internalFieldsToExternal(entryTypeFields, trx) {
         const obj = {};
         for (const entryTypeField of entryTypeFields) {
+            if (entryTypeField.disabled)
+                continue;
             let value = this.getFieldValue(entryTypeField.name, entryTypeField.fieldType);
             if (lodash_1.isArray(value)) {
                 // Note for MEDIA and LINK types we order the query results to match

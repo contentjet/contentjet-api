@@ -4,25 +4,29 @@
 
 A Node based back end for contentjet, a powerful headless API-first CMS. Built with [Koa](http://koajs.com/), [Objection](http://vincit.github.io/objection.js/) and [PostgreSQL](https://www.postgresql.org/).
 
-Contentjet is composed of 2 discreet applications, the backend API contentjet-api (this repository) and the frontend HTML user interface [contentjet-ui](https://github.com/contentjet/contentjet-ui).
+Contentjet is composed of 2 discreet applications, the backend API contentjet-api (this repository) and the frontend HTML user interface [contentjet-ui](contentjet-ui).
 
-## Requirements
+For more information and hosting documentation please visit **[contentjet.github.io](contentjet)**.
+
+## Development
+
+### Requirements
 
 * Node 8+
 * NPM 5+
 * PostgreSQL 9.5+
 
-## Quick Start
-
 ### 1. Installation
 
 ```
-npm install --production
+npm install
 ```
 
 ### 2. Configuration
 
-The app is configurable through the use of environment variables. For a complete list of all options refer to `src/config/index.ts`. While _most_ options have default fallbacks you will need to provide values for the following:
+The app is configurable through the use of environment variables. Environment variables can either be exported directly or you may optionally create a `.env` file in the root of the repository and specify them there. Note any _exported_ variables will take precedence over those defined in `.env`. See [dotenv](https://github.com/motdotla/dotenv) for more details.
+
+For a complete list of all options refer to `src/config/index.ts`. While _most_ options have default fallbacks you will need to provide values for the following:
 
 #### Secret key
 
@@ -72,8 +76,6 @@ SMTP_USER=your-smtp-user
 SMTP_PASSWORD=your-smtp-password
 ```
 
-Environment variables can either be exported directly or you may optionally create a `.env` file in the root of the repository and specify them there. Note any _exported_ variables will take precedence over those defined in `.env`. See [dotenv](https://github.com/motdotla/dotenv) for more details.
-
 ### 3. Database migration
 
 Run the following command to create the required tables in your database.
@@ -95,14 +97,9 @@ npm run create-admin-user
 Start the server.
 
 ```
-npm start
+npm run dev
 ```
-
-## Development
-
-To run the app in development you must install _all_ dependencies by running `npm install`.
-
-Once you have migrated your database, configured a mail backend and created an administrator (see Quick Start above) you can start the development server by running `npm run dev`. Alternatively, run a one-off build with `npm run build`.
 
 [contentjet-ui]: https://github.com/contentjet/contentjet-ui
 [contentjet-api]: https://github.com/contentjet/contentjet-api
+[contentjet]: https://contentjet.github.io

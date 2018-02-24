@@ -1,3 +1,6 @@
+# 0.9.3
+* Saving an entry with a disabled field no longer destroys the disabled field's value
+
 # 0.9.2
 * Fixed issue in array length validator
 * Fixed test.sh referencing old environment variables
