@@ -217,6 +217,7 @@ export default class Entry extends Model {
   async internalFieldsToExternal(entryTypeFields: IEntryTypeField[], trx?: Transaction): Promise<IExternalEntryFields> {
     const obj: IExternalEntryFields = {};
     for (const entryTypeField of entryTypeFields) {
+      if (entryTypeField.disabled) continue;
       let value = this.getFieldValue(entryTypeField.name, entryTypeField.fieldType);
       if (isArray(value)) {
         // Note for MEDIA and LINK types we order the query results to match
