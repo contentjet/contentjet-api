@@ -21,6 +21,12 @@ interface IObjectWithId {
   id: number;
 }
 
+interface IInternalField {
+  name: string;
+  fieldType: string;
+  value: any;
+}
+
 export interface IEntryWithRelations extends Entry {
   user: User;
   modifiedByUser: User;
@@ -164,12 +170,17 @@ export default class Entry extends Model {
     return numDeleted;
   }
 
-  static externalFieldsToInternal(entryTypeFields: IEntryTypeField[], entryFields: IExternalEntryFields) {
+  static externalFieldsToInternal(
+    entryTypeFields: IEntryTypeField[], entryFields: IExternalEntryFields, existingFields?: IInternalField[]
+  ): IInternalField[] {
     return entryTypeFields
-      .filter(entryTypeField => !entryTypeField.disabled)
       .map(entryTypeField => {
-        const {name, fieldType} = entryTypeField;
-        const obj:{name: string, fieldType: string, value: any} = {name, fieldType, value: null};
+        const {name, fieldType, disabled} = entryTypeField;
+        if (disabled && existingFields) {
+          const existingField = existingFields.find(f => f.name === name)
+          if (existingField) return existingField;
+        };
+        const obj: IInternalField = {name, fieldType, value: null};
         if (fieldType === 'TEXT' || fieldType === 'LONGTEXT') {
           obj.value = get(entryFields, entryTypeField.name, '');
         } else if (fieldType === 'BOOLEAN') {

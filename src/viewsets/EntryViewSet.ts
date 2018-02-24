@@ -259,7 +259,7 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
       entryData.modifiedAt = moment().format();
       entryData.entryTypeId = entryType.id;
       entryData.modifiedByUserId = user.id;
-      entryData.fields = Entry.externalFieldsToInternal(entryType.fields, fields);
+      entryData.fields = Entry.externalFieldsToInternal(entryType.fields, fields, entry.fields);
       // Update entry
       entry = await Entry
         .query(trx)
