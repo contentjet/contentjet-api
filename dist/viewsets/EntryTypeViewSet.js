@@ -13,7 +13,9 @@ class EntryTypeViewSet extends BaseViewSet_1.default {
     getListQueryBuilder(ctx) {
         return super
             .getListQueryBuilder(ctx)
-            .where('projectId', ctx.state.project.id);
+            .where('entryType.projectId', ctx.state.project.id)
+            .orderBy('entryType.modifiedAt', 'desc');
+        ;
     }
     getRetrieveQueryBuilder(ctx) {
         return super

@@ -56,7 +56,7 @@ const validEntryData: any = {
 }
 
 
-describe.only('Entry - Integration', function () {
+describe('Entry - Integration', function () {
   let client: AxiosInstance;
   let token: string;
   let user1: User;

@@ -83,7 +83,7 @@ class ProjectViewSet extends BaseViewSet_1.default {
             throw err;
         }
         const { userId, membershipIsActive, membershipType } = ctx.request.body;
-        await project.updateUserMembership(userId, { membershipIsActive, membershipType });
+        await project.updateUserMembership(userId, membershipIsActive, membershipType);
         ctx.body = await project.getUserById(userId);
     }
 }
