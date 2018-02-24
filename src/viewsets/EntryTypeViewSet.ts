@@ -16,7 +16,8 @@ export default class EntryTypeViewSet extends BaseViewSet<EntryType> {
   getListQueryBuilder(ctx: Koa.Context) {
     return super
       .getListQueryBuilder(ctx)
-      .where('projectId', ctx.state.project.id);
+      .where('entryType.projectId', ctx.state.project.id)
+      .orderBy('entryType.modifiedAt', 'desc');;
   }
 
   getRetrieveQueryBuilder(ctx: Koa.Context) {
