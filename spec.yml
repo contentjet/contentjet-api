@@ -95,7 +95,7 @@ paths:
                 - grant_type
       responses:
         200:
-          description: Set password response
+          description: Authentication response
           content:
             application/json:
               schema:
