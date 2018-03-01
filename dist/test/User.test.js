@@ -67,4 +67,51 @@ describe('User - Integration', function () {
             }
         });
     });
+    describe('#authenticate', async function () {
+        it('fails to authenticate with wrong grant_type', async function () {
+            let loginResponse;
+            try {
+                // Note we're not using the axios client created in the beforeEach hook.
+                loginResponse = await axios_1.default
+                    .post(`${BASE_URL}user/authenticate`, {
+                    username: 'user1@example.com',
+                    password: '123456',
+                    grant_type: 'blahblah'
+                });
+            }
+            catch (err) {
+                chai_1.assert.equal(err.response.status, 400);
+                return;
+            }
+            chai_1.assert.notEqual(loginResponse.status, 200);
+        });
+        it('fails to refresh token with wrong grant_type', async function () {
+            const loginResponse = await axios_1.default
+                .post(`${BASE_URL}user/authenticate`, {
+                username: 'user1@example.com',
+                password: '123456',
+                grant_type: 'password'
+            });
+            const token = loginResponse.data.access_token;
+            const refreshToken = loginResponse.data.refresh_token;
+            let refreshResponse;
+            try {
+                refreshResponse = await axios_1.default
+                    .post(`${BASE_URL}user/token-refresh`, {
+                    refresh_token: refreshToken,
+                    grant_type: 'blahblah'
+                }, {
+                    headers: {
+                        'Content-Type': `application/json`,
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            }
+            catch (err) {
+                chai_1.assert.equal(err.response.status, 400);
+                return;
+            }
+            chai_1.assert.notEqual(refreshResponse.status, 200);
+        });
+    });
 });

@@ -44,7 +44,7 @@ const config = {
     // The url where contentjet-api (this app) is hosted
     BACKEND_URL: env('BACKEND_URL') || `http://localhost:${PORT}`,
     // The duration in seconds an authentication token (JWT) is valid for
-    TOKEN_EXPIRY: parseInt(env('TOKEN_EXPIRY') || '3000'),
+    TOKEN_EXPIRY: parseInt(env('TOKEN_EXPIRY') || '300'),
     // When false the user will receive a signup confirmation email. When true
     // the user will NOT receive a confirmation email and will have isActive = true
     // set immediately upon signup. Recommended this remains false in production.
