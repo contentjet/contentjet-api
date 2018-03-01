@@ -88,4 +88,63 @@ describe('User - Integration', function () {
 
   });
 
+  describe('#authenticate', async function () {
+
+    it('fails to authenticate with wrong grant_type', async function () {
+      let loginResponse: any;
+      try {
+        // Note we're not using the axios client created in the beforeEach hook.
+        loginResponse = await axios
+          .post(
+            `${BASE_URL}user/authenticate`,
+            {
+              username: 'user1@example.com',
+              password: '123456',
+              grant_type: 'blahblah'
+            }
+          );
+      } catch (err) {
+        assert.equal(err.response.status, 400);
+        return;
+      }
+      assert.notEqual(loginResponse.status, 200);
+    });
+
+    it('fails to refresh token with wrong grant_type', async function () {
+      const loginResponse = await axios
+        .post(
+          `${BASE_URL}user/authenticate`,
+          {
+            username: 'user1@example.com',
+            password: '123456',
+            grant_type: 'password'
+          }
+        );
+      const token = loginResponse.data.access_token;
+      const refreshToken = loginResponse.data.refresh_token;
+      let refreshResponse: any;
+      try {
+        refreshResponse = await axios
+          .post(
+            `${BASE_URL}user/token-refresh`,
+            {
+              refresh_token: refreshToken,
+              grant_type: 'blahblah'
+            },
+            {
+              headers: {
+                'Content-Type': `application/json`,
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          );
+      } catch (err) {
+        assert.equal(err.response.status, 400);
+        return;
+      }
+      assert.notEqual(refreshResponse.status, 200);
+    });
+
+  });
+
 });
