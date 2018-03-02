@@ -186,7 +186,10 @@ class Entry extends objection_1.Model {
                     value = orderedMedia;
                 }
                 else if (entryTypeField.fieldType === 'LINK') {
-                    const entryResult = await Entry.query(trx).whereIn('id', value);
+                    const entryResult = await Entry
+                        .query(trx)
+                        .select('id', 'name', 'entryTypeId')
+                        .whereIn('id', value);
                     const orderedEntries = [];
                     value.forEach(id => {
                         const entry = entryResult.find(e => e.id === id);
