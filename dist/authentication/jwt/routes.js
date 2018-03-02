@@ -7,7 +7,11 @@ const utils_1 = require("./utils");
 const validate_1 = require("../../utils/validate");
 const authenticationConstraints = {
     grant_type: {
-        presence: true
+        presence: true,
+        format: {
+            pattern: /^password$/,
+            message: 'must be \'password\''
+        }
     },
     username: {
         presence: true
@@ -21,7 +25,11 @@ const tokenRefreshConstraints = {
         presence: true
     },
     grant_type: {
-        presence: true
+        presence: true,
+        format: {
+            pattern: /^refresh_token$/,
+            message: 'must be \'refresh_token\''
+        }
     }
 };
 async function authenticate(ctx) {

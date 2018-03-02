@@ -231,7 +231,10 @@ export default class Entry extends Model {
           });
           value = orderedMedia;
         } else if (entryTypeField.fieldType === 'LINK') {
-          const entryResult = await Entry.query(trx).whereIn('id', value);
+          const entryResult = await Entry
+            .query(trx)
+            .select('id', 'name', 'entryTypeId')
+            .whereIn('id', value);
           const orderedEntries: Entry[] = [];
           value.forEach(id => {
             const entry = entryResult.find(e => e.id === id);

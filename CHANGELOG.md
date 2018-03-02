@@ -1,3 +1,8 @@
+# 0.10.0
+* Now validating grant_type value, not just it's presence
+* Default TOKEN_EXPIRY is 300 (5 minutes)
+* Link fields now only show a subset of Entry fields
+
 # 0.9.3
 * Saving an entry with a disabled field no longer destroys the disabled field's value
 

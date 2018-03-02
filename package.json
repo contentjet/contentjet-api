@@ -1,6 +1,6 @@
 {
   "name": "contentjet-api",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "description": "A Node based back end for contentjet, a powerful headless API-first CMS.",
   "repository": {
     "type": "git",

@@ -8,7 +8,11 @@ import validate from '../../utils/validate';
 
 const authenticationConstraints = {
   grant_type: {
-    presence: true
+    presence: true,
+    format: {
+      pattern: /^password$/,
+      message: 'must be \'password\''
+    }
   },
   username: {
     presence: true
@@ -23,7 +27,11 @@ const tokenRefreshConstraints = {
     presence: true
   },
   grant_type: {
-    presence: true
+    presence: true,
+    format: {
+      pattern: /^refresh_token$/,
+      message: 'must be \'refresh_token\''
+    }
   }
 };
 
