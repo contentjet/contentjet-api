@@ -1179,6 +1179,38 @@ components:
       flows:
         password:
           tokenUrl: '/user/authenticate'
+          scopes:
+            'entry:create': Create entry
+            'entry:delete': Delete entry
+            'entry:list': List entry
+            'entry:retrieve': Retrieve entry
+            'entryTag:list': List entryTag
+            'entryType:create': Create entryType
+            'entryType:list': List entryType
+            'entryType:retrieve': Retrieve entryType
+            'entryType:update': Update entryType
+            'entry:update': Update entry
+            'media:create': Create media
+            'media:delete': Delete media
+            'media:list': List media
+            'media:retrieve': Retrieve media
+            'mediaTag:list': List mediaTag
+            'media:update': Update media
+            'project:create': Create project
+            'projectInvite:create': Create projectInvite
+            'projectInvite:delete': Delete projectInvite
+            'projectInvite:list': List projectInvite
+            'projectInvite:retrieve': Retrieve projectInvite
+            'project:list': List project
+            'project:retrieve': Retrieve project
+            'project:update': Update project
+            'user:list': List user
+            'user:retrieve': Retrieve user
+            'webhook:create': Create webhook
+            'webhook:delete': Delete webhook
+            'webHook:list': List webHook
+            'webHook:retrieve': Retrieve webHook
+            'webhook:update': Update webhook
 
   parameters:
     ProjectId:
