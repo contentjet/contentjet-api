@@ -22,8 +22,8 @@ class Project extends objection_1.Model {
                 join: {
                     from: 'project.id',
                     through: {
-                        from: 'projectmembership.projectId',
-                        to: 'projectmembership.userId',
+                        from: 'projectMembership.projectId',
+                        to: 'projectMembership.userId',
                         extra: ['membershipType', 'membershipIsActive']
                     },
                     to: 'user.id'

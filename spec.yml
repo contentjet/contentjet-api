@@ -1084,7 +1084,7 @@ paths:
         - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
-          - 'webhook:create'
+          - 'webHook:create'
       requestBody:
         required: true
         content:
@@ -1136,7 +1136,7 @@ paths:
         - $ref: '#/components/parameters/WebHookId'
       security:
         - OAuth2:
-          - 'webhook:update'
+          - 'webHook:update'
       requestBody:
         required: true
         content:
@@ -1161,7 +1161,7 @@ paths:
         - $ref: '#/components/parameters/WebHookId'
       security:
         - OAuth2:
-          - 'webhook:delete'
+          - 'webHook:delete'
       requestBody:
         required: true
         content:
@@ -1179,6 +1179,57 @@ components:
       flows:
         password:
           tokenUrl: '/user/authenticate'
+          scopes:
+            'entry:create': Create entry
+            'entry:delete': Delete entry
+            'entry:list': List entry
+            'entry:retrieve': Retrieve entry
+            'entry:update': Update entry
+            'entryTag:create': Create entryTag
+            'entryTag:delete': Delete entryTag
+            'entryTag:list': List entryTag
+            'entryTag:retrieve': Retrieve entryTag
+            'entryTag:update': Update entryTag
+            'entryType:create': Create entryType
+            'entryType:delete': Delete entryType
+            'entryType:list': List entryType
+            'entryType:retrieve': Retrieve entryType
+            'entryType:update': Update entryType
+            'media:create': Create media
+            'media:delete': Delete media
+            'media:list': List media
+            'media:retrieve': Retrieve media
+            'media:update': Update media
+            'mediaTag:create': Create mediaTag
+            'mediaTag:delete': Delete mediaTag
+            'mediaTag:list': List mediaTag
+            'mediaTag:retrieve': Retrieve mediaTag
+            'mediaTag:update': Update mediaTag
+            'project:create': Create project
+            'project:delete': Delete project
+            'project:list': List project
+            'project:retrieve': Retrieve project
+            'project:update': Update project
+            'projectInvite:create': Create projectInvite
+            'projectInvite:delete': Delete projectInvite
+            'projectInvite:list': List projectInvite
+            'projectInvite:retrieve': Retrieve projectInvite
+            'projectInvite:update': Update projectInvite
+            'projectMembership:create': Create projectMembership
+            'projectMembership:delete': Delete projectMembership
+            'projectMembership:list': List projectMembership
+            'projectMembership:retrieve': Retrieve projectMembership
+            'projectMembership:update': Update projectMembership
+            'user:create': Create user
+            'user:delete': Delete user
+            'user:list': List user
+            'user:retrieve': Retrieve user
+            'user:update': Update user
+            'webHook:create': Create webHook
+            'webHook:delete': Delete webHook
+            'webHook:list': List webHook
+            'webHook:retrieve': Retrieve webHook
+            'webHook:update': Update webHook
 
   parameters:
     ProjectId:

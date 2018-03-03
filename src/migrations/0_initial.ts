@@ -27,7 +27,7 @@ function createProjectTable(knex: knex) {
 }
 
 function createProjectMembershipTable(knex: knex) {
-  return knex.schema.createTableIfNotExists('projectmembership', function (table: knex.CreateTableBuilder) {
+  return knex.schema.createTableIfNotExists('projectMembership', function (table: knex.CreateTableBuilder) {
     table.integer('userId').unsigned();
     table.integer('projectId').unsigned();
     table.string('membershipType', 128);
@@ -241,7 +241,7 @@ exports.down = function(knex: knex) {
   const tables = [
     'user',
     'project',
-    'projectmembership',
+    'projectMembership',
     'webHook',
     'projectInvite',
     'mediaTag',

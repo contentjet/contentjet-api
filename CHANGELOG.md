@@ -1,3 +1,8 @@
+# 0.11.0
+* Moved webhook middleware to it's own module and updated payload structure
+* Camel cased ProjectMembership table name to be consistent with all other tables
+* Updates to spec.yml
+
 # 0.10.0
 * Now validating grant_type value, not just it's presence
 * Default TOKEN_EXPIRY is 300 (5 minutes)

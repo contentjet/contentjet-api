@@ -9,7 +9,7 @@ export default class ProjectMembership extends Model {
   membershipIsActive: boolean;
 
   static get tableName(): string {
-    return 'projectmembership';
+    return 'projectMembership';
   }
 
   static get relationMappings(): RelationMappings {
@@ -18,7 +18,7 @@ export default class ProjectMembership extends Model {
         relation: Model.BelongsToOneRelation,
         modelClass: `${__dirname}/User`,
         join: {
-          from: 'projectmembership.userId',
+          from: 'projectMembership.userId',
           to: 'user.id'
         }
       },
@@ -26,7 +26,7 @@ export default class ProjectMembership extends Model {
         relation: Model.BelongsToOneRelation,
         modelClass: `${__dirname}/Project`,
         join: {
-          from: 'projectmembership.projectId',
+          from: 'projectMembership.projectId',
           to: 'project.id'
         }
       }

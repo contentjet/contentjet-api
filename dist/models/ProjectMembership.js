@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const objection_1 = require("objection");
 class ProjectMembership extends objection_1.Model {
     static get tableName() {
-        return 'projectmembership';
+        return 'projectMembership';
     }
     static get relationMappings() {
         return {
@@ -11,7 +11,7 @@ class ProjectMembership extends objection_1.Model {
                 relation: objection_1.Model.BelongsToOneRelation,
                 modelClass: `${__dirname}/User`,
                 join: {
-                    from: 'projectmembership.userId',
+                    from: 'projectMembership.userId',
                     to: 'user.id'
                 }
             },
@@ -19,7 +19,7 @@ class ProjectMembership extends objection_1.Model {
                 relation: objection_1.Model.BelongsToOneRelation,
                 modelClass: `${__dirname}/Project`,
                 join: {
-                    from: 'projectmembership.projectId',
+                    from: 'projectMembership.projectId',
                     to: 'project.id'
                 }
             }

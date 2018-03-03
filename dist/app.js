@@ -9,8 +9,6 @@ const send = require("koa-send");
 const Router = require("koa-router");
 const objection_1 = require("objection");
 objection_1.Model.knex(require('knex')(config_1.default.DATABASE));
-const lodash_1 = require("lodash");
-const axios_1 = require("axios");
 const jwt = require("jsonwebtoken");
 const yaml = require("yamljs");
 const ProjectViewSet_1 = require("./viewsets/ProjectViewSet");
@@ -37,6 +35,7 @@ const WebHook_1 = require("./models/WebHook");
 const NotFoundError_1 = require("./errors/NotFoundError");
 const ValidationError_1 = require("./errors/ValidationError");
 const AuthenticationError_1 = require("./errors/AuthenticationError");
+const middleware_1 = require("./webhooks/middleware");
 // Attach it to the viewSetOptions
 const viewSetOptions = {
     storage: config_1.default.STORAGE_BACKEND
@@ -106,43 +105,7 @@ app
             console.log(err.stack);
     }
 })
-    .use(async function (ctx, next) {
-    await next();
-    const { project, viewsetResult } = ctx.state;
-    if (!viewsetResult || !project)
-        return;
-    const { modelClass, action, data } = viewsetResult;
-    const actionToEventMap = {
-        'update': 'Updated',
-        'create': 'Created',
-        'delete': 'Deleted',
-        'bulkDelete': 'BulkDeleted'
-    };
-    const actions = Object.keys(actionToEventMap);
-    if (!actions.includes(action))
-        return;
-    const webHooks = await project.getActiveWebHooks();
-    webHooks.forEach(async (webHook) => {
-        for (const action of actions) {
-            const event = `${modelClass.tableName}${actionToEventMap[action]}`;
-            if (!lodash_1.get(webHook, event))
-                continue;
-            // For bulkDelete action data is an array of the deleted record ids
-            const payload = {
-                dateTime: new Date(),
-                project: lodash_1.pick(project, ['id', 'name']),
-                webHook: lodash_1.pick(webHook, ['id', 'name', 'url']),
-                target: actionToEventMap[action] === 'BulkDeleted' ? data : lodash_1.pick(data, 'id')
-            };
-            try {
-                await axios_1.default.post(webHook.url, payload);
-            }
-            catch (err) {
-                // TODO: Log error
-            }
-        }
-    });
-});
+    .use(middleware_1.default);
 if (config_1.default.SERVE_MEDIA) {
     app.use(async function (ctx, next) {
         if (ctx.path.match(/^\/media\/.*$/)) {
