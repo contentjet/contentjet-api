@@ -7,8 +7,6 @@ import * as send from 'koa-send';
 import * as Router from 'koa-router';
 import {Model, ValidationError as ObjectionValidationError} from 'objection';
 Model.knex(require('knex')(config.DATABASE));
-import {get, pick} from 'lodash';
-import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
 import * as yaml from 'yamljs';
 
@@ -38,6 +36,8 @@ import WebHook from './models/WebHook';
 import NotFoundError from './errors/NotFoundError';
 import ValidationError from './errors/ValidationError';
 import AuthenticationError from './errors/AuthenticationError';
+
+import WebHookMiddleware from './webhooks/middleware';
 
 // Attach it to the viewSetOptions
 const viewSetOptions = {
@@ -83,13 +83,6 @@ const app = new Koa();
 // Expose sendMail method on context prototype
 app.context.sendMail = config.MAIL_BACKEND.sendMail;
 
-interface IWebHookEventPayload {
-  dateTime: Date;
-  project: object;
-  webHook: object;
-  target: number[] | number;
-}
-
 app
   .use(cors(config.CORS))
   .use(async function (ctx: Koa.Context, next: Function) {
@@ -114,39 +107,7 @@ app
       if (config.DEBUG) console.log(err.stack);
     }
   })
-  .use(async function (ctx: Koa.Context, next: Function) {
-    await next();
-    const {project, viewsetResult} = ctx.state;
-    if (!viewsetResult || !project) return;
-    const {modelClass, action, data} = viewsetResult;
-    const actionToEventMap: {[index:string]: string} = {
-      'update': 'Updated',
-      'create': 'Created',
-      'delete': 'Deleted',
-      'bulkDelete': 'BulkDeleted'
-    };
-    const actions = Object.keys(actionToEventMap);
-    if (!actions.includes(action)) return;
-    const webHooks = await project.getActiveWebHooks();
-    webHooks.forEach(async (webHook: WebHook) => {
-      for (const action of actions) {
-        const event = `${modelClass.tableName}${actionToEventMap[action]}`;
-        if (!get(webHook, event)) continue;
-        // For bulkDelete action data is an array of the deleted record ids
-        const payload: IWebHookEventPayload = {
-          dateTime: new Date(),
-          project: pick(project, ['id', 'name']),
-          webHook: pick(webHook, ['id', 'name', 'url']),
-          target: actionToEventMap[action] === 'BulkDeleted' ? data : pick(data, 'id')
-        };
-        try {
-          await axios.post(webHook.url, payload);
-        } catch (err) {
-          // TODO: Log error
-        }
-      }
-    });
-  });
+  .use(WebHookMiddleware);
 
 if (config.SERVE_MEDIA) {
   app.use(async function (ctx: Koa.Context, next: Function) {
