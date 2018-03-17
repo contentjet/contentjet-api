@@ -1,3 +1,5 @@
+* Improved Entry validation
+
 # 0.11.0
 * Moved webhook middleware to it's own module and updated payload structure
 * Camel cased ProjectMembership table name to be consistent with all other tables

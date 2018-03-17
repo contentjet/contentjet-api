@@ -14,6 +14,15 @@ const objection_1 = require("objection");
 const middleware_1 = require("../authorization/middleware");
 const middleware_2 = require("../authentication/jwt/middleware");
 const initialValidationConstraints = {
+    name: {
+        presence: {
+            allowEmpty: false
+        },
+    },
+    published: {
+        datetime: true,
+        presence: true
+    },
     entryTypeId: {
         presence: true,
         numericality: {
