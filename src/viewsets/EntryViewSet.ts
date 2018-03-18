@@ -14,6 +14,15 @@ import {requirePermission} from '../authorization/middleware';
 import {requireAuthentication} from '../authentication/jwt/middleware';
 
 const initialValidationConstraints = {
+  name: {
+    presence: {
+      allowEmpty: false
+    },
+  },
+  published: {
+    datetime: true,
+    presence: true
+  },
   entryTypeId: {
     presence: true,
     numericality: {
