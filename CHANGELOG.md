@@ -1,3 +1,7 @@
+# 0.12.0
+* Updated spec.yml
+* Only admins can create projects
+
 # 0.11.1
 * Improved Entry validation
 
