@@ -5,8 +5,10 @@ class ProjectPermissionBackend {
         const { user, project } = ctx.state;
         if (!user)
             return false;
-        if (['project:list', 'project:create'].includes(permissionName))
+        if (permissionName === 'project:list')
             return true;
+        if (permissionName === 'project:create' && !user.isAdmin)
+            return false;
         if (!project)
             return false;
         if (user.isAdmin)
