@@ -56,6 +56,7 @@ class ProjectViewSet extends BaseViewSet_1.default {
     }
     async update(ctx) {
         delete ctx.request.body.user;
+        delete ctx.request.body.userId;
         delete ctx.request.body.members;
         return super.update(ctx);
     }

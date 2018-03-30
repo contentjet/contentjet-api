@@ -7,7 +7,8 @@ export default class ProjectPermissionBackend implements IPermissionBackend {
   async hasPermission(ctx: Koa.Context, permissionName: string): Promise<boolean> {
     const {user, project} = ctx.state;
     if (!user) return false;
-    if (['project:list', 'project:create'].includes(permissionName)) return true;
+    if (permissionName === 'project:list') return true;
+    if (permissionName === 'project:create' && !user.isAdmin) return false;
     if (!project) return false;
     if (user.isAdmin) return true;
     if (!(await project.isActiveMember(user.id))) return false;

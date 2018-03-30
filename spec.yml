@@ -348,7 +348,7 @@ paths:
       tags:
         - Project
       summary: Create project
-      description: Creates a project
+      description: Creates a project. Note only users administrators (users with isAdmin = true) can create projects.
       security:
         - OAuth2:
           - 'project:create'
@@ -430,6 +430,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
+    put:
+      tags:
+        - Project
+      summary: Update project
+      description: Updates a project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'project:update'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+                metadata:
+                  type: string
+                  maxLength: 3000
+      responses:
+        200:
+          description: Update project response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
 
   /project/{projectId}/update-member:
     post:
@@ -437,6 +468,8 @@ paths:
         - Project
       summary: Update a user's membership within the project
       description: Update a user's membership within the project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
       security:
         - OAuth2:
           - 'project:update'
@@ -1162,12 +1195,6 @@ paths:
       security:
         - OAuth2:
           - 'webHook:delete'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/WebHook'
       responses:
         204:
           description: Update web hook response

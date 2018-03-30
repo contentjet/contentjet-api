@@ -64,6 +64,7 @@ export default class ProjectViewSet extends BaseViewSet<Project> {
 
   async update(ctx: Koa.Context) {
     delete ctx.request.body.user;
+    delete ctx.request.body.userId;
     delete ctx.request.body.members;
     return super.update(ctx);
   }
