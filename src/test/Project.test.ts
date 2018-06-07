@@ -18,7 +18,7 @@ describe('Project - Integration', function () {
       await User.create('user1@example.com', 'User1', '123456', true);
       const loginResponse = await axios
         .post(
-          `${BASE_URL}user/authenticate`,
+          `${BASE_URL}authenticate`,
           {
             username: 'user1@example.com',
             password: '123456',

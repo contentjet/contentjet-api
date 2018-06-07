@@ -5,13 +5,17 @@ import * as bodyParser from 'koa-bodyparser';
 import * as cors from 'kcors';
 import * as send from 'koa-send';
 import * as Router from 'koa-router';
-import {Model, ValidationError as ObjectionValidationError} from 'objection';
+import { Model, ValidationError as ObjectionValidationError } from 'objection';
 Model.knex(require('knex')(config.DATABASE));
 import * as jwt from 'jsonwebtoken';
 import * as yaml from 'yamljs';
 
+import { authenticateUser, tokenRefresh } from './authentication/jwt/routes';
+import { requireAuthentication } from './authentication/jwt/middleware';
+
 import ProjectViewSet from './viewsets/ProjectViewSet';
 import UserViewSet from './viewsets/UserViewSet';
+import ClientViewSet from './viewsets/ClientViewSet';
 import WebHookViewSet from './viewsets/WebHookViewSet';
 import ProjectInviteViewSet from './viewsets/ProjectInviteViewSet';
 import MediaViewSet from './viewsets/MediaViewSet';
@@ -46,6 +50,10 @@ const viewSetOptions = {
 
 // Instantiate root router and attach routes
 const router = new Router();
+
+router.post('/authenticate', authenticateUser);
+router.post('/token-refresh', requireAuthentication, tokenRefresh);
+
 router.use('/user/', new UserViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/', async function (ctx: Koa.Context, next: Function) {
   const project = await Project.getById(ctx.params.projectId);
@@ -61,6 +69,7 @@ router.use('/project/:projectId(\\d+)/media-tag/', new MediaTagViewSet(viewSetOp
 router.use('/project/:projectId(\\d+)/entry-type/', new EntryTypeViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry-tag/', new EntryTagViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry/', new EntryViewSet(viewSetOptions).routes());
+router.use('/project/:projectId(\\d+)/client/', new ClientViewSet(viewSetOptions).routes());
 
 // Load the OpenAPI spec from disk converting YAML to JSON and dynamically populating
 // the servers array with our config.BACKEND_URL.

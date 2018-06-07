@@ -14,7 +14,7 @@ describe('User - Integration', function () {
     await User.create('user1@example.com', 'User1', '123456', true);
     const loginResponse = await axios
       .post(
-        `${BASE_URL}user/authenticate`,
+        `${BASE_URL}authenticate`,
         {
           username: 'user1@example.com',
           password: '123456',
@@ -48,7 +48,7 @@ describe('User - Integration', function () {
       assert.equal(response.status, 200);
       const loginResponse = await axios
         .post(
-          `${BASE_URL}user/authenticate`,
+          `${BASE_URL}authenticate`,
           {
             username: 'user1@example.com',
             password: 'mynewpassword',
@@ -96,7 +96,7 @@ describe('User - Integration', function () {
         // Note we're not using the axios client created in the beforeEach hook.
         loginResponse = await axios
           .post(
-            `${BASE_URL}user/authenticate`,
+            `${BASE_URL}authenticate`,
             {
               username: 'user1@example.com',
               password: '123456',
@@ -113,7 +113,7 @@ describe('User - Integration', function () {
     it('fails to refresh token with wrong grant_type', async function () {
       const loginResponse = await axios
         .post(
-          `${BASE_URL}user/authenticate`,
+          `${BASE_URL}authenticate`,
           {
             username: 'user1@example.com',
             password: '123456',
@@ -126,7 +126,7 @@ describe('User - Integration', function () {
       try {
         refreshResponse = await axios
           .post(
-            `${BASE_URL}user/token-refresh`,
+            `${BASE_URL}token-refresh`,
             {
               refresh_token: refreshToken,
               grant_type: 'blahblah'

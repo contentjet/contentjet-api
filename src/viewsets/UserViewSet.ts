@@ -4,7 +4,7 @@ import fs = require('fs');
 import path = require('path');
 import url = require('url');
 import * as ejs from 'ejs';
-import {cloneDeep} from 'lodash';
+import { cloneDeep } from 'lodash';
 const { mjml2html } = require('mjml');
 import {transaction} from 'objection';
 import User from '../models/User';
@@ -14,8 +14,7 @@ import BaseViewSet from './BaseViewSet';
 import ValidationError from '../errors/ValidationError';
 import NotFoundError from '../errors/NotFoundError';
 import config from '../config';
-import {authenticate, tokenRefresh} from '../authentication/jwt/routes';
-import {requireAuthentication} from '../authentication/jwt/middleware';
+import { requireAuthentication } from '../authentication/jwt/middleware';
 import validate from '../utils/validate';
 
 const signUpHTML = mjml2html(
@@ -125,8 +124,6 @@ export default class UserViewSet extends BaseViewSet<User> {
     this.router.post('verify', this.verify);
     this.router.post('request-password-reset', this.requestPasswordReset);
     this.router.post('set-password', this.setPassword);
-    this.router.post('authenticate', authenticate);
-    this.router.post('token-refresh', requireAuthentication, tokenRefresh);
     this.router.post('change-password', requireAuthentication, this.changePassword);
   }
 

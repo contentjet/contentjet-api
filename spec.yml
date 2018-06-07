@@ -20,6 +20,89 @@ paths:
               schema:
                 type: object
 
+  /authenticate:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate with OAuth2
+      description: Authenticate using OAuth2 with the [Resource Owner Password Credentials Grant](https://tools.ietf.org/html/rfc6749#section-4.3).
+        For programatic access, see `authentication` under Client.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                  maxLength: 64
+                grant_type:
+                  type: string
+                  pattern: "^password$"
+              required:
+                - username
+                - password
+                - grant_type
+      responses:
+        200:
+          description: Authentication response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                  refresh_token:
+                    type: string
+                  token_type:
+                    type: string
+                    pattern: "^bearer$"
+
+  /token-refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh an authentication token
+      description: Refreshes a valid authentication token.
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+              required:
+                - refresh_token
+      responses:
+        200:
+          description: Token refresh response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                  refresh_token:
+                    type: string
+                  token_type:
+                    type: string
+                    pattern: "^bearer$"
+
   # User
   /user:
     get:
@@ -65,88 +148,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-
-  /user/authenticate:
-    post:
-      tags:
-        - User
-      summary: Authenticate a user
-      description: Authenticate a user using [OAuth2 Resource Owner Password Credentials Grant](https://tools.ietf.org/html/rfc6749#section-4.3).
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  format: email
-                password:
-                  type: string
-                  minLength: 6
-                  maxLength: 64
-                grant_type:
-                  type: string
-                  pattern: "^password$"
-              required:
-                - username
-                - password
-                - grant_type
-      responses:
-        200:
-          description: Authentication response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                  expires_in:
-                    type: integer
-                  refresh_token:
-                    type: string
-                  token_type:
-                    type: string
-                    pattern: "^bearer$"
-
-  /user/token-refresh:
-    post:
-      tags:
-        - User
-      summary: Refresh an authentication token
-      description: Refreshes a valid authentication token.
-      security:
-        - OAuth2: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                refresh_token:
-                  type: string
-              required:
-                - refresh_token
-      responses:
-        200:
-          description: Token refresh response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                  expires_in:
-                    type: integer
-                  refresh_token:
-                    type: string
-                  token_type:
-                    type: string
-                    pattern: "^bearer$"
 
   /user/me:
     get:
@@ -1199,13 +1200,151 @@ paths:
         204:
           description: Update web hook response
 
+  # Client
+  /project/{projectId}/client:
+    get:
+      tags:
+        - Client
+      summary: List clients
+      description: Returns a list of clients
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'client:list'
+      responses:
+        200:
+          description: List clients response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Client'
+
+    post:
+      tags:
+        - Client
+      summary: Create client
+      description: Creates a client for the project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      security:
+        - OAuth2:
+          - 'client:create'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                  maxLength: 64
+              required:
+                - name
+      responses:
+        200:
+          description: Create client response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+
+  /project/{projectId}/client/{clientId}:
+    get:
+      tags:
+        - Client
+      summary: Retrieve client
+      description: Retrieve client
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ClientId'
+      security:
+        - OAuth2:
+          - 'client:retrieve'
+      responses:
+        200:
+          description: Retrieve client response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+
+    delete:
+      tags:
+        - Client
+      summary: Delete client
+      description: Deletes a client from the project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/ClientId'
+      security:
+        - OAuth2:
+          - 'client:delete'
+      responses:
+        204:
+          description: Update client response
+
+  /project/{projectId}/client/authenticate:
+    post:
+      tags:
+        - Client
+      summary: Authenticate with OAuth2
+      description: Authenticate using OAuth2 with the [Client Credentials Grant](https://tools.ietf.org/html/rfc6749#section-4.4).
+        This authentication method is intended for programatic access and is scoped to grant **read only** access to items
+        within the Project.
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  minLength: 32
+                  maxLength: 32
+                client_secret:
+                  type: string
+                  minLength: 32
+                  maxLength: 32
+                grant_type:
+                  type: string
+                  pattern: "^client_credentials$"
+              required:
+                - client_id
+                - client_secret
+                - grant_type
+      responses:
+        200:
+          description: Authentication response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                  token_type:
+                    type: string
+                    pattern: "^bearer$"
+
+
 components:
   securitySchemes:
     OAuth2:
       type: oauth2
       flows:
         password:
-          tokenUrl: '/user/authenticate'
+          tokenUrl: '/authenticate'
+          refreshUrl: '/token-refresh'
           scopes:
             'entry:create': Create entry
             'entry:delete': Delete entry
@@ -1257,6 +1396,36 @@ components:
             'webHook:list': List webHook
             'webHook:retrieve': Retrieve webHook
             'webHook:update': Update webHook
+            'client:create': Create client
+            'client:delete': Delete client
+            'client:list': List client
+            'client:retrieve': Retrieve client
+            'client:update': Update client
+        clientCredentials:
+          tokenUrl: '/authenticate'
+          scopes:
+            'entry:list': List entry
+            'entry:retrieve': Retrieve entry
+            'entryTag:list': List entryTag
+            'entryTag:retrieve': Retrieve entryTag
+            'entryType:list': List entryType
+            'entryType:retrieve': Retrieve entryType
+            'media:list': List media
+            'media:retrieve': Retrieve media
+            'mediaTag:list': List mediaTag
+            'mediaTag:retrieve': Retrieve mediaTag
+            'project:list': List project
+            'project:retrieve': Retrieve project
+            'projectInvite:list': List projectInvite
+            'projectInvite:retrieve': Retrieve projectInvite
+            'projectMembership:list': List projectMembership
+            'projectMembership:retrieve': Retrieve projectMembership
+            'user:list': List user
+            'user:retrieve': Retrieve user
+            'webHook:list': List webHook
+            'webHook:retrieve': Retrieve webHook
+            'client:list': List client
+            'client:retrieve': Retrieve client
 
   parameters:
     ProjectId:
@@ -1311,6 +1480,14 @@ components:
       name: webHookId
       in: path
       description: Web hook id
+      required: true
+      schema:
+        type: integer
+
+    ClientId:
+      name: clientId
+      in: path
+      description: Client id
       required: true
       schema:
         type: integer
@@ -1850,3 +2027,29 @@ components:
           type: array
           items:
             type: string
+
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        clientId:
+          type: string
+          minLength: 32
+          maxLength: 32
+        clientSecret:
+          type: string
+          minLength: 32
+          maxLength: 32
+        createdAt:
+          type: string
+          format: date-time
+        modifiedAt:
+          type: string
+          format: date-time
