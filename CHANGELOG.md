@@ -1,3 +1,9 @@
+# 0.13.0
+* Added new Client model for authenticating using OAuth2 Client Credentials flow
+* Updated spec.yml
+* `/user/authenticate` moved to `/authenticate`
+* `/user/token-refresh` moved to `/token-refresh`
+
 # 0.12.0
 * Updated spec.yml
 * Only admins can create projects

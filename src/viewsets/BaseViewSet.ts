@@ -1,11 +1,11 @@
 import * as Koa from 'koa';
 import * as Router from 'koa-router';
-import {pick} from 'lodash';
-import {ModelClass, QueryBuilder} from 'objection';
+import { pick } from 'lodash';
+import { ModelClass, QueryBuilder } from 'objection';
 import * as moment from 'moment';
 import NotFoundError from '../errors/NotFoundError';
 import DatabaseError from '../errors/DatabaseError';
-import {requirePermission} from '../authorization/middleware';
+import { requirePermission } from '../authorization/middleware';
 import IStorageBackend from '../backends/storage/IStorageBackend';
 
 

@@ -67,4 +67,33 @@ describe('Client - Integration', function () {
 
   });
 
+  describe('#authenticate', async function () {
+
+    let client: Client;
+
+    before(async function () {
+      client = await Client.create(project1.id, 'Test client');
+    });
+
+    afterEach(async function () {
+      await Client.deleteAll();
+    });
+
+    it('authenticates a client', async function () {
+      const data = {
+        client_id: client.clientId,
+        client_secret: client.clientSecret,
+        grant_type: 'client_credentials'
+      };
+      const response = await axios.post(
+        `${BASE_URL}project/${project1.id}/client/authenticate`, data
+      );
+      assert.equal(response.status, 200);
+      assert.exists(response.data.access_token);
+      assert.exists(response.data.expires_in);
+      assert.equal(response.data.token_type, 'bearer');
+    });
+
+  });
+
 });
