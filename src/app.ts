@@ -61,7 +61,6 @@ router.use('/project/:projectId(\\d+)/', async function (ctx: Koa.Context, next:
   ctx.state.project = project;
   await next();
 });
-router.use('/project/:projectId(\\d+)/client/', new ClientViewSet(viewSetOptions).routes());
 router.use('/project/', new ProjectViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/web-hook/', new WebHookViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/invite/', new ProjectInviteViewSet(viewSetOptions).routes());
@@ -70,6 +69,7 @@ router.use('/project/:projectId(\\d+)/media-tag/', new MediaTagViewSet(viewSetOp
 router.use('/project/:projectId(\\d+)/entry-type/', new EntryTypeViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry-tag/', new EntryTagViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry/', new EntryViewSet(viewSetOptions).routes());
+router.use('/project/:projectId(\\d+)/client/', new ClientViewSet(viewSetOptions).routes());
 
 // Load the OpenAPI spec from disk converting YAML to JSON and dynamically populating
 // the servers array with our config.BACKEND_URL.

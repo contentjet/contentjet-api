@@ -45,23 +45,22 @@ export default abstract class BaseViewSet<MC> {
     this.getDeleteMiddleware = this.getDeleteMiddleware.bind(this);
 
     this.router = new Router(this.getRouterOptions());
-    const middleware = this.getCommonMiddleware();
-    if (middleware.length) this.router.use(...middleware);
+    const commonMiddleware = this.getCommonMiddleware();
     const id = this.getIdRouteParameter();
     if (!disabledActions.includes('list')) {
-      this.router.get('/', ...this.getListMiddleware(), this.list);
+      this.router.get('/', ...commonMiddleware, ...this.getListMiddleware(), this.list);
     }
     if (!disabledActions.includes('create')) {
-      this.router.post('/', ...this.getCreateMiddleware(), this.create);
+      this.router.post('/', ...commonMiddleware, ...this.getCreateMiddleware(), this.create);
     }
     if (!disabledActions.includes('retrieve')) {
-      this.router.get(`:${id}(\\d+)`, ...this.getRetrieveMiddleware(), this.retrieve);
+      this.router.get(`:${id}(\\d+)`, ...commonMiddleware, ...this.getRetrieveMiddleware(), this.retrieve);
     }
     if (!disabledActions.includes('update')) {
-      this.router.put(`:${id}(\\d+)`, ...this.getUpdateMiddleware(), this.update);
+      this.router.put(`:${id}(\\d+)`, ...commonMiddleware, ...this.getUpdateMiddleware(), this.update);
     }
     if (!disabledActions.includes('delete')) {
-      this.router.delete(`:${id}(\\d+)`, ...this.getDeleteMiddleware(), this.delete);
+      this.router.delete(`:${id}(\\d+)`, ...commonMiddleware, ...this.getDeleteMiddleware(), this.delete);
     }
   }
 
