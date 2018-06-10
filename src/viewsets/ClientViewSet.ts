@@ -15,6 +15,10 @@ export default class ClientViewSet extends BaseViewSet<Client> {
     this.router.post('authenticate', authenticateClient);
   }
 
+  getPageSize(_ctx: Koa.Context): number {
+    return 0;
+  }
+
   getListMiddleware() {
     const middleware: Array<Router.IMiddleware> = [requireAuthentication];
     return middleware.concat(super.getListMiddleware());

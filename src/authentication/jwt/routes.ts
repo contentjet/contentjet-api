@@ -84,7 +84,12 @@ export async function authenticateClient(ctx: Koa.Context) {
   const client = await Client.authenticate(client_id, client_secret);
   if (!client) throw new AuthenticationError('A client with the submitted credentials does not exist');
   ctx.state.client = client;
-  ctx.body = await generateClientAuthToken({clientId: ctx.state.client.clientId});
+  // NOTE: clientId in the encoded token references Client.id NOT Client.clientId.
+  // The aud field contains Client.clientId.
+  ctx.body = await generateClientAuthToken({
+    clientId: ctx.state.client.id,
+    aud: ctx.state.client.clientId
+  });
 }
 
 export async function tokenRefresh(ctx: Koa.Context) {
