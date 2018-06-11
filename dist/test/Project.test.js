@@ -15,7 +15,7 @@ describe('Project - Integration', function () {
             // Create a non-admin user and login
             await User_1.default.create('user1@example.com', 'User1', '123456', true);
             const loginResponse = await axios_1.default
-                .post(`${BASE_URL}user/authenticate`, {
+                .post(`${BASE_URL}authenticate`, {
                 username: 'user1@example.com',
                 password: '123456',
                 grant_type: 'password'

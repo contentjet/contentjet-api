@@ -14,7 +14,6 @@ const BaseViewSet_1 = require("./BaseViewSet");
 const ValidationError_1 = require("../errors/ValidationError");
 const NotFoundError_1 = require("../errors/NotFoundError");
 const config_1 = require("../config");
-const routes_1 = require("../authentication/jwt/routes");
 const middleware_1 = require("../authentication/jwt/middleware");
 const validate_1 = require("../utils/validate");
 const signUpHTML = mjml2html(fs.readFileSync(path.resolve(__dirname, '../../templates/mail/sign-up-verify.mjml'), 'utf8')).html;
@@ -105,8 +104,6 @@ class UserViewSet extends BaseViewSet_1.default {
         this.router.post('verify', this.verify);
         this.router.post('request-password-reset', this.requestPasswordReset);
         this.router.post('set-password', this.setPassword);
-        this.router.post('authenticate', routes_1.authenticate);
-        this.router.post('token-refresh', middleware_1.requireAuthentication, routes_1.tokenRefresh);
         this.router.post('change-password', middleware_1.requireAuthentication, this.changePassword);
     }
     getListMiddleware() {

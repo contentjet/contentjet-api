@@ -11,8 +11,11 @@ const objection_1 = require("objection");
 objection_1.Model.knex(require('knex')(config_1.default.DATABASE));
 const jwt = require("jsonwebtoken");
 const yaml = require("yamljs");
+const routes_1 = require("./authentication/jwt/routes");
+const middleware_1 = require("./authentication/jwt/middleware");
 const ProjectViewSet_1 = require("./viewsets/ProjectViewSet");
 const UserViewSet_1 = require("./viewsets/UserViewSet");
+const ClientViewSet_1 = require("./viewsets/ClientViewSet");
 const WebHookViewSet_1 = require("./viewsets/WebHookViewSet");
 const ProjectInviteViewSet_1 = require("./viewsets/ProjectInviteViewSet");
 const MediaViewSet_1 = require("./viewsets/MediaViewSet");
@@ -35,13 +38,15 @@ const WebHook_1 = require("./models/WebHook");
 const NotFoundError_1 = require("./errors/NotFoundError");
 const ValidationError_1 = require("./errors/ValidationError");
 const AuthenticationError_1 = require("./errors/AuthenticationError");
-const middleware_1 = require("./webhooks/middleware");
+const middleware_2 = require("./webhooks/middleware");
 // Attach it to the viewSetOptions
 const viewSetOptions = {
     storage: config_1.default.STORAGE_BACKEND
 };
 // Instantiate root router and attach routes
 const router = new Router();
+router.post('/authenticate', routes_1.authenticateUser);
+router.post('/token-refresh', middleware_1.requireAuthentication, routes_1.tokenRefresh);
 router.use('/user/', new UserViewSet_1.default(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/', async function (ctx, next) {
     const project = await Project_1.default.getById(ctx.params.projectId);
@@ -58,6 +63,7 @@ router.use('/project/:projectId(\\d+)/media-tag/', new MediaTagViewSet_1.default
 router.use('/project/:projectId(\\d+)/entry-type/', new EntryTypeViewSet_1.default(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry-tag/', new EntryTagViewSet_1.default(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/entry/', new EntryViewSet_1.default(viewSetOptions).routes());
+router.use('/project/:projectId(\\d+)/client/', new ClientViewSet_1.default(viewSetOptions).routes());
 // Load the OpenAPI spec from disk converting YAML to JSON and dynamically populating
 // the servers array with our config.BACKEND_URL.
 const spec = yaml.load('spec.yml');
@@ -105,7 +111,7 @@ app
             console.log(err.stack);
     }
 })
-    .use(middleware_1.default);
+    .use(middleware_2.default);
 if (config_1.default.SERVE_MEDIA) {
     app.use(async function (ctx, next) {
         if (ctx.path.match(/^\/media\/.*$/)) {
