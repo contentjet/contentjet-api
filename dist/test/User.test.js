@@ -12,7 +12,7 @@ describe('User - Integration', function () {
     beforeEach(async function () {
         await User_1.default.create('user1@example.com', 'User1', '123456', true);
         const loginResponse = await axios_1.default
-            .post(`${BASE_URL}user/authenticate`, {
+            .post(`${BASE_URL}authenticate`, {
             username: 'user1@example.com',
             password: '123456',
             grant_type: 'password'
@@ -37,7 +37,7 @@ describe('User - Integration', function () {
             });
             chai_1.assert.equal(response.status, 200);
             const loginResponse = await axios_1.default
-                .post(`${BASE_URL}user/authenticate`, {
+                .post(`${BASE_URL}authenticate`, {
                 username: 'user1@example.com',
                 password: 'mynewpassword',
                 grant_type: 'password'
@@ -73,7 +73,7 @@ describe('User - Integration', function () {
             try {
                 // Note we're not using the axios client created in the beforeEach hook.
                 loginResponse = await axios_1.default
-                    .post(`${BASE_URL}user/authenticate`, {
+                    .post(`${BASE_URL}authenticate`, {
                     username: 'user1@example.com',
                     password: '123456',
                     grant_type: 'blahblah'
@@ -87,7 +87,7 @@ describe('User - Integration', function () {
         });
         it('fails to refresh token with wrong grant_type', async function () {
             const loginResponse = await axios_1.default
-                .post(`${BASE_URL}user/authenticate`, {
+                .post(`${BASE_URL}authenticate`, {
                 username: 'user1@example.com',
                 password: '123456',
                 grant_type: 'password'
@@ -97,7 +97,7 @@ describe('User - Integration', function () {
             let refreshResponse;
             try {
                 refreshResponse = await axios_1.default
-                    .post(`${BASE_URL}user/token-refresh`, {
+                    .post(`${BASE_URL}token-refresh`, {
                     refresh_token: refreshToken,
                     grant_type: 'blahblah'
                 }, {

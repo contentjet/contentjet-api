@@ -43,8 +43,12 @@ const config: any = {
   FRONTEND_URL: env('FRONTEND_URL') || 'http://localhost:9000',
   // The url where contentjet-api (this app) is hosted
   BACKEND_URL: env('BACKEND_URL') || `http://localhost:${PORT}`,
-  // The duration in seconds an authentication token (JWT) is valid for
-  TOKEN_EXPIRY: parseInt(env('TOKEN_EXPIRY') || '300'),
+  // The duration in seconds an authentication token (JWT) is valid for when authenticating
+  // via the OAuth2 `Resource Owner Password Credentials Grant` flow. Default 5 mins.
+  USER_TOKEN_EXPIRY: parseInt(env('USER_TOKEN_EXPIRY') || '300'),
+  // The duration in seconds an authentication token (JWT) is valid for when authenticating
+  // via the OAuth2 `Client Credentials Grant` flow. Default 1 hour.
+  CLIENT_TOKEN_EXPIRY: parseInt(env('CLIENT_TOKEN_EXPIRY') || '3600'),
   // When false the user will receive a signup confirmation email. When true
   // the user will NOT receive a confirmation email and will have isActive = true
   // set immediately upon signup. Recommended this remains false in production.

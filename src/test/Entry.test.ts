@@ -72,7 +72,7 @@ describe('Entry - Integration', function () {
       });
     const loginResponse = await axios
       .post(
-        `${BASE_URL}user/authenticate`,
+        `${BASE_URL}authenticate`,
         {
           username: 'user1@example.com',
           password: '123456',

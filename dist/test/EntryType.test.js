@@ -127,7 +127,7 @@ describe('EntryType - Integration', function () {
             userId: user1.id
         });
         const loginResponse = await axios_1.default
-            .post(`${BASE_URL}user/authenticate`, {
+            .post(`${BASE_URL}authenticate`, {
             username: 'user1@example.com',
             password: '12345',
             grant_type: 'password'
