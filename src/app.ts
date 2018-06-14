@@ -1,4 +1,6 @@
 import config from './config';
+import * as fs from 'fs';
+import * as url from 'url';
 import * as path from 'path';
 import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
@@ -9,6 +11,7 @@ import { Model, ValidationError as ObjectionValidationError } from 'objection';
 Model.knex(require('knex')(config.DATABASE));
 import * as jwt from 'jsonwebtoken';
 import * as yaml from 'yamljs';
+const swaggerUIAbsolutePath = require('swagger-ui-dist').absolutePath();
 
 import { authenticateUser, tokenRefresh } from './authentication/jwt/routes';
 import { requireAuthentication } from './authentication/jwt/middleware';
@@ -122,6 +125,25 @@ if (config.SERVE_MEDIA) {
   app.use(async function (ctx: Koa.Context, next: Function) {
     if (ctx.path.match(/^\/media\/.*$/)) {
       await send(ctx, path.join(config.MEDIA_ROOT, ctx.path.replace('/media/', '')));
+    } else {
+      await next();
+    }
+  });
+}
+
+if (config.SERVE_SWAGGER_UI) {
+  const swaggerIndex = fs
+    .readFileSync(path.join(swaggerUIAbsolutePath, 'index.html'), { encoding: 'utf8' })
+    .replace(/http:\/\/petstore\.swagger\.io\/v2\/swagger\.json/g, url.resolve(config.BACKEND_URL, 'spec'));
+
+  app.use(async function (ctx: Koa.Context, next: Function) {
+    if (ctx.path.match(/^\/swagger\/.*$/)) {
+      const path = ctx.path.replace('/swagger/', '');
+      if (path === '' || path === '/index.html') {
+        ctx.body = swaggerIndex;
+        return;
+      }
+      await send(ctx, path, { root: swaggerUIAbsolutePath });
     } else {
       await next();
     }

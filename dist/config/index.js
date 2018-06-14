@@ -79,7 +79,9 @@ const config = {
     THUMBNAIL: {
         width: parseInt(env('THUMBNAIL_WIDTH') || '200'),
         height: parseInt(env('THUMBNAIL_HEIGHT') || '200')
-    }
+    },
+    // Whether or not to serve Swagger UI at /swagger endpoint. Defaults to true.
+    SERVE_SWAGGER_UI: !!parseInt(env('SERVE_SWAGGER_UI') || '1')
 };
 // Instantiate the mail backend
 const options = {
