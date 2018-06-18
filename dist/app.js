@@ -26,6 +26,7 @@ const MediaTagViewSet_1 = require("./viewsets/MediaTagViewSet");
 const EntryTypeViewSet_1 = require("./viewsets/EntryTypeViewSet");
 const EntryViewSet_1 = require("./viewsets/EntryViewSet");
 const EntryTagViewSet_1 = require("./viewsets/EntryTagViewSet");
+const Client_1 = require("./models/Client");
 const Entry_1 = require("./models/Entry");
 const EntryTag_1 = require("./models/EntryTag");
 const EntryType_1 = require("./models/EntryType");
@@ -42,7 +43,7 @@ const NotFoundError_1 = require("./errors/NotFoundError");
 const ValidationError_1 = require("./errors/ValidationError");
 const AuthenticationError_1 = require("./errors/AuthenticationError");
 const middleware_2 = require("./webhooks/middleware");
-// Attach it to the viewSetOptions
+// Attach the storage backend to the viewSetOptions
 const viewSetOptions = {
     storage: config_1.default.STORAGE_BACKEND
 };
@@ -83,8 +84,6 @@ router.get('/robots.txt', function (ctx) {
     ctx.body = 'User-agent: *\nDisallow: /';
 });
 const app = new Koa();
-// Expose sendMail method on context prototype
-// app.context.sendMail = config.MAIL_BACKEND.sendMail;
 app
     .use(cors(config_1.default.CORS))
     .use(async function (ctx, next) {
@@ -156,6 +155,7 @@ app
 });
 exports.default = app;
 exports.models = {
+    Client: Client_1.default,
     Entry: Entry_1.default,
     EntryTag: EntryTag_1.default,
     EntryType: EntryType_1.default,
