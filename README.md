@@ -4,9 +4,9 @@
 
 A Node based back end for contentjet, a powerful headless API-first CMS. Built with [Koa](http://koajs.com/), [Objection](http://vincit.github.io/objection.js/) and [PostgreSQL](https://www.postgresql.org/).
 
-Contentjet is composed of 2 discreet applications, the backend API contentjet-api (this repository) and the frontend HTML user interface [contentjet-ui](contentjet-ui).
+Contentjet is composed of 2 discreet applications, the backend API contentjet-api (this repository) and the frontend HTML user interface [contentjet-ui][contentjet-ui].
 
-For more information and hosting documentation please visit **[contentjet.github.io](contentjet)**.
+For more information and hosting documentation please visit **[contentjet.github.io][contentjet]**.
 
 ## Development
 

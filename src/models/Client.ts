@@ -3,13 +3,13 @@ import * as uuid from 'uuid';
 
 export default class Client extends Model {
 
-  id: number;
-  projectId: number;
-  name: string;
-  clientId: string;
-  clientSecret: string;
-  createdAt: Date;
-  modifiedAt: Date;
+  id!: number;
+  projectId!: number;
+  name!: string;
+  clientId!: string;
+  clientSecret!: string;
+  createdAt!: Date;
+  modifiedAt!: Date;
 
   static get tableName(): string {
     return 'client';

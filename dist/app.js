@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
+const fs = require("fs");
+const url = require("url");
 const path = require("path");
 const Koa = require("koa");
 const bodyParser = require("koa-bodyparser");
@@ -11,6 +13,7 @@ const objection_1 = require("objection");
 objection_1.Model.knex(require('knex')(config_1.default.DATABASE));
 const jwt = require("jsonwebtoken");
 const yaml = require("yamljs");
+const swaggerUIAbsolutePath = require('swagger-ui-dist').absolutePath();
 const routes_1 = require("./authentication/jwt/routes");
 const middleware_1 = require("./authentication/jwt/middleware");
 const ProjectViewSet_1 = require("./viewsets/ProjectViewSet");
@@ -23,6 +26,7 @@ const MediaTagViewSet_1 = require("./viewsets/MediaTagViewSet");
 const EntryTypeViewSet_1 = require("./viewsets/EntryTypeViewSet");
 const EntryViewSet_1 = require("./viewsets/EntryViewSet");
 const EntryTagViewSet_1 = require("./viewsets/EntryTagViewSet");
+const Client_1 = require("./models/Client");
 const Entry_1 = require("./models/Entry");
 const EntryTag_1 = require("./models/EntryTag");
 const EntryType_1 = require("./models/EntryType");
@@ -39,7 +43,7 @@ const NotFoundError_1 = require("./errors/NotFoundError");
 const ValidationError_1 = require("./errors/ValidationError");
 const AuthenticationError_1 = require("./errors/AuthenticationError");
 const middleware_2 = require("./webhooks/middleware");
-// Attach it to the viewSetOptions
+// Attach the storage backend to the viewSetOptions
 const viewSetOptions = {
     storage: config_1.default.STORAGE_BACKEND
 };
@@ -80,8 +84,6 @@ router.get('/robots.txt', function (ctx) {
     ctx.body = 'User-agent: *\nDisallow: /';
 });
 const app = new Koa();
-// Expose sendMail method on context prototype
-app.context.sendMail = config_1.default.MAIL_BACKEND.sendMail;
 app
     .use(cors(config_1.default.CORS))
     .use(async function (ctx, next) {
@@ -122,6 +124,24 @@ if (config_1.default.SERVE_MEDIA) {
         }
     });
 }
+if (config_1.default.SERVE_SWAGGER_UI) {
+    const swaggerIndex = fs
+        .readFileSync(path.join(swaggerUIAbsolutePath, 'index.html'), { encoding: 'utf8' })
+        .replace(/http:\/\/petstore\.swagger\.io\/v2\/swagger\.json/g, url.resolve(config_1.default.BACKEND_URL, 'spec'));
+    app.use(async function (ctx, next) {
+        if (ctx.path.match(/^\/swagger\/.*$/)) {
+            const path = ctx.path.replace('/swagger/', '');
+            if (path === '' || path === '/index.html') {
+                ctx.body = swaggerIndex;
+                return;
+            }
+            await send(ctx, path, { root: swaggerUIAbsolutePath });
+        }
+        else {
+            await next();
+        }
+    });
+}
 app
     .use(bodyParser())
     .use(router.routes())
@@ -135,6 +155,7 @@ app
 });
 exports.default = app;
 exports.models = {
+    Client: Client_1.default,
     Entry: Entry_1.default,
     EntryTag: EntryTag_1.default,
     EntryType: EntryType_1.default,

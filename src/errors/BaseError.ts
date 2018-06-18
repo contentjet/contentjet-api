@@ -1,8 +1,8 @@
-class BaseError extends Error {
+abstract class BaseError extends Error {
 
-  name: string;
-  message: string;
-  status: number;
+  name!: string;
+  message!: string;
+  status!: number;
   expose: boolean;
 
   constructor(message: string) {

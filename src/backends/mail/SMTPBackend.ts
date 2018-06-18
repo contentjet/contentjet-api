@@ -1,8 +1,8 @@
-import IMailService from './IMailService';
+import IMailBackend from './IMailBackend';
 import * as nodemailer from 'nodemailer';
 import * as Mail from 'nodemailer/lib/mailer';
 
-export default class SMTPBackend implements IMailService {
+export default class SMTPBackend implements IMailBackend {
 
   transport: Mail;
 

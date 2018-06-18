@@ -10,14 +10,14 @@ interface IInvitePayload {
 
 export default class ProjectInvite extends Model {
 
-  id: number;
-  projectId: number;
-  name: string;
-  email: string;
-  userId: number;
-  accepted: boolean;
-  createdAt: Date;
-  modifiedAt: Date;
+  id!: number;
+  projectId!: number;
+  name!: string;
+  email!: string;
+  userId!: number;
+  accepted!: boolean;
+  createdAt!: Date;
+  modifiedAt!: Date;
 
   static get tableName(): string {
     return 'projectInvite';

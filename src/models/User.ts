@@ -13,14 +13,14 @@ interface IPasswordResetTokenPayload extends ISignUpTokenPayload {};
 
 export default class User extends Model {
 
-  id: number;
-  email: string
-  password: string
-  name: string
-  isActive: boolean;
-  isAdmin: boolean;
-  createdAt: Date;
-  modifiedAt: Date;
+  id!: number;
+  email!: string
+  password!: string
+  name!: string
+  isActive!: boolean;
+  isAdmin!: boolean;
+  createdAt!: Date;
+  modifiedAt!: Date;
   _permissions?: Permission[];
 
   static get tableName() {

@@ -1,3 +1,11 @@
+# 0.14.0
+* Fixed incorrect URLs in spec.yml
+* Upgraded libraries
+* sendMail no longer attached directly to Koa context as Typescript complains (rightfully so)
+* Renamed IMailService to IMailBackend
+* Added Swagger UI at `/swagger/`
+* Added IConfig interface which the app config now implements
+
 # 0.13.0
 * Added new Client model for authenticating using OAuth2 Client Credentials flow
 * Updated spec.yml

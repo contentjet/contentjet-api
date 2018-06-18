@@ -6,19 +6,19 @@ import {difference} from 'lodash';
 
 export default class Media extends Model {
 
-  id: number;
-  projectId: number;
-  userId: number;
-  name: string;
-  file: string;
-  thumbnail: string;
-  mimeType: string;
-  size: number;
-  width: number;
-  height: number;
-  description: string;
-  createdAt: string;
-  modifiedAt: string;
+  id!: number;
+  projectId!: number;
+  userId!: number;
+  name!: string;
+  file!: string;
+  thumbnail!: string;
+  mimeType!: string;
+  size!: number;
+  width!: number;
+  height!: number;
+  description!: string;
+  createdAt!: string;
+  modifiedAt!: string;
 
   static get tableName(): string {
     return 'media';
