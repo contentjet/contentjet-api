@@ -16,6 +16,7 @@ const NotFoundError_1 = require("../errors/NotFoundError");
 const config_1 = require("../config");
 const middleware_1 = require("../authentication/jwt/middleware");
 const validate_1 = require("../utils/validate");
+const sendMail = config_1.default.MAIL_BACKEND.sendMail;
 const signUpHTML = mjml2html(fs.readFileSync(path.resolve(__dirname, '../../templates/mail/sign-up-verify.mjml'), 'utf8')).html;
 const signUpTXT = fs.readFileSync(path.resolve(__dirname, '../../templates/mail/sign-up-verify.txt'), 'utf8');
 const requestPasswordResetHTML = mjml2html(fs.readFileSync(path.resolve(__dirname, '../../templates/mail/request-password-reset.mjml'), 'utf8')).html;
@@ -188,10 +189,12 @@ class UserViewSet extends BaseViewSet_1.default {
                     text: ejs.render(signUpTXT, context),
                     html: ejs.render(signUpHTML, context)
                 };
-                ctx.sendMail(mailOptions, (err, info) => {
-                    if (err)
-                        return console.log(err);
+                sendMail(mailOptions)
+                    .then(info => {
                     console.log('Message sent: %s', info.messageId);
+                })
+                    .catch(err => {
+                    console.error(err);
                 });
             }
             ctx.status = 201;
@@ -238,10 +241,12 @@ class UserViewSet extends BaseViewSet_1.default {
             text: ejs.render(requestPasswordResetTXT, context),
             html: ejs.render(requestPasswordResetHTML, context)
         };
-        ctx.sendMail(mailOptions, (err, info) => {
-            if (err)
-                return console.log(err);
+        sendMail(mailOptions)
+            .then(info => {
             console.log('Message sent: %s', info.messageId);
+        })
+            .catch(err => {
+            console.error(err);
         });
         ctx.body = user;
     }

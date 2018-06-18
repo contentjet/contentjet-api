@@ -2,8 +2,8 @@ import {Model, QueryBuilderSingle} from 'objection';
 
 export default class Permission extends Model {
 
-  id: number;
-  name: string;
+  id!: number;
+  name!: string;
 
   static get tableName(): string {
     return 'permission';

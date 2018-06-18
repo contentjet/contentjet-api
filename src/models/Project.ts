@@ -10,12 +10,12 @@ export interface IMember extends User {
 
 export default class Project extends Model {
 
-  id: number;
-  name: string;
-  metadata: string;
-  userId: number;
-  createdAt: Date;
-  modifiedAt: Date;
+  id!: number;
+  name!: string;
+  metadata!: string;
+  userId!: number;
+  createdAt!: Date;
+  modifiedAt!: Date;
 
   static get tableName(): string {
     return 'project';

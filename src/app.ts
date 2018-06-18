@@ -1,4 +1,6 @@
 import config from './config';
+import * as fs from 'fs';
+import * as url from 'url';
 import * as path from 'path';
 import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
@@ -9,6 +11,7 @@ import { Model, ValidationError as ObjectionValidationError } from 'objection';
 Model.knex(require('knex')(config.DATABASE));
 import * as jwt from 'jsonwebtoken';
 import * as yaml from 'yamljs';
+const swaggerUIAbsolutePath = require('swagger-ui-dist').absolutePath();
 
 import { authenticateUser, tokenRefresh } from './authentication/jwt/routes';
 import { requireAuthentication } from './authentication/jwt/middleware';
@@ -24,6 +27,7 @@ import EntryTypeViewSet from './viewsets/EntryTypeViewSet';
 import EntryViewSet from './viewsets/EntryViewSet';
 import EntryTagViewSet from './viewsets/EntryTagViewSet';
 
+import Client from './models/Client';
 import Entry from './models/Entry';
 import EntryTag from './models/EntryTag';
 import EntryType from './models/EntryType';
@@ -43,17 +47,15 @@ import AuthenticationError from './errors/AuthenticationError';
 
 import WebHookMiddleware from './webhooks/middleware';
 
-// Attach it to the viewSetOptions
+// Attach the storage backend to the viewSetOptions
 const viewSetOptions = {
   storage: config.STORAGE_BACKEND
 };
 
 // Instantiate root router and attach routes
 const router = new Router();
-
 router.post('/authenticate', authenticateUser);
 router.post('/token-refresh', requireAuthentication, tokenRefresh);
-
 router.use('/user/', new UserViewSet(viewSetOptions).routes());
 router.use('/project/:projectId(\\d+)/', async function (ctx: Koa.Context, next: Function) {
   const project = await Project.getById(ctx.params.projectId);
@@ -88,9 +90,6 @@ router.get('/robots.txt', function (ctx: Koa.Context) {
 });
 
 const app = new Koa();
-
-// Expose sendMail method on context prototype
-app.context.sendMail = config.MAIL_BACKEND.sendMail;
 
 app
   .use(cors(config.CORS))
@@ -128,6 +127,25 @@ if (config.SERVE_MEDIA) {
   });
 }
 
+if (config.SERVE_SWAGGER_UI) {
+  const swaggerIndex = fs
+    .readFileSync(path.join(swaggerUIAbsolutePath, 'index.html'), { encoding: 'utf8' })
+    .replace(/http:\/\/petstore\.swagger\.io\/v2\/swagger\.json/g, url.resolve(config.BACKEND_URL, 'spec'));
+
+  app.use(async function (ctx: Koa.Context, next: Function) {
+    if (ctx.path.match(/^\/swagger\/.*$/)) {
+      const path = ctx.path.replace('/swagger/', '');
+      if (path === '' || path === '/index.html') {
+        ctx.body = swaggerIndex;
+        return;
+      }
+      await send(ctx, path, { root: swaggerUIAbsolutePath });
+    } else {
+      await next();
+    }
+  });
+}
+
 app
   .use(bodyParser())
   .use(router.routes())
@@ -143,6 +161,7 @@ app
 export default app;
 
 export const models = {
+  Client,
   Entry,
   EntryTag,
   EntryType,

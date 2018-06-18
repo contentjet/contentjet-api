@@ -3,9 +3,9 @@ import _ = require('lodash');
 
 export default class EntryTag extends Model {
 
-  id: number;
-  projectId: number;
-  name: string;
+  id!: number;
+  projectId!: number;
+  name!: string;
 
   static get tableName(): string {
     return 'entryTag';

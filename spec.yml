@@ -104,7 +104,7 @@ paths:
                     pattern: "^bearer$"
 
   # User
-  /user:
+  /user/:
     get:
       tags:
         - User
@@ -344,7 +344,7 @@ paths:
                 $ref: '#/components/schemas/User'
 
   # Project
-  /project:
+  /project/:
     post:
       tags:
         - Project
@@ -501,7 +501,7 @@ paths:
                 $ref: '#/components/schemas/User'
 
   # Entry type
-  /project/{projectId}/entry-type:
+  /project/{projectId}/entry-type/:
     get:
       tags:
         - Entry type
@@ -590,7 +590,7 @@ paths:
                 $ref: '#/components/schemas/EntryType'
 
   # Entry
-  /project/{projectId}/entry:
+  /project/{projectId}/entry/:
     get:
       tags:
         - Entry
@@ -739,7 +739,7 @@ paths:
           description: Delete entry response
 
   # Entry tag
-  /project/{projectId}/entry-tag:
+  /project/{projectId}/entry-tag/:
     get:
       tags:
         - Entry tag
@@ -761,7 +761,7 @@ paths:
                   type: string
 
   # Media tag
-  /project/{projectId}/media-tag:
+  /project/{projectId}/media-tag/:
     get:
       tags:
         - Media tag
@@ -814,7 +814,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Media'
 
-  /project/{projectId}/media:
+  /project/{projectId}/media/:
     get:
       tags:
         - Media
@@ -939,7 +939,7 @@ paths:
           description: Delete media response
 
   # Project invite
-  /project/{projectId}/invite:
+  /project/{projectId}/invite/:
     post:
       tags:
         - Project invite
@@ -1088,7 +1088,7 @@ paths:
           description: Bulk delete invite response
 
   # Web hook
-  /project/{projectId}/web-hook:
+  /project/{projectId}/web-hook/:
     get:
       tags:
         - Web hook
@@ -1201,7 +1201,7 @@ paths:
           description: Update web hook response
 
   # Client
-  /project/{projectId}/client:
+  /project/{projectId}/client/:
     get:
       tags:
         - Client

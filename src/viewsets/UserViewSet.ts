@@ -17,6 +17,8 @@ import config from '../config';
 import { requireAuthentication } from '../authentication/jwt/middleware';
 import validate from '../utils/validate';
 
+const sendMail = config.MAIL_BACKEND.sendMail;
+
 const signUpHTML = mjml2html(
   fs.readFileSync(
     path.resolve(__dirname, '../../templates/mail/sign-up-verify.mjml'), 'utf8'
@@ -216,10 +218,13 @@ export default class UserViewSet extends BaseViewSet<User> {
           text: ejs.render(signUpTXT, context),
           html: ejs.render(signUpHTML, context)
         };
-        ctx.sendMail(mailOptions, (err: any, info: any) => {
-          if (err) return console.log(err);
-          console.log('Message sent: %s', info.messageId);
-        });
+        sendMail(mailOptions)
+          .then(info => {
+            console.log('Message sent: %s', info.messageId);
+          })
+          .catch(err => {
+            console.error(err);
+          });
       }
       ctx.status = 201;
       ctx.body = user;
@@ -265,10 +270,13 @@ export default class UserViewSet extends BaseViewSet<User> {
       text: ejs.render(requestPasswordResetTXT, context),
       html: ejs.render(requestPasswordResetHTML, context)
     };
-    ctx.sendMail(mailOptions, (err: any, info: any) => {
-      if (err) return console.log(err);
-      console.log('Message sent: %s', info.messageId);
-    });
+    sendMail(mailOptions)
+      .then(info => {
+        console.log('Message sent: %s', info.messageId);
+      })
+      .catch(err => {
+        console.error(err);
+      });
     ctx.body = user;
   }
 

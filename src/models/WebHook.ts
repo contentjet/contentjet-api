@@ -2,26 +2,26 @@ import {Model, RelationMappings} from 'objection';
 
 export default class WebHook extends Model {
 
-  id: number;
-  projectId: number;
-  name: string;
-  isActive: boolean;
-  url: string;
-  projectUpdated: boolean;
-  projectDeleted: boolean;
-  entryTypeCreated: boolean;
-  entryTypeUpdated: boolean;
-  entryTypeDeleted: boolean;
-  entryCreated: boolean;
-  entryUpdated: boolean;
-  entryDeleted: boolean;
-  entryDeletedBulk: boolean;
-  mediaCreated: boolean;
-  mediaUpdated: boolean;
-  mediaDeleted: boolean;
-  mediaDeletedBulk: boolean;
-  createdAt: Date;
-  modifiedAt: Date;
+  id!: number;
+  projectId!: number;
+  name!: string;
+  isActive!: boolean;
+  url!: string;
+  projectUpdated!: boolean;
+  projectDeleted!: boolean;
+  entryTypeCreated!: boolean;
+  entryTypeUpdated!: boolean;
+  entryTypeDeleted!: boolean;
+  entryCreated!: boolean;
+  entryUpdated!: boolean;
+  entryDeleted!: boolean;
+  entryDeletedBulk!: boolean;
+  mediaCreated!: boolean;
+  mediaUpdated!: boolean;
+  mediaDeleted!: boolean;
+  mediaDeletedBulk!: boolean;
+  createdAt!: Date;
+  modifiedAt!: Date;
 
   static get tableName(): string {
     return 'webHook';
