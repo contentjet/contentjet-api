@@ -3,8 +3,8 @@ import Permission from './Permission';
 
 export default class Role extends Model {
 
-  id: number;
-  name: string;
+  id!: number;
+  name!: string;
 
   static get tableName(): string {
     return 'role';

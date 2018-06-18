@@ -323,15 +323,15 @@ interface IEntryTypeJson {
 
 export default class EntryType extends Model {
 
-  id: number;
-  projectId: number;
-  userId: number;
-  name: string;
-  metadata: string;
-  description: string;
-  fields: IEntryTypeField[];
-  createdAt: Date;
-  modifiedAt: Date;
+  id!: number;
+  projectId!: number;
+  userId!: number;
+  name!: string;
+  metadata!: string;
+  description!: string;
+  fields!: IEntryTypeField[];
+  createdAt!: Date;
+  modifiedAt!: Date;
 
   static get tableName(): string {
     return 'entryType';

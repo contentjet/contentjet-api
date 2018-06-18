@@ -2,11 +2,11 @@ import {Model, RelationMappings} from 'objection';
 
 export default class ProjectMembership extends Model {
 
-  id: number;
-  userId: number;
-  projectId: number;
-  membershipType: string;
-  membershipIsActive: boolean;
+  id!: number;
+  userId!: number;
+  projectId!: number;
+  membershipType!: string;
+  membershipIsActive!: boolean;
 
   static get tableName(): string {
     return 'projectMembership';

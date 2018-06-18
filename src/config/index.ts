@@ -1,5 +1,6 @@
 import * as path from 'path';
 require('dotenv').config({path: path.resolve(__dirname, '../../.env')});
+import IConfig from './IConfig';
 import DiskStorageBackend from '../backends/storage/DiskStorageBackend';
 import ModelPermissionBackend from '../backends/permissions/ModelPermissionBackend';
 import ProjectPermissionBackend from '../backends/permissions/ProjectPermissionBackend';
@@ -16,7 +17,7 @@ const MEDIA_ROOT = env('MEDIA_ROOT') || 'media/';
 
 const PORT = parseInt(env('PORT') || '3000');
 
-const config: any = {
+const config: IConfig = {
   NODE_ENV: env('NODE_ENV', true),
   PORT: PORT,
   // Secret key used for hashing passwords and generating tokens
@@ -80,20 +81,17 @@ const config: any = {
     width: parseInt(env('THUMBNAIL_WIDTH') || '200'),
     height: parseInt(env('THUMBNAIL_HEIGHT') || '200')
   },
+  MAIL_BACKEND: new SMTPBackend({
+    host: env('SMTP_HOST', true),
+    port: env('SMTP_PORT', true),
+    auth: {
+      user: env('SMTP_USER', true),
+      pass: env('SMTP_PASSWORD', true)
+    },
+    secure: !!parseInt(env('SMTP_SECURE') || '0')
+  }),
   // Whether or not to serve Swagger UI at /swagger endpoint. Defaults to true.
   SERVE_SWAGGER_UI: !!parseInt(env('SERVE_SWAGGER_UI') || '1')
 };
-
-// Instantiate the mail backend
-const options = {
-  host: env('SMTP_HOST', true),
-  port: env('SMTP_PORT', true),
-  auth: {
-    user: env('SMTP_USER', true),
-    pass: env('SMTP_PASSWORD', true)
-  },
-  secure: !!parseInt(env('SMTP_SECURE') || '0')
-};
-config.MAIL_BACKEND = new SMTPBackend(options);
 
 export default config;

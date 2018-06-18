@@ -36,15 +36,15 @@ export interface IEntryWithRelations extends Entry {
 
 export default class Entry extends Model {
 
-  id: number;
-  entryTypeId: number;
-  userId: number;
-  modifiedByUserId: number;
-  name: string;
-  published: Date | string;
-  fields: IEntryField[]
-  createdAt: Date;
-  modifiedAt: Date;
+  id!: number;
+  entryTypeId!: number;
+  userId!: number;
+  modifiedByUserId!: number;
+  name!: string;
+  published!: Date | string;
+  fields!: IEntryField[]
+  createdAt!: Date;
+  modifiedAt!: Date;
 
   user?: User;
   modifiedByUser?: User;

@@ -93,7 +93,7 @@ router.get('/robots.txt', function (ctx: Koa.Context) {
 const app = new Koa();
 
 // Expose sendMail method on context prototype
-app.context.sendMail = config.MAIL_BACKEND.sendMail;
+// app.context.sendMail = config.MAIL_BACKEND.sendMail;
 
 app
   .use(cors(config.CORS))
