@@ -8,14 +8,14 @@ const Media_1 = require("../models/Media");
 const Entry_1 = require("../models/Entry");
 const User_1 = require("../models/User");
 validate.extend(validate.validators.datetime, {
-    parse: function (value) {
+    parse(value) {
         return +moment.utc(value);
     },
-    format: function (value) {
+    format(value) {
         return moment.utc(value).format();
     }
 });
-validate.validators.lessThanAttribute = function (value, options, _key, attributes) {
+validate.validators.lessThanAttribute = (value, options, _key, attributes) => {
     if (!validate.isDefined(value))
         return;
     const siblingAttributeName = options;
@@ -27,14 +27,14 @@ validate.validators.lessThanAttribute = function (value, options, _key, attribut
     }
     return undefined;
 };
-validate.validators.boolean = function (value) {
+validate.validators.boolean = (value) => {
     if (!validate.isDefined(value))
         return;
     if (!validate.isBoolean(value))
         return 'must be true or false';
     return undefined;
 };
-validate.validators.arrayLength = function (value, options) {
+validate.validators.arrayLength = (value, options) => {
     if (!validate.isDefined(value))
         return;
     if (!validate.isArray(value))
@@ -50,29 +50,29 @@ validate.validators.arrayLength = function (value, options) {
     }
     return undefined;
 };
-validate.validators.arrayOfIds = function (value) {
+validate.validators.arrayOfIds = (value) => {
     if (!validate.isDefined(value))
         return;
     if (!validate.isArray(value))
         return 'must be an array';
-    for (let id of value) {
+    for (const id of value) {
         if (!validate.isInteger(id) || id < 1)
             return 'must contain positive integers only';
     }
     return undefined;
 };
-validate.validators.arrayOfStrings = function (value) {
+validate.validators.arrayOfStrings = (value) => {
     if (!validate.isDefined(value))
         return;
     if (!validate.isArray(value))
         return 'must be an array';
-    for (let item of value) {
+    for (const item of value) {
         if (!validate.isString(item))
             return 'must contain strings only';
     }
     return undefined;
 };
-validate.validators.uniqueArray = function (value) {
+validate.validators.uniqueArray = (value) => {
     if (!validate.isDefined(value))
         return;
     if (!validate.isArray(value))
@@ -81,7 +81,7 @@ validate.validators.uniqueArray = function (value) {
         return 'must not contain duplicate values';
     return undefined;
 };
-validate.validators.choicesUnion = function (value, options) {
+validate.validators.choicesUnion = (value, options) => {
     if (!validate.isDefined(value))
         return;
     if (!validate.isArray(value))
@@ -91,7 +91,7 @@ validate.validators.choicesUnion = function (value, options) {
         return 'contains invalid choice';
     return undefined;
 };
-validate.validators.media = async function (value, options) {
+validate.validators.media = async (value, options) => {
     if (!validate.isDefined(value))
         return;
     const { projectId } = options;
@@ -111,12 +111,12 @@ validate.validators.media = async function (value, options) {
         .where('projectId', projectId)
         .whereIn('id', ids)
         .first();
-    if (parseInt(result.count) !== ids.length) {
+    if (parseInt(result.count, 10) !== ids.length) {
         return 'contains media not found in project';
     }
     return undefined;
 };
-validate.validators.entries = async function (value, options) {
+validate.validators.entries = async (value, options) => {
     if (!validate.isDefined(value))
         return;
     const { projectId } = options;
@@ -137,12 +137,12 @@ validate.validators.entries = async function (value, options) {
         .where('entryType.projectId', projectId)
         .whereIn('entry.id', ids)
         .first();
-    if (parseInt(result.count) !== ids.length) {
+    if (parseInt(result.count, 10) !== ids.length) {
         return 'contains entries not found in project';
     }
     return undefined;
 };
-validate.validators.projectMember = async function (value, options) {
+validate.validators.projectMember = async (value, options) => {
     if (!validate.isDefined(value))
         return;
     if (!validate.isInteger(value) || value < 1)
@@ -156,7 +156,7 @@ validate.validators.projectMember = async function (value, options) {
         return 'user is not a member of this project';
     return undefined;
 };
-validate.validators.tags = function (value) {
+validate.validators.tags = (value) => {
     if (!validate.isDefined(value))
         return;
     if (!validate.isArray(value))

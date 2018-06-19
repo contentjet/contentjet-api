@@ -1,4 +1,4 @@
-import {Model, RelationMappings, QueryBuilderSingle, QueryBuilder} from 'objection';
+import { Model, RelationMappings, QueryBuilderSingle, QueryBuilder } from 'objection';
 import Permission from './Permission';
 
 export default class Role extends Model {

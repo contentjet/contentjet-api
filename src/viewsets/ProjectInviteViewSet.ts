@@ -3,15 +3,15 @@ import fs = require('fs');
 import path = require('path');
 import url = require('url');
 import * as ejs from 'ejs';
-const { mjml2html } = require('mjml');
+const { mjml2html } = require('mjml'); // tslint:disable-line
 import config from '../config';
-import {cloneDeep} from 'lodash';
+import { cloneDeep } from 'lodash';
 import BaseViewSet from './BaseViewSet';
 import ProjectInvite from '../models/ProjectInvite';
 import ValidationError from '../errors/ValidationError';
-import {requireAuthentication} from '../authentication/jwt/middleware';
-import {requirePermission} from '../authorization/middleware';
-import {transaction} from 'objection';
+import { requireAuthentication } from '../authentication/jwt/middleware';
+import { requirePermission } from '../authorization/middleware';
+import { transaction } from 'objection';
 import validate from '../utils/validate';
 
 const sendMail = config.MAIL_BACKEND.sendMail;
@@ -52,8 +52,17 @@ export default class ProjectInviteViewSet extends BaseViewSet<ProjectInvite> {
     super(ProjectInvite, clonedOptions);
     this.accept = this.accept.bind(this);
     this.bulkDelete = this.bulkDelete.bind(this);
-    this.router.put('accept', this.accept);
-    this.router.post('bulk-delete', requirePermission(`${this.Model.tableName}:delete`), this.bulkDelete);
+    this.router.put(
+      'accept',
+      requireAuthentication,
+      this.accept
+    );
+    this.router.post(
+      'bulk-delete',
+      requireAuthentication,
+      requirePermission(`${this.modelClass.tableName}:delete`),
+      this.bulkDelete
+    );
   }
 
   getCommonMiddleware() {
@@ -78,15 +87,15 @@ export default class ProjectInviteViewSet extends BaseViewSet<ProjectInvite> {
       err.errors = errors;
       throw err;
     }
-    const {project} = ctx.state;
-    const {name, email} = ctx.request.body;
+    const { project } = ctx.state;
+    const { name, email } = ctx.request.body;
     // If an invite for this project and email already exists we simply return
     // the existing one without error.
     const existingProjectInvite = await ProjectInvite
       .query()
       .where({
         projectId: project.id,
-        email: email
+        email
       })
       .first();
     if (existingProjectInvite) {
@@ -104,7 +113,7 @@ export default class ProjectInviteViewSet extends BaseViewSet<ProjectInvite> {
     const context = {
       url: url.resolve(config.FRONTEND_URL, `/accept-invite/${token}`),
       projectName: project.name,
-      name: name
+      name
     };
     const mailOptions = {
       from: config.MAIL_FROM,
@@ -115,7 +124,7 @@ export default class ProjectInviteViewSet extends BaseViewSet<ProjectInvite> {
     };
     sendMail(mailOptions)
       .then(info => {
-        console.log('Message sent: %s', info.messageId);
+        console.log('Message sent: %s', info.messageId); // tslint:disable-line
       })
       .catch(err => {
         console.error(err);
@@ -130,11 +139,11 @@ export default class ProjectInviteViewSet extends BaseViewSet<ProjectInvite> {
       err.errors = errors;
       throw err;
     }
-    const {token} = ctx.request.body;
-    const {project, user} = ctx.state;
-    const {projectInviteId} = await ProjectInvite.verifyInviteToken(token);
+    const { token } = ctx.request.body;
+    const { project, user } = ctx.state;
+    const { projectInviteId } = await ProjectInvite.verifyInviteToken(token);
     const knex = ProjectInvite.knex();
-    await transaction(knex, async (trx) => {
+    await transaction(knex, async trx => {
       // Mark the invite as accepted...
       const projectInvite = await ProjectInvite.accept(projectInviteId, trx);
       // ... and make the authenticated user a member
@@ -147,7 +156,7 @@ export default class ProjectInviteViewSet extends BaseViewSet<ProjectInvite> {
     const arrayOfIds = ctx.request.body;
     const error = validate.single(arrayOfIds, { arrayOfIds: true });
     if (error) throw new ValidationError(error[0]);
-    const {project} = ctx.state;
+    const { project } = ctx.state;
     await ProjectInvite.bulkDelete(arrayOfIds, project.id);
     ctx.status = 204;
   }

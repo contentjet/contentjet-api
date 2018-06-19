@@ -5,7 +5,7 @@ const path = require("path");
 const url = require("url");
 const ejs = require("ejs");
 const lodash_1 = require("lodash");
-const { mjml2html } = require('mjml');
+const { mjml2html } = require('mjml'); // tslint:disable-line
 const objection_1 = require("objection");
 const User_1 = require("../models/User");
 const Project_1 = require("../models/Project");
@@ -156,8 +156,9 @@ class UserViewSet extends BaseViewSet_1.default {
             throw err;
         }
         const { email, name, password, inviteToken } = ctx.request.body;
+        let invitePayload;
         try {
-            var invitePayload = await ProjectInvite_1.default.verifyInviteToken(inviteToken);
+            invitePayload = await ProjectInvite_1.default.verifyInviteToken(inviteToken);
         }
         catch (err) {
             throw new ValidationError_1.default('Invalid invite token');
@@ -191,7 +192,7 @@ class UserViewSet extends BaseViewSet_1.default {
                 };
                 sendMail(mailOptions)
                     .then(info => {
-                    console.log('Message sent: %s', info.messageId);
+                    console.log('Message sent: %s', info.messageId); // tslint:disable-line
                 })
                     .catch(err => {
                     console.error(err);
@@ -236,14 +237,14 @@ class UserViewSet extends BaseViewSet_1.default {
         };
         const mailOptions = {
             from: config_1.default.MAIL_FROM,
-            to: email,
+            html: ejs.render(requestPasswordResetHTML, context),
             subject: 'Password reset request',
             text: ejs.render(requestPasswordResetTXT, context),
-            html: ejs.render(requestPasswordResetHTML, context)
+            to: email
         };
         sendMail(mailOptions)
             .then(info => {
-            console.log('Message sent: %s', info.messageId);
+            console.log('Message sent: %s', info.messageId); // tslint:disable-line
         })
             .catch(err => {
             console.error(err);

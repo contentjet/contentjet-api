@@ -14,7 +14,7 @@ export default class DiskStorageBackend implements IStorageBackend {
     this.getRelativePath = this.getRelativePath.bind(this);
   }
 
-  async middleware(ctx: Koa.Context, next: Function) {
+  async middleware(ctx: Koa.Context, next: () => Promise<any>) {
     // Each uploaded file goes into a directory matching it's project id
     // e.g <destination>/<projectId>/<year>-<month>/
     const now = new Date();
@@ -26,14 +26,14 @@ export default class DiskStorageBackend implements IStorageBackend {
       )
     );
     const storage = multer.diskStorage({
-      destination: (_req: any, _file: any, cb: Function) => {
+      destination(_req: any, _file: any, cb: Function) {
         // Always create path on filesystem if it doesn't exist
-        mkdirp(dir, function (err: any) {
+        mkdirp(dir, (err: any) => {
           if (err) cb(err);
           cb(null, dir);
         });
       },
-      filename: (_req: any, file: any, cb: Function) => {
+      filename(_req: any, file: any, cb: Function) {
         cb(null, `${Date.now()}-${Math.floor(Math.random() * 1000000)}${path.extname(file.originalname)}`);
       }
     });

@@ -114,6 +114,12 @@ class Media extends objection_1.Model {
             .eager('tags')
             .where('media.projectId', projectId);
     }
+    static bulkDelete(arrayOfIds, projectId, trx) {
+        return Media.query(trx)
+            .whereIn('id', arrayOfIds)
+            .andWhere('projectId', projectId)
+            .delete();
+    }
     toJSON() {
         // The file and thumbnail fields holds the storage-relative path to the file. We change
         // the output of this value by making it relative to MEDIA_URL.
@@ -126,12 +132,6 @@ class Media extends objection_1.Model {
         if (tags)
             data.tags = tags.map((tag) => tag.name);
         return data;
-    }
-    static bulkDelete(arrayOfIds, projectId, trx) {
-        return Media.query(trx)
-            .whereIn('id', arrayOfIds)
-            .andWhere('projectId', projectId)
-            .delete();
     }
     getTags(trx) {
         return this.$relatedQuery('tags', trx);

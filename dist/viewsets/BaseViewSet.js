@@ -8,7 +8,7 @@ const DatabaseError_1 = require("../errors/DatabaseError");
 const middleware_1 = require("../authorization/middleware");
 class BaseViewSet {
     constructor(M, options) {
-        this.Model = M;
+        this.modelClass = M;
         this.options = options;
         const { disabledActions = [] } = options;
         this.list = this.list.bind(this);
@@ -41,7 +41,7 @@ class BaseViewSet {
         }
     }
     getIdRouteParameter() {
-        return `${this.Model.tableName}Id`;
+        return `${this.modelClass.tableName}Id`;
     }
     getRouterOptions() {
         return undefined;
@@ -53,36 +53,36 @@ class BaseViewSet {
         return 30;
     }
     getListQueryBuilder(_ctx) {
-        return this.Model.query();
+        return this.modelClass.query();
     }
     getRetrieveQueryBuilder(_ctx) {
-        return this.Model.query();
+        return this.modelClass.query();
     }
     getCreateQueryBuilder(_ctx) {
-        return this.Model.query();
+        return this.modelClass.query();
     }
     getUpdateQueryBuilder(_ctx) {
-        return this.Model.query();
+        return this.modelClass.query();
     }
     getDeleteQueryBuilder(_ctx) {
-        return this.Model.query();
+        return this.modelClass.query();
     }
     getListMiddleware() {
-        return [middleware_1.requirePermission(`${this.Model.tableName}:list`)];
+        return [middleware_1.requirePermission(`${this.modelClass.tableName}:list`)];
     }
     getColumnNames() {
-        return Object.keys(this.Model.jsonSchema.properties);
+        return Object.keys(this.modelClass.jsonSchema.properties);
     }
     async list(ctx) {
         const limit = this.getPageSize(ctx);
-        let page = parseInt(ctx.request.query.page || 1);
+        let page = parseInt(ctx.request.query.page || 1, 10);
         if (page < 1)
             page = 1;
         let result;
         if (limit) {
             result = await this.getListQueryBuilder(ctx).page(page - 1, limit);
             result = {
-                page: page,
+                page,
                 totalPages: Math.ceil(result.total / limit),
                 totalRecords: result.total,
                 results: result.results
@@ -94,13 +94,13 @@ class BaseViewSet {
         ctx.body = result;
         ctx.state.viewsetResult = {
             action: 'retrieve',
-            modelClass: this.Model,
+            modelClass: this.modelClass,
             data: result
         };
         return result;
     }
     getCreateMiddleware() {
-        return [middleware_1.requirePermission(`${this.Model.tableName}:create`)];
+        return [middleware_1.requirePermission(`${this.modelClass.tableName}:create`)];
     }
     async create(ctx) {
         const data = lodash_1.pick(ctx.request.body, this.getColumnNames());
@@ -114,49 +114,49 @@ class BaseViewSet {
         ctx.body = model;
         ctx.state.viewsetResult = {
             action: 'create',
-            modelClass: this.Model,
+            modelClass: this.modelClass,
             data: model
         };
         return model;
     }
     getRetrieveMiddleware() {
-        return [middleware_1.requirePermission(`${this.Model.tableName}:retrieve`)];
+        return [middleware_1.requirePermission(`${this.modelClass.tableName}:retrieve`)];
     }
     async retrieve(ctx) {
         const id = ctx.params[this.getIdRouteParameter()];
         const model = await this
             .getRetrieveQueryBuilder(ctx)
-            .where(`${this.Model.tableName}.id`, id)
+            .where(`${this.modelClass.tableName}.id`, id)
             .first();
         if (!model)
             throw new NotFoundError_1.default();
         ctx.body = model;
         ctx.state.viewsetResult = {
             action: 'retrieve',
-            modelClass: this.Model,
+            modelClass: this.modelClass,
             data: model
         };
         return model;
     }
     getUpdateMiddleware() {
-        return [middleware_1.requirePermission(`${this.Model.tableName}:update`)];
+        return [middleware_1.requirePermission(`${this.modelClass.tableName}:update`)];
     }
     async update(ctx) {
         const id = ctx.params[this.getIdRouteParameter()];
         const data = lodash_1.pick(ctx.request.body, this.getColumnNames());
-        delete data['createdAt'];
-        data.id = parseInt(id);
+        delete data.createdAt;
+        data.id = parseInt(id, 10);
         data.modifiedAt = moment().format();
         const model = await this.getUpdateQueryBuilder(ctx)
             .update(data)
             .returning('*')
-            .where(`${this.Model.tableName}.id`, id)
+            .where(`${this.modelClass.tableName}.id`, id)
             .first();
         if (model) {
             ctx.body = model;
             ctx.state.viewsetResult = {
                 action: 'update',
-                modelClass: this.Model,
+                modelClass: this.modelClass,
                 data: model
             };
         }
@@ -166,17 +166,17 @@ class BaseViewSet {
         return model;
     }
     getDeleteMiddleware() {
-        return [middleware_1.requirePermission(`${this.Model.tableName}:delete`)];
+        return [middleware_1.requirePermission(`${this.modelClass.tableName}:delete`)];
     }
     async delete(ctx) {
         const id = ctx.params[this.getIdRouteParameter()];
         await this.getDeleteQueryBuilder(ctx)
-            .where(`${this.Model.tableName}.id`, id)
+            .where(`${this.modelClass.tableName}.id`, id)
             .delete();
         ctx.status = 204;
         ctx.state.viewsetResult = {
             action: 'delete',
-            modelClass: this.Model,
+            modelClass: this.modelClass,
             data: { id }
         };
     }

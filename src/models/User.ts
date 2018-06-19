@@ -1,22 +1,25 @@
 import config from '../config';
-import {Model, QueryBuilder, QueryBuilderOption, RelationMappings, Transaction, QueryBuilderDelete} from 'objection';
+import { Model, QueryBuilder, QueryBuilderOption, RelationMappings, Transaction, QueryBuilderDelete } from 'objection';
 import * as jwt from 'jsonwebtoken';
-const crypto = require('crypto');
+// const crypto = require('crypto');
+import * as crypto from 'crypto';
 import ValidationError from '../errors/ValidationError';
 import Permission from './Permission';
 
 interface ISignUpTokenPayload {
-  userId: number
-};
+  userId: number;
+}
 
-interface IPasswordResetTokenPayload extends ISignUpTokenPayload {};
+interface IPasswordResetTokenPayload {
+  userId: number;
+}
 
 export default class User extends Model {
 
   id!: number;
-  email!: string
-  password!: string
-  name!: string
+  email!: string;
+  password!: string;
+  name!: string;
   isActive!: boolean;
   isAdmin!: boolean;
   createdAt!: Date;
@@ -108,10 +111,12 @@ export default class User extends Model {
       .count('*')
       .where('email', email)
       .first() as any;
-    return parseInt(result.count) === 1;
+    return parseInt(result.count, 10) === 1;
   }
 
-  static async create(email: string, name: string, password: string, isActive = false, isAdmin = false, trx?: Transaction): Promise<User> {
+  static async create(
+    email: string, name: string, password: string, isActive = false, isAdmin = false, trx?: Transaction
+  ): Promise<User> {
     const exists = await User.existsWithEmail(email, trx);
     if (exists) throw new ValidationError('A user with this email already exists');
     return await User
@@ -137,13 +142,13 @@ export default class User extends Model {
   }
 
   static generateSignUpToken(userId: number): Promise<string> {
-    const payload: ISignUpTokenPayload = {userId};
+    const payload: ISignUpTokenPayload = { userId };
     return new Promise((resolve, reject) => {
       jwt.sign(
         payload,
         `sign-up${config.SECRET_KEY}`,
-        {expiresIn: '7 days'},
-        function (err: object, token: string) {
+        { expiresIn: '7 days' },
+        (err: object, token: string) => {
           if (err) {
             reject(err);
           } else {
@@ -160,7 +165,7 @@ export default class User extends Model {
         token,
         `sign-up${config.SECRET_KEY}`,
         undefined,
-        function (err: object, decoded: string | object) {
+        (err: object, decoded: string | object) => {
           if (err) {
             reject(err);
           } else {
@@ -172,13 +177,13 @@ export default class User extends Model {
   }
 
   static generatePasswordResetToken(userId: number): Promise<string> {
-    const payload: IPasswordResetTokenPayload = {userId};
+    const payload: IPasswordResetTokenPayload = { userId };
     return new Promise((resolve, reject) => {
       jwt.sign(
         payload,
         `password-reset${config.SECRET_KEY}`,
-        {expiresIn: '12 hours'},
-        function (err: object, token: string) {
+        { expiresIn: '12 hours' },
+        (err: object, token: string) => {
           if (err) {
             reject(err);
           } else {
@@ -195,7 +200,7 @@ export default class User extends Model {
         token,
         `password-reset${config.SECRET_KEY}`,
         undefined,
-        function (err: object, decoded: string | object) {
+        (err: object, decoded: string | object) => {
           if (err) {
             reject(err);
           } else {

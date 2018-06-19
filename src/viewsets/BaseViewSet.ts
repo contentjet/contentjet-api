@@ -23,15 +23,15 @@ export interface IPaginatedResult {
 
 export default abstract class BaseViewSet<MC> {
 
-  Model: ModelClass<any>;
+  modelClass: ModelClass<any>;
   options: IViewSetOptions;
   router: Router;
 
   constructor(M: ModelClass<any>, options: IViewSetOptions) {
-    this.Model = M;
+    this.modelClass = M;
     this.options = options;
 
-    const {disabledActions = []} = options;
+    const { disabledActions = [] } = options;
 
     this.list = this.list.bind(this);
     this.getListMiddleware = this.getListMiddleware.bind(this);
@@ -65,7 +65,7 @@ export default abstract class BaseViewSet<MC> {
   }
 
   getIdRouteParameter(): string {
-    return `${this.Model.tableName}Id`;
+    return `${this.modelClass.tableName}Id`;
   }
 
   getRouterOptions(): Router.IRouterOptions | undefined {
@@ -81,42 +81,42 @@ export default abstract class BaseViewSet<MC> {
   }
 
   getListQueryBuilder(_ctx: Koa.Context): QueryBuilder<MC> {
-    return this.Model.query();
+    return this.modelClass.query();
   }
 
   getRetrieveQueryBuilder(_ctx: Koa.Context): QueryBuilder<MC> {
-    return this.Model.query();
+    return this.modelClass.query();
   }
 
   getCreateQueryBuilder(_ctx: Koa.Context): QueryBuilder<MC> {
-    return this.Model.query();
+    return this.modelClass.query();
   }
 
   getUpdateQueryBuilder(_ctx: Koa.Context): QueryBuilder<MC> {
-    return this.Model.query();
+    return this.modelClass.query();
   }
 
   getDeleteQueryBuilder(_ctx: Koa.Context): QueryBuilder<MC> {
-    return this.Model.query();
+    return this.modelClass.query();
   }
 
   getListMiddleware(): Router.IMiddleware[] {
-    return [requirePermission(`${this.Model.tableName}:list`)];
+    return [requirePermission(`${this.modelClass.tableName}:list`)];
   }
 
   getColumnNames(): string[] {
-    return Object.keys(this.Model.jsonSchema.properties as any);
+    return Object.keys(this.modelClass.jsonSchema.properties as any);
   }
 
   async list(ctx: Koa.Context): Promise<IPaginatedResult | MC[]> {
     const limit = this.getPageSize(ctx);
-    let page = parseInt(ctx.request.query.page || 1);
+    let page = parseInt(ctx.request.query.page || 1, 10);
     if (page < 1) page = 1;
     let result;
     if (limit) {
       result = await this.getListQueryBuilder(ctx).page(page - 1, limit) as any;
       result = {
-        page: page,
+        page,
         totalPages: Math.ceil(result.total / limit),
         totalRecords: result.total,
         results: result.results
@@ -127,14 +127,14 @@ export default abstract class BaseViewSet<MC> {
     ctx.body = result;
     ctx.state.viewsetResult = {
       action: 'retrieve',
-      modelClass: this.Model,
+      modelClass: this.modelClass,
       data: result
     };
     return result;
   }
 
   getCreateMiddleware(): Router.IMiddleware[] {
-    return [requirePermission(`${this.Model.tableName}:create`)];
+    return [requirePermission(`${this.modelClass.tableName}:create`)];
   }
 
   async create(ctx: Koa.Context): Promise<MC> {
@@ -148,52 +148,52 @@ export default abstract class BaseViewSet<MC> {
     ctx.body = model;
     ctx.state.viewsetResult = {
       action: 'create',
-      modelClass: this.Model,
+      modelClass: this.modelClass,
       data: model
     };
     return model;
   }
 
   getRetrieveMiddleware(): Router.IMiddleware[] {
-    return [requirePermission(`${this.Model.tableName}:retrieve`)];
+    return [requirePermission(`${this.modelClass.tableName}:retrieve`)];
   }
 
   async retrieve(ctx: Koa.Context): Promise<MC> {
     const id = ctx.params[this.getIdRouteParameter()];
     const model = await this
       .getRetrieveQueryBuilder(ctx)
-      .where(`${this.Model.tableName}.id`, id)
+      .where(`${this.modelClass.tableName}.id`, id)
       .first();
     if (!model) throw new NotFoundError();
     ctx.body = model;
     ctx.state.viewsetResult = {
       action: 'retrieve',
-      modelClass: this.Model,
+      modelClass: this.modelClass,
       data: model
     };
     return model;
   }
 
   getUpdateMiddleware(): Router.IMiddleware[] {
-    return [requirePermission(`${this.Model.tableName}:update`)];
+    return [requirePermission(`${this.modelClass.tableName}:update`)];
   }
 
   async update(ctx: Koa.Context) {
     const id = ctx.params[this.getIdRouteParameter()];
     const data = pick(ctx.request.body, this.getColumnNames()) as any;
-    delete data['createdAt'];
-    data.id = parseInt(id);
+    delete data.createdAt;
+    data.id = parseInt(id, 10);
     data.modifiedAt = moment().format();
     const model = await this.getUpdateQueryBuilder(ctx)
       .update(data)
       .returning('*')
-      .where(`${this.Model.tableName}.id`, id)
+      .where(`${this.modelClass.tableName}.id`, id)
       .first();
     if (model) {
       ctx.body = model;
       ctx.state.viewsetResult = {
         action: 'update',
-        modelClass: this.Model,
+        modelClass: this.modelClass,
         data: model
       };
     } else {
@@ -203,19 +203,19 @@ export default abstract class BaseViewSet<MC> {
   }
 
   getDeleteMiddleware(): Router.IMiddleware[] {
-    return [requirePermission(`${this.Model.tableName}:delete`)];
+    return [requirePermission(`${this.modelClass.tableName}:delete`)];
   }
 
   async delete(ctx: Koa.Context): Promise<void> {
     const id = ctx.params[this.getIdRouteParameter()];
     await this.getDeleteQueryBuilder(ctx)
-      .where(`${this.Model.tableName}.id`, id)
+      .where(`${this.modelClass.tableName}.id`, id)
       .delete();
     ctx.status = 204;
     ctx.state.viewsetResult = {
       action: 'delete',
-      modelClass: this.Model,
-      data: {id}
+      modelClass: this.modelClass,
+      data: { id }
     };
   }
 

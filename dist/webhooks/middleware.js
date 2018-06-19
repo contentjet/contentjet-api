@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = require("axios");
 const lodash_1 = require("lodash");
 const actionToEventMap = {
-    'update': 'Updated',
-    'create': 'Created',
-    'delete': 'Deleted',
-    'bulkDelete': 'DeletedBulk'
+    bulkDelete: 'DeletedBulk',
+    create: 'Created',
+    delete: 'Deleted',
+    update: 'Updated'
 };
 const actions = Object.keys(actionToEventMap);
 async function default_1(ctx, next) {
@@ -26,12 +26,12 @@ async function default_1(ctx, next) {
             continue;
         // For bulkDelete action data is an array of the deleted record ids
         const payload = {
+            action,
             dateTime: new Date(),
-            action: action,
             model: modelClass.tableName,
             project: lodash_1.pick(project, ['id', 'name']),
-            webHook: lodash_1.pick(webHook, ['id', 'name', 'url']),
-            target: actionToEventMap[action] === 'DeletedBulk' ? data : [lodash_1.pick(data, 'id')]
+            target: actionToEventMap[action] === 'DeletedBulk' ? data : [lodash_1.pick(data, 'id')],
+            webHook: lodash_1.pick(webHook, ['id', 'name', 'url'])
         };
         try {
             await axios_1.default.post(webHook.url, payload);
@@ -40,7 +40,5 @@ async function default_1(ctx, next) {
             // TODO: Log error
         }
     }
-    ;
 }
 exports.default = default_1;
-;

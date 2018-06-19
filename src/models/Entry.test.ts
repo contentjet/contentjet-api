@@ -3,8 +3,8 @@ import Project from './Project';
 import Entry from './Entry';
 import EntryType from './EntryType';
 import User from './User';
-import {range, slice} from 'lodash';
-import {assert} from 'chai';
+import { range, slice } from 'lodash';
+import { assert } from 'chai';
 
 const textField = {
   name: 'testTextField',
@@ -18,30 +18,30 @@ const textField = {
   format: 'plaintext'
 };
 
-describe('Entry', function () {
+describe('Entry', () => {
 
   let user1: User;
   let project1: Project;
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     await User.deleteAll();
     await Project.deleteAll();
     user1 = await User.create('user1@example.com', 'User1', '12345');
     project1 = await Project
       .query()
-      .insert({name: 'Test Project 1', userId: user1.id});
+      .insert({ name: 'Test Project 1', userId: user1.id });
   });
 
-  afterEach(async function () {
+  afterEach(async () => {
     await User.deleteAll();
     await Project.deleteAll();
     await Entry.deleteAll();
     await EntryType.deleteAll();
   });
 
-  describe('#bulkDelete', async function () {
+  describe('#bulkDelete', async () => {
 
-    beforeEach(async function () {
+    beforeEach(async () => {
       const entryType = await EntryType
         .query()
         .insert({
@@ -74,12 +74,12 @@ describe('Entry', function () {
       );
     });
 
-    afterEach(async function () {
+    afterEach(async () => {
       await Entry.deleteAll();
       await EntryType.deleteAll();
     });
 
-    it('bulk deletes 3 entries', async function () {
+    it('bulk deletes 3 entries', async () => {
       let entries = await Entry.query();
       assert.lengthOf(entries, 5);
       const entryIds = entries.map(entry => entry.id);

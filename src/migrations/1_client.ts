@@ -1,30 +1,30 @@
 import * as knex from 'knex';
 
-function createClientTable(knex: knex) {
-  return knex.schema.createTableIfNotExists('client', function (table: knex.CreateTableBuilder) {
+function createClientTable(_knex: knex) {
+  return _knex.schema.createTableIfNotExists('client', (table: knex.CreateTableBuilder) => {
     table.increments();
     table.integer('projectId').unsigned();
     table.string('name', 128);
     table.string('clientId', 128);
     table.string('clientSecret', 128);
-    table.timestamp('createdAt').defaultTo(knex.fn.now());
-    table.timestamp('modifiedAt').defaultTo(knex.fn.now());
+    table.timestamp('createdAt').defaultTo(_knex.fn.now());
+    table.timestamp('modifiedAt').defaultTo(_knex.fn.now());
     // Constraints
     table.foreign('projectId').references('project.id').onDelete('CASCADE');
   });
 }
 
-exports.up = function(knex: knex) {
-  return createClientTable(knex);
+exports.up = (_knex: knex) => {
+  return createClientTable(_knex);
 };
 
-exports.down = function(knex: knex) {
+exports.down = (_knex: knex) => {
   const tables = [
     'client'
   ];
   return tables.reduce((promise, tableName) => {
     return promise.then(() => {
-      return knex.raw(`DROP TABLE "${tableName}" CASCADE`);
+      return _knex.raw(`DROP TABLE "${tableName}" CASCADE`);
     });
   }, Promise.resolve());
 };

@@ -17,7 +17,7 @@ const initialValidationConstraints = {
     name: {
         presence: {
             allowEmpty: false
-        },
+        }
     },
     published: {
         datetime: true,
@@ -55,13 +55,13 @@ class EntryViewSet extends BaseViewSet_1.default {
     constructor(options) {
         super(Entry_1.default, options);
         this.bulkDelete = this.bulkDelete.bind(this);
-        this.router.post('bulk-delete', middleware_1.requirePermission(`${this.Model.tableName}:delete`), this.bulkDelete);
+        this.router.post('bulk-delete', middleware_2.requireAuthentication, middleware_1.requirePermission(`${this.modelClass.tableName}:delete`), this.bulkDelete);
     }
     getCommonMiddleware() {
         return [middleware_2.requireAuthentication];
     }
     getPageSize(ctx) {
-        const pageSize = parseInt(ctx.request.query.pageSize);
+        const pageSize = parseInt(ctx.request.query.pageSize, 10);
         if (lodash_1.isInteger(pageSize) && pageSize > 0)
             return pageSize;
         return super.getPageSize(ctx);
@@ -70,7 +70,7 @@ class EntryViewSet extends BaseViewSet_1.default {
         let queryBuilder = Entry_1.default
             .getInProject(ctx.state.project.id)
             .eager('[tags, entryType, modifiedByUser, user]');
-        let { tags, entryType, nonPublished, search, orderBy } = ctx.request.query;
+        const { tags, entryType, nonPublished, search, orderBy } = ctx.request.query;
         // We only include entries where published date is in the past. If nonPublished
         // query parameter is present we include BOTH published and non-published entries.
         if (!nonPublished) {
@@ -85,7 +85,7 @@ class EntryViewSet extends BaseViewSet_1.default {
         }
         // Filter by EntryType
         if (entryType) {
-            const entryTypeId = parseInt(entryType);
+            const entryTypeId = parseInt(entryType, 10);
             if (lodash_1.isInteger(entryTypeId) && entryTypeId > 0) {
                 queryBuilder = queryBuilder.where('entry.entryTypeId', entryTypeId);
             }
@@ -226,7 +226,7 @@ class EntryViewSet extends BaseViewSet_1.default {
         ctx.body = entryJSON;
         ctx.state.viewsetResult = {
             action: 'retrieve',
-            modelClass: this.Model,
+            modelClass: this.modelClass,
             data: entryJSON
         };
         return entry;
@@ -279,7 +279,7 @@ class EntryViewSet extends BaseViewSet_1.default {
             ctx.body = entryJSON;
             ctx.state.viewsetResult = {
                 action: 'update',
-                modelClass: this.Model,
+                modelClass: this.modelClass,
                 data: entryJSON
             };
             return entry;

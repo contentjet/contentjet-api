@@ -92,11 +92,11 @@ const listField = {
     minLength: 0,
     maxLength: 999
 };
-describe('EntryType', function () {
+describe('EntryType', () => {
     let user1;
     let project1;
     let entryType1;
-    beforeEach(async function () {
+    beforeEach(async () => {
         await EntryType_1.default.deleteAll();
         await User_1.default.deleteAll();
         await Project_1.default.deleteAll();
@@ -125,29 +125,29 @@ describe('EntryType', function () {
             ]
         });
     });
-    afterEach(async function () {
+    afterEach(async () => {
         await EntryType_1.default.deleteAll();
         await User_1.default.deleteAll();
         await Project_1.default.deleteAll();
     });
-    describe('#getById', async function () {
-        it('gets an EntryType by id', async function () {
+    describe('#getById', async () => {
+        it('gets an EntryType by id', async () => {
             const entryType = await EntryType_1.default.getById(entryType1.id);
             chai_1.assert.equal(lodash_1.get(entryType, 'id'), entryType1.id);
         });
     });
-    describe('#existsInProject', async function () {
-        it('EntryType exists in project', async function () {
+    describe('#existsInProject', async () => {
+        it('EntryType exists in project', async () => {
             const exists = await EntryType_1.default.existsInProject(entryType1.id, project1.id);
             chai_1.assert.isTrue(exists);
         });
-        it('EntryType does not exist in project', async function () {
+        it('EntryType does not exist in project', async () => {
             const exists = await EntryType_1.default.existsInProject(entryType1.id, 123);
             chai_1.assert.isFalse(exists);
         });
     });
-    describe('#deleteAll', async function () {
-        it('deletes all entry types', async function () {
+    describe('#deleteAll', async () => {
+        it('deletes all entry types', async () => {
             const numDeleted = await EntryType_1.default.deleteAll();
             chai_1.assert.equal(numDeleted, 1);
         });

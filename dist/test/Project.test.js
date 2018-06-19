@@ -7,11 +7,11 @@ const Project_1 = require("../models/Project");
 const chai_1 = require("chai");
 const axios_1 = require("axios");
 const BASE_URL = `http://localhost:${config_1.default.PORT}/`;
-describe('Project - Integration', function () {
+describe('Project - Integration', () => {
     let client;
     let token;
-    describe('#create project (non-admin)', async function () {
-        before(async function () {
+    describe('#create project (non-admin)', async () => {
+        before(async () => {
             // Create a non-admin user and login
             await User_1.default.create('user1@example.com', 'User1', '123456', true);
             const loginResponse = await axios_1.default
@@ -29,13 +29,14 @@ describe('Project - Integration', function () {
                 }
             });
         });
-        after(async function () {
+        after(async () => {
             await User_1.default.deleteAll();
             await Project_1.default.deleteAll();
         });
-        it('fails as user is not an admin', async function () {
+        it('fails as user is not an admin', async () => {
+            let response;
             try {
-                var response = await client.post('project/', {
+                response = await client.post('project/', {
                     name: 'My Project'
                 });
             }

@@ -1,4 +1,10 @@
-import {Model, QueryBuilderOption, QueryBuilderDelete, Transaction, RelationMappings} from 'objection';
+import {
+  Model,
+  QueryBuilderOption,
+  QueryBuilderDelete,
+  Transaction,
+  RelationMappings
+} from 'objection';
 import * as uuid from 'uuid';
 
 export default class Client extends Model {
@@ -37,7 +43,7 @@ export default class Client extends Model {
           type: 'integer'
         },
         projectId: {
-          'type': 'integer'
+          type: 'integer'
         },
         name: {
           type: 'string',
@@ -67,11 +73,6 @@ export default class Client extends Model {
     };
   }
 
-  $beforeInsert() {
-    this.clientId = uuid.v4().replace(/-/g, '');
-    this.clientSecret = uuid.v4().replace(/-/g, '');
-  }
-
   static getById(id: number, trx?: Transaction): QueryBuilderOption<Client> {
     return Client
       .query(trx)
@@ -87,7 +88,7 @@ export default class Client extends Model {
   }
 
   static generateRandomString(): string {
-    return uuid.v4().replace(/-/g, '')
+    return uuid.v4().replace(/-/g, '');
   }
 
   static async create(projectId: number, name: string, trx?: Transaction): Promise<Client> {
@@ -98,7 +99,7 @@ export default class Client extends Model {
         clientSecret: Client.generateRandomString(),
         name,
         projectId
-      })
+      });
   }
 
   static authenticate(clientId: string, clientSecret: string): QueryBuilderOption<Client> {
@@ -106,6 +107,11 @@ export default class Client extends Model {
       .query()
       .where({ clientId, clientSecret })
       .first();
+  }
+
+  $beforeInsert() {
+    this.clientId = uuid.v4().replace(/-/g, '');
+    this.clientSecret = uuid.v4().replace(/-/g, '');
   }
 
   delete(trx?: Transaction): QueryBuilderDelete<Client> {

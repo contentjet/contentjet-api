@@ -12,7 +12,7 @@ class ClientViewSet extends BaseViewSet_1.default {
         super(Client_1.default, options);
         this.router.post('authenticate', routes_1.authenticateClient);
     }
-    getPageSize(_ctx) {
+    getPageSize() {
         return 0;
     }
     getListMiddleware() {

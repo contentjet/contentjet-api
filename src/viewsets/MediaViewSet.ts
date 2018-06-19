@@ -6,12 +6,12 @@ import BaseViewSet from './BaseViewSet';
 import ValidationError from '../errors/ValidationError';
 import DatabaseError from '../errors/DatabaseError';
 import * as sharp from 'sharp';
-import {isInteger, clone, get} from 'lodash';
+import { isInteger, clone, get } from 'lodash';
 import * as moment from 'moment';
 import validate from '../utils/validate';
-import {transaction} from 'objection';
-import {requirePermission} from '../authorization/middleware';
-import {requireAuthentication} from '../authentication/jwt/middleware';
+import { transaction} from 'objection';
+import { requirePermission } from '../authorization/middleware';
+import { requireAuthentication } from '../authentication/jwt/middleware';
 
 const updateConstraints = {
   description: {
@@ -34,7 +34,7 @@ enum MediaOrderBy {
 interface IMediaListQuery {
   tags?: string;
   search?: string;
-  orderBy?: MediaOrderBy
+  orderBy?: MediaOrderBy;
 }
 
 export default class MediaViewSet extends BaseViewSet<Media> {
@@ -46,8 +46,19 @@ export default class MediaViewSet extends BaseViewSet<Media> {
     super(Media, clonedOptions);
     this.upload = this.upload.bind(this);
     this.bulkDelete = this.bulkDelete.bind(this);
-    this.router.post('upload', requirePermission(`${this.Model.tableName}:create`), this.options.storage.middleware, this.upload);
-    this.router.post('bulk-delete', requirePermission(`${this.Model.tableName}:delete`), this.bulkDelete);
+    this.router.post(
+      'upload',
+      requireAuthentication,
+      requirePermission(`${this.modelClass.tableName}:create`),
+      this.options.storage.middleware,
+      this.upload
+    );
+    this.router.post(
+      'bulk-delete',
+      requireAuthentication,
+      requirePermission(`${this.modelClass.tableName}:delete`),
+      this.bulkDelete
+    );
   }
 
   getCommonMiddleware() {
@@ -55,7 +66,7 @@ export default class MediaViewSet extends BaseViewSet<Media> {
   }
 
   getPageSize(ctx: Koa.Context) {
-    const pageSize = parseInt(ctx.request.query.pageSize);
+    const pageSize = parseInt(ctx.request.query.pageSize, 10);
     if (isInteger(pageSize) && pageSize > 0) return pageSize;
     return super.getPageSize(ctx);
   }
@@ -66,7 +77,7 @@ export default class MediaViewSet extends BaseViewSet<Media> {
 
   getListQueryBuilder(ctx: Koa.Context) {
     let queryBuilder = Media.getInProject(ctx.state.project.id);
-    const {tags, search, orderBy} = ctx.request.query as IMediaListQuery;
+    const { tags, search, orderBy } = ctx.request.query as IMediaListQuery;
     // Crude search
     if (search) {
       const words = search.split(' ').filter(w => w).map(w => w.toLowerCase());
@@ -106,14 +117,14 @@ export default class MediaViewSet extends BaseViewSet<Media> {
   }
 
   async upload(ctx: Koa.Context) {
-    const {file} = ctx.req as any;
+    const { file } = ctx.req as any;
     let metadata;
     let thumbnailPath;
     if (['image/jpeg', 'image/png', 'image/gif'].includes(file.mimetype)) {
       // Get the dimensions of uploaded image
       metadata = await sharp(file.path).metadata();
       // Create thumbnail
-      const {width, height} = config.THUMBNAIL;
+      const { width, height } = config.THUMBNAIL;
       if (width > 0 && height > 0) {
         thumbnailPath = file.path
           .replace(/(\w+)(\.\w+)$/, '$1-thumb$2');
@@ -158,19 +169,19 @@ export default class MediaViewSet extends BaseViewSet<Media> {
       err.errors = errors;
       throw err;
     }
-    const {tags, description} = ctx.request.body;
-    const {project} = ctx.state;
+    const { tags, description } = ctx.request.body;
+    const { project } = ctx.state;
     const data = {
       modifiedAt: moment().format(),
-      description: description
+      description
     };
     const knex = Media.knex();
-    return await transaction(knex, async (trx) => {
+    return await transaction(knex, async trx => {
       const media = await Media
         .query(trx)
         .patch(data)
         .returning('*')
-        .where(`${this.Model.tableName}.id`, parseInt(ctx.params[this.getIdRouteParameter()]))
+        .where(`${this.modelClass.tableName}.id`, parseInt(ctx.params[this.getIdRouteParameter()], 10))
         .first();
       if (!media) throw new DatabaseError();
       let mediaTags = await MediaTag.bulkGetOrCreate(tags, project.id, trx);
@@ -180,7 +191,7 @@ export default class MediaViewSet extends BaseViewSet<Media> {
       ctx.body = mediaJSON;
       ctx.state.viewsetResult = {
         action: 'update',
-        modelClass: this.Model,
+        modelClass: this.modelClass,
         data: mediaJSON
       };
       return media;
@@ -191,7 +202,7 @@ export default class MediaViewSet extends BaseViewSet<Media> {
     const arrayOfIds = ctx.request.body;
     const error = validate.single(arrayOfIds, { arrayOfIds: true });
     if (error) throw new ValidationError(error[0]);
-    const {project} = ctx.state;
+    const { project } = ctx.state;
     await Media.bulkDelete(arrayOfIds, project.id);
     ctx.status = 204;
     ctx.state.viewsetResult = {

@@ -8,7 +8,7 @@ class ValidationError extends BaseError_1.default {
         this.status = 400;
     }
     toJSON() {
-        let json = super.toJSON();
+        const json = super.toJSON();
         json.errors = this.errors;
         return json;
     }

@@ -4,15 +4,17 @@ const config_1 = require("./config");
 const fs = require("fs");
 const url = require("url");
 const path = require("path");
+const knex = require("knex");
 const Koa = require("koa");
 const bodyParser = require("koa-bodyparser");
 const cors = require("kcors");
 const send = require("koa-send");
 const Router = require("koa-router");
 const objection_1 = require("objection");
-objection_1.Model.knex(require('knex')(config_1.default.DATABASE));
+objection_1.Model.knex(knex(config_1.default.DATABASE));
 const jwt = require("jsonwebtoken");
 const yaml = require("yamljs");
+// tslint:disable-next-line
 const swaggerUIAbsolutePath = require('swagger-ui-dist').absolutePath();
 const routes_1 = require("./authentication/jwt/routes");
 const middleware_1 = require("./authentication/jwt/middleware");
@@ -52,7 +54,7 @@ const router = new Router();
 router.post('/authenticate', routes_1.authenticateUser);
 router.post('/token-refresh', middleware_1.requireAuthentication, routes_1.tokenRefresh);
 router.use('/user/', new UserViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/', async function (ctx, next) {
+router.use('/project/:projectId(\\d+)/', async (ctx, next) => {
     const project = await Project_1.default.getById(ctx.params.projectId);
     if (!project)
         throw new NotFoundError_1.default();
@@ -74,19 +76,19 @@ const spec = yaml.load('spec.yml');
 if (!spec.servers)
     spec.servers = [];
 spec.servers.push({ url: config_1.default.BACKEND_URL });
-router.get('/spec', function (ctx) {
+router.get('/spec', (ctx) => {
     ctx.set('Cache-Control', 'max-age=604800');
     ctx.body = spec;
 });
 // robots.txt
-router.get('/robots.txt', function (ctx) {
+router.get('/robots.txt', (ctx) => {
     ctx.set('Cache-Control', 'max-age=604800');
     ctx.body = 'User-agent: *\nDisallow: /';
 });
 const app = new Koa();
 app
     .use(cors(config_1.default.CORS))
-    .use(async function (ctx, next) {
+    .use(async (ctx, next) => {
     try {
         await next();
         // Catch Koa's stadard 404 response and throw our own error
@@ -95,13 +97,13 @@ app
     }
     catch (err) {
         if (err instanceof objection_1.ValidationError) {
-            let e = new ValidationError_1.default();
+            const e = new ValidationError_1.default();
             e.errors = err.data;
             ctx.body = e;
             ctx.status = e.status;
         }
         else if (err instanceof jwt.JsonWebTokenError || err instanceof jwt.TokenExpiredError) {
-            let e = new AuthenticationError_1.default(err.message);
+            const e = new AuthenticationError_1.default(err.message);
             ctx.body = e;
             ctx.status = e.status;
         }
@@ -109,13 +111,14 @@ app
             ctx.status = err.status || err.statusCode || 500;
             ctx.body = err;
         }
+        // tslint:disable-next-line
         if (config_1.default.DEBUG)
             console.log(err.stack);
     }
 })
     .use(middleware_2.default);
 if (config_1.default.SERVE_MEDIA) {
-    app.use(async function (ctx, next) {
+    app.use(async (ctx, next) => {
         if (ctx.path.match(/^\/media\/.*$/)) {
             await send(ctx, path.join(config_1.default.MEDIA_ROOT, ctx.path.replace('/media/', '')));
         }
@@ -128,14 +131,14 @@ if (config_1.default.SERVE_SWAGGER_UI) {
     const swaggerIndex = fs
         .readFileSync(path.join(swaggerUIAbsolutePath, 'index.html'), { encoding: 'utf8' })
         .replace(/http:\/\/petstore\.swagger\.io\/v2\/swagger\.json/g, url.resolve(config_1.default.BACKEND_URL, 'spec'));
-    app.use(async function (ctx, next) {
+    app.use(async (ctx, next) => {
         if (ctx.path.match(/^\/swagger\/.*$/)) {
-            const path = ctx.path.replace('/swagger/', '');
-            if (path === '' || path === '/index.html') {
+            const _path = ctx.path.replace('/swagger/', '');
+            if (_path === '' || _path === '/index.html') {
                 ctx.body = swaggerIndex;
                 return;
             }
-            await send(ctx, path, { root: swaggerUIAbsolutePath });
+            await send(ctx, _path, { root: swaggerUIAbsolutePath });
         }
         else {
             await next();
@@ -146,7 +149,7 @@ app
     .use(bodyParser())
     .use(router.routes())
     .use(router.allowedMethods())
-    .use(async function (ctx) {
+    .use(async (ctx) => {
     ctx.status = 404;
     ctx.body = {
         message: 'Not found',

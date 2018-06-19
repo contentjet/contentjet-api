@@ -38,14 +38,14 @@ class MediaViewSet extends BaseViewSet_1.default {
         super(Media_1.default, clonedOptions);
         this.upload = this.upload.bind(this);
         this.bulkDelete = this.bulkDelete.bind(this);
-        this.router.post('upload', middleware_1.requirePermission(`${this.Model.tableName}:create`), this.options.storage.middleware, this.upload);
-        this.router.post('bulk-delete', middleware_1.requirePermission(`${this.Model.tableName}:delete`), this.bulkDelete);
+        this.router.post('upload', middleware_2.requireAuthentication, middleware_1.requirePermission(`${this.modelClass.tableName}:create`), this.options.storage.middleware, this.upload);
+        this.router.post('bulk-delete', middleware_2.requireAuthentication, middleware_1.requirePermission(`${this.modelClass.tableName}:delete`), this.bulkDelete);
     }
     getCommonMiddleware() {
         return [middleware_2.requireAuthentication];
     }
     getPageSize(ctx) {
-        const pageSize = parseInt(ctx.request.query.pageSize);
+        const pageSize = parseInt(ctx.request.query.pageSize, 10);
         if (lodash_1.isInteger(pageSize) && pageSize > 0)
             return pageSize;
         return super.getPageSize(ctx);
@@ -154,7 +154,7 @@ class MediaViewSet extends BaseViewSet_1.default {
         const { project } = ctx.state;
         const data = {
             modifiedAt: moment().format(),
-            description: description
+            description
         };
         const knex = Media_1.default.knex();
         return await objection_1.transaction(knex, async (trx) => {
@@ -162,7 +162,7 @@ class MediaViewSet extends BaseViewSet_1.default {
                 .query(trx)
                 .patch(data)
                 .returning('*')
-                .where(`${this.Model.tableName}.id`, parseInt(ctx.params[this.getIdRouteParameter()]))
+                .where(`${this.modelClass.tableName}.id`, parseInt(ctx.params[this.getIdRouteParameter()], 10))
                 .first();
             if (!media)
                 throw new DatabaseError_1.default();
@@ -173,7 +173,7 @@ class MediaViewSet extends BaseViewSet_1.default {
             ctx.body = mediaJSON;
             ctx.state.viewsetResult = {
                 action: 'update',
-                modelClass: this.Model,
+                modelClass: this.modelClass,
                 data: mediaJSON
             };
             return media;

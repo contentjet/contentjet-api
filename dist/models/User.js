@@ -3,11 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("../config");
 const objection_1 = require("objection");
 const jwt = require("jsonwebtoken");
-const crypto = require('crypto');
+// const crypto = require('crypto');
+const crypto = require("crypto");
 const ValidationError_1 = require("../errors/ValidationError");
 const Permission_1 = require("./Permission");
-;
-;
 class User extends objection_1.Model {
     static get tableName() {
         return 'user';
@@ -88,7 +87,7 @@ class User extends objection_1.Model {
             .count('*')
             .where('email', email)
             .first();
-        return parseInt(result.count) === 1;
+        return parseInt(result.count, 10) === 1;
     }
     static async create(email, name, password, isActive = false, isAdmin = false, trx) {
         const exists = await User.existsWithEmail(email, trx);
@@ -116,7 +115,7 @@ class User extends objection_1.Model {
     static generateSignUpToken(userId) {
         const payload = { userId };
         return new Promise((resolve, reject) => {
-            jwt.sign(payload, `sign-up${config_1.default.SECRET_KEY}`, { expiresIn: '7 days' }, function (err, token) {
+            jwt.sign(payload, `sign-up${config_1.default.SECRET_KEY}`, { expiresIn: '7 days' }, (err, token) => {
                 if (err) {
                     reject(err);
                 }
@@ -128,7 +127,7 @@ class User extends objection_1.Model {
     }
     static verifySignUpToken(token) {
         return new Promise((resolve, reject) => {
-            jwt.verify(token, `sign-up${config_1.default.SECRET_KEY}`, undefined, function (err, decoded) {
+            jwt.verify(token, `sign-up${config_1.default.SECRET_KEY}`, undefined, (err, decoded) => {
                 if (err) {
                     reject(err);
                 }
@@ -141,7 +140,7 @@ class User extends objection_1.Model {
     static generatePasswordResetToken(userId) {
         const payload = { userId };
         return new Promise((resolve, reject) => {
-            jwt.sign(payload, `password-reset${config_1.default.SECRET_KEY}`, { expiresIn: '12 hours' }, function (err, token) {
+            jwt.sign(payload, `password-reset${config_1.default.SECRET_KEY}`, { expiresIn: '12 hours' }, (err, token) => {
                 if (err) {
                     reject(err);
                 }
@@ -153,7 +152,7 @@ class User extends objection_1.Model {
     }
     static verifyPasswordResetToken(token) {
         return new Promise((resolve, reject) => {
-            jwt.verify(token, `password-reset${config_1.default.SECRET_KEY}`, undefined, function (err, decoded) {
+            jwt.verify(token, `password-reset${config_1.default.SECRET_KEY}`, undefined, (err, decoded) => {
                 if (err) {
                     reject(err);
                 }

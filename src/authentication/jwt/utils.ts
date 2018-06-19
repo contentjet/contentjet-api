@@ -4,7 +4,7 @@ import ValidationError from '../../errors/ValidationError';
 
 export function generateUserAuthToken(payload: string | object | Buffer): Promise<any> {
   return new Promise((resolve, reject) => {
-    jwt.sign(payload, config.SECRET_KEY, {expiresIn: config.USER_TOKEN_EXPIRY}, function (err, token) {
+    jwt.sign(payload, config.SECRET_KEY, { expiresIn: config.USER_TOKEN_EXPIRY }, function (err, token) {
       if (err) {
         reject(err);
       } else {
@@ -21,7 +21,7 @@ export function generateUserAuthToken(payload: string | object | Buffer): Promis
 
 export function generateClientAuthToken(payload: string | object | Buffer): Promise<any> {
   return new Promise((resolve, reject) => {
-    jwt.sign(payload, config.SECRET_KEY, {expiresIn: config.CLIENT_TOKEN_EXPIRY}, function (err, token) {
+    jwt.sign(payload, config.SECRET_KEY, { expiresIn: config.CLIENT_TOKEN_EXPIRY }, function (err, token) {
       if (err) {
         reject(err);
       } else {
@@ -50,5 +50,5 @@ export function verifyAuthToken(token: string): Promise<any> {
 export async function refreshUserAuthToken(token: string) {
   const payload = await verifyAuthToken(token);
   if (!payload.userId) throw new ValidationError('Invalid refresh token');
-  return await generateUserAuthToken({userId: payload.userId});
+  return await generateUserAuthToken({ userId: payload.userId });
 }

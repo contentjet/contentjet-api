@@ -136,7 +136,7 @@ class Project extends objection_1.Model {
             .$relatedQuery('members', trx)
             .relate({
             id: user.id,
-            membershipType: membershipType
+            membershipType
         });
         return user;
     }
@@ -151,8 +151,8 @@ class Project extends objection_1.Model {
             .query(trx)
             .patch({ membershipType, membershipIsActive })
             .where({
-            'userId': userId,
-            'projectId': this.id
+            userId,
+            projectId: this.id
         });
     }
     delete(trx) {

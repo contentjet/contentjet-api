@@ -15,27 +15,27 @@ export default class ClientViewSet extends BaseViewSet<Client> {
     this.router.post('authenticate', authenticateClient);
   }
 
-  getPageSize(_ctx: Koa.Context): number {
+  getPageSize(): number {
     return 0;
   }
 
   getListMiddleware() {
-    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    const middleware: Router.IMiddleware[] = [requireAuthentication];
     return middleware.concat(super.getListMiddleware());
   }
 
   getCreateMiddleware() {
-    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    const middleware: Router.IMiddleware[] = [requireAuthentication];
     return middleware.concat(super.getCreateMiddleware());
   }
 
   getRetrieveMiddleware() {
-    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    const middleware: Router.IMiddleware[] = [requireAuthentication];
     return middleware.concat(super.getRetrieveMiddleware());
   }
 
   getDeleteMiddleware() {
-    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    const middleware: Router.IMiddleware[] = [requireAuthentication];
     return middleware.concat(super.getDeleteMiddleware());
   }
 

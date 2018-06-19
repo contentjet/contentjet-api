@@ -3,7 +3,7 @@ import User from '../../models/User';
 import Client from '../../models/Client';
 import AuthenticationError from '../../errors/AuthenticationError';
 import ValidationError from '../../errors/ValidationError';
-import {generateUserAuthToken, generateClientAuthToken, refreshUserAuthToken} from './utils';
+import { generateUserAuthToken, generateClientAuthToken, refreshUserAuthToken } from './utils';
 import validate from '../../utils/validate';
 
 
@@ -70,7 +70,7 @@ export async function authenticateUser(ctx: Koa.Context) {
   if (!user) throw new AuthenticationError('A user with the submitted credentials does not exist');
   if (!user.isActive) throw new AuthenticationError('User is marked inactive');
   ctx.state.user = user;
-  ctx.body = await generateUserAuthToken({userId: ctx.state.user.id});
+  ctx.body = await generateUserAuthToken({ userId: ctx.state.user.id });
 }
 
 export async function authenticateClient(ctx: Koa.Context) {

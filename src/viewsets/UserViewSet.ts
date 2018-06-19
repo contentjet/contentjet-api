@@ -5,11 +5,11 @@ import path = require('path');
 import url = require('url');
 import * as ejs from 'ejs';
 import { cloneDeep } from 'lodash';
-const { mjml2html } = require('mjml');
-import {transaction} from 'objection';
+const { mjml2html } = require('mjml'); // tslint:disable-line
+import { transaction } from 'objection';
 import User from '../models/User';
 import Project from '../models/Project';
-import ProjectInvite from '../models/ProjectInvite';
+import ProjectInvite, { IInvitePayload } from '../models/ProjectInvite';
 import BaseViewSet from './BaseViewSet';
 import ValidationError from '../errors/ValidationError';
 import NotFoundError from '../errors/NotFoundError';
@@ -130,27 +130,27 @@ export default class UserViewSet extends BaseViewSet<User> {
   }
 
   getListMiddleware() {
-    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    const middleware: Router.IMiddleware[] = [requireAuthentication];
     return middleware.concat(super.getListMiddleware());
   }
 
   getCreateMiddleware() {
-    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    const middleware: Router.IMiddleware[] = [requireAuthentication];
     return middleware.concat(super.getCreateMiddleware());
   }
 
   getRetrieveMiddleware() {
-    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    const middleware: Router.IMiddleware[] = [requireAuthentication];
     return middleware.concat(super.getRetrieveMiddleware());
   }
 
   getUpdateMiddleware() {
-    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    const middleware: Router.IMiddleware[] = [requireAuthentication];
     return middleware.concat(super.getUpdateMiddleware());
   }
 
   getDeleteMiddleware() {
-    const middleware: Array<Router.IMiddleware> = [requireAuthentication];
+    const middleware: Router.IMiddleware[] = [requireAuthentication];
     return middleware.concat(super.getDeleteMiddleware());
   }
 
@@ -165,8 +165,8 @@ export default class UserViewSet extends BaseViewSet<User> {
       err.errors = errors;
       throw err;
     }
-    let {user} = ctx.state;
-    const {name} = ctx.request.body;
+    let { user } = ctx.state;
+    const { name } = ctx.request.body;
     if (name) {
       user = await user
         .$query()
@@ -184,19 +184,20 @@ export default class UserViewSet extends BaseViewSet<User> {
       err.errors = errors;
       throw err;
     }
-    const {email, name, password, inviteToken} = ctx.request.body;
+    const { email, name, password, inviteToken } = ctx.request.body;
+    let invitePayload: IInvitePayload;
     try {
-      var invitePayload = await ProjectInvite.verifyInviteToken(inviteToken);
+      invitePayload = await ProjectInvite.verifyInviteToken(inviteToken);
     } catch (err) {
       throw new ValidationError('Invalid invite token');
     }
     const knex = ProjectInvite.knex();
-    await transaction(knex, async (trx) => {
+    await transaction(knex, async trx => {
       const user = await User.create(
         email, name, password, config.ACTIVE_ON_SIGNUP, false, trx
       );
       // Get the project from the invite...
-      const {projectId, projectInviteId} = invitePayload;
+      const { projectId, projectInviteId } = invitePayload;
       const project = await Project.getById(projectId, trx);
       if (!project) throw new NotFoundError('Project does not exist');
       // ... mark the invite as accepted...
@@ -220,7 +221,7 @@ export default class UserViewSet extends BaseViewSet<User> {
         };
         sendMail(mailOptions)
           .then(info => {
-            console.log('Message sent: %s', info.messageId);
+            console.log('Message sent: %s', info.messageId); // tslint:disable-line
           })
           .catch(err => {
             console.error(err);
@@ -232,9 +233,9 @@ export default class UserViewSet extends BaseViewSet<User> {
   }
 
   async verify(ctx: Koa.Context) {
-    const {token} = ctx.request.body;
+    const { token } = ctx.request.body;
     if (!token) throw new ValidationError('Verification token is required');
-    const {userId} = await User.verifySignUpToken(token);
+    const { userId } = await User.verifySignUpToken(token);
     const user = await User
       .query()
       .patch({ isActive: true })
@@ -251,7 +252,7 @@ export default class UserViewSet extends BaseViewSet<User> {
       err.errors = errors;
       throw err;
     }
-    const {email} = ctx.request.body;
+    const { email } = ctx.request.body;
     const user = await User
       .query()
       .where('email', email)
@@ -265,14 +266,14 @@ export default class UserViewSet extends BaseViewSet<User> {
     };
     const mailOptions = {
       from: config.MAIL_FROM,
-      to: email,
+      html: ejs.render(requestPasswordResetHTML, context),
       subject: 'Password reset request',
       text: ejs.render(requestPasswordResetTXT, context),
-      html: ejs.render(requestPasswordResetHTML, context)
+      to: email
     };
     sendMail(mailOptions)
       .then(info => {
-        console.log('Message sent: %s', info.messageId);
+        console.log('Message sent: %s', info.messageId); // tslint:disable-line
       })
       .catch(err => {
         console.error(err);
@@ -287,8 +288,8 @@ export default class UserViewSet extends BaseViewSet<User> {
       err.errors = errors;
       throw err;
     }
-    const {token, password} = ctx.request.body;
-    const {userId} = await User.verifyPasswordResetToken(token);
+    const { token, password } = ctx.request.body;
+    const { userId } = await User.verifyPasswordResetToken(token);
     const user = await User.setPassword(userId, password);
     ctx.body = user;
   }
@@ -300,8 +301,8 @@ export default class UserViewSet extends BaseViewSet<User> {
       err.errors = errors;
       throw err;
     }
-    const {password, newPassword} = ctx.request.body;
-    const {user} = ctx.state;
+    const { password, newPassword } = ctx.request.body;
+    const { user } = ctx.state;
     if (!user.verifyPassword(password)) throw new ValidationError('Invalid password');
     ctx.body = await User.setPassword(user.id, newPassword);
   }

@@ -1,4 +1,4 @@
-import {Model, RelationMappings, Transaction, QueryBuilderOption} from 'objection';
+import { Model, RelationMappings, Transaction, QueryBuilderOption } from 'objection';
 import ValidationError from '../errors/ValidationError';
 import _ = require('lodash');
 import validate from '../utils/validate';
@@ -358,486 +358,6 @@ export default class EntryType extends Model {
     };
   }
 
-  $beforeValidate(jsonSchema: object, json: IEntryTypeJson) {
-    // Validate top-level fields
-    let errors = validate(json, entryTypeConstraints);
-    if (errors) {
-      let err = new ValidationError();
-      err.errors = errors;
-      throw err;
-    }
-    // Validate all fields have unique names
-    const fieldNames = json.fields.map(field => field.name);
-    if (fieldNames.length !== _.uniq(fieldNames).length) {
-      throw new ValidationError('Field names must be unique');
-    }
-    let fieldErrors: any = {};
-    json.fields.forEach(field => {
-      // Validate field type
-      let fieldTypeError = validate.single(field.fieldType, {inclusion: fieldTypes});
-      if (fieldTypeError) {
-        throw new ValidationError(`'${field.fieldType}' is not a valid field type`);
-      }
-      // Validate each field against it's fieldType constraints
-      let constraints = fieldTypeConstraints[field.fieldType];
-      let errors = validate(field, constraints);
-      if (errors) fieldErrors[field.name] = errors;
-    });
-    if (!_.isEmpty(fieldErrors)) {
-      let err = new ValidationError();
-      err.errors = {fields: fieldErrors};
-      throw err;
-    }
-    return jsonSchema;
-  }
-
-  static get jsonSchema(): object {
-    return {
-      'type': 'object',
-      'properties': {
-        'id': {
-          'type': 'integer'
-        },
-        'name': {
-          'type': 'string',
-          'minLength': 1,
-          'maxLength': 64
-        },
-        'description': {
-          'type': 'string',
-          'default': '',
-          'maxLength': 128
-        },
-        'metadata': {
-          'type': 'string',
-          'default': '',
-          'maxLength': 3000
-        },
-        'projectId': {
-          'type': 'integer'
-        },
-        'userId': {
-          'type': 'integer'
-        },
-        'fields': {
-          'type': 'array',
-          'items': {
-            'oneOf': [
-              {
-                '$ref': '#/definitions/TEXT'
-              },
-              {
-                '$ref': '#/definitions/LONGTEXT'
-              },
-              {
-                '$ref': '#/definitions/BOOLEAN'
-              },
-              {
-                '$ref': '#/definitions/NUMBER'
-              },
-              {
-                '$ref': '#/definitions/DATE'
-              },
-              {
-                '$ref': '#/definitions/CHOICE'
-              },
-              {
-                '$ref': '#/definitions/COLOR'
-              },
-              {
-                '$ref': '#/definitions/MEDIA'
-              },
-              {
-                '$ref': '#/definitions/LINK'
-              },
-              {
-                '$ref': '#/definitions/LIST'
-              }
-            ]
-          }
-        },
-        'createdAt': {
-          'type': 'string',
-          'format': 'date-time'
-        },
-        'modifiedAt': {
-          'type': 'string',
-          'format': 'date-time'
-        }
-      },
-      'required': [
-        'name',
-        'projectId',
-        'userId'
-      ],
-      'definitions': {
-        'COMMON_FIELD_PROPERTIES': {
-          'type': 'object',
-          'properties': {
-            'name': {
-              'type': 'string',
-              'minLength': 4,
-              'maxLength': 64
-            },
-            'label': {
-              'type': 'string',
-              'minLength': 4,
-              'maxLength': 64
-            },
-            'description': {
-              'type': 'string',
-              'default': '',
-              'maxLength': 128
-            },
-            'required': {
-              'type': 'boolean',
-              'default': false
-            },
-            'disabled': {
-              'type': 'boolean',
-              'default': false
-            }
-          },
-          'required': [
-            'name',
-            'label',
-            'description',
-            'required',
-            'disabled'
-          ]
-        },
-        'TEXT': {
-          'allOf': [
-            {
-              '$ref': '#/definitions/COMMON_FIELD_PROPERTIES'
-            },
-            {
-              'type': 'object',
-              'properties': {
-                'fieldType': {
-                  'type': 'string',
-                  'pattern': '^TEXT$'
-                },
-                'minLength': {
-                  'type': 'integer',
-                  'minimum': 0,
-                  'maximum': 999
-                },
-                'maxLength': {
-                  'type': 'integer',
-                  'minimum': 1,
-                  'maximum': 1000
-                },
-                'format': {
-                  'type': 'string',
-                  'enum': [
-                    'plaintext',
-                    'uri',
-                    'email'
-                  ]
-                }
-              },
-              'required': [
-                'fieldType',
-                'minLength',
-                'maxLength',
-                'format'
-              ]
-            }
-          ]
-        },
-        'LONGTEXT': {
-          'allOf': [
-            {
-              '$ref': '#/definitions/COMMON_FIELD_PROPERTIES'
-            },
-            {
-              'type': 'object',
-              'properties': {
-                'fieldType': {
-                  'type': 'string',
-                  'pattern': '^LONGTEXT$'
-                },
-                'minLength': {
-                  'type': 'integer',
-                  'minimum': 0,
-                  'maximum': 29999
-                },
-                'maxLength': {
-                  'type': 'integer',
-                  'minimum': 1,
-                  'maximum': 30000
-                },
-                'format': {
-                  'type': 'string',
-                  'enum': [
-                    'plaintext',
-                    'markdown'
-                  ]
-                }
-              },
-              'required': [
-                'fieldType',
-                'minLength',
-                'maxLength',
-                'format'
-              ]
-            }
-          ]
-        },
-        'BOOLEAN': {
-          'allOf': [
-            {
-              '$ref': '#/definitions/COMMON_FIELD_PROPERTIES'
-            },
-            {
-              'type': 'object',
-              'properties': {
-                'fieldType': {
-                  'type': 'string',
-                  'pattern': '^BOOLEAN$'
-                },
-                'labelTrue': {
-                  'type': 'string',
-                  'minLength': 1,
-                  'maxLength': 32
-                },
-                'labelFalse': {
-                  'type': 'string',
-                  'minLength': 1,
-                  'maxLength': 32
-                }
-              },
-              'required': [
-                'fieldType',
-                'labelTrue',
-                'labelFalse'
-              ]
-            }
-          ]
-        },
-        'NUMBER': {
-          'allOf': [
-            {
-              '$ref': '#/definitions/COMMON_FIELD_PROPERTIES'
-            },
-            {
-              'type': 'object',
-              'properties': {
-                'fieldType': {
-                  'type': 'string',
-                  'pattern': '^NUMBER$'
-                },
-                'minValue': {
-                  'type': 'number'
-                },
-                'maxValue': {
-                  'type': 'number'
-                },
-                'format': {
-                  'type': 'string',
-                  'enum': [
-                    'number',
-                    'integer'
-                  ]
-                }
-              },
-              'required': [
-                'fieldType',
-                'minValue',
-                'maxValue',
-                'format'
-              ]
-            }
-          ]
-        },
-        'DATE': {
-          'allOf': [
-            {
-              '$ref': '#/definitions/COMMON_FIELD_PROPERTIES'
-            },
-            {
-              'type': 'object',
-              'properties': {
-                'fieldType': {
-                  'type': 'string',
-                  'pattern': '^DATE$'
-                },
-                'format': {
-                  'type': 'string',
-                  'enum': [
-                    'datetime',
-                    'date'
-                  ]
-                }
-              },
-              'required': [
-                'fieldType',
-                'format'
-              ]
-            }
-          ]
-        },
-        'CHOICE': {
-          'allOf': [
-            {
-              '$ref': '#/definitions/COMMON_FIELD_PROPERTIES'
-            },
-            {
-              'type': 'object',
-              'properties': {
-                'fieldType': {
-                  'type': 'string',
-                  'pattern': '^CHOICE$'
-                },
-                'choices': {
-                  'type': 'array',
-                  'items': {
-                    'type': 'string'
-                  },
-                  'minLength': 2,
-                  'maxLength': 128
-                },
-                'format': {
-                  'type': 'string',
-                  'enum': [
-                    'single',
-                    'multiple'
-                  ]
-                }
-              },
-              'required': [
-                'fieldType',
-                'choices',
-                'format'
-              ]
-            }
-          ]
-        },
-        'COLOR': {
-          'allOf': [
-            {
-              '$ref': '#/definitions/COMMON_FIELD_PROPERTIES'
-            },
-            {
-              'type': 'object',
-              'properties': {
-                'fieldType': {
-                  'type': 'string',
-                  'pattern': '^COLOR$'
-                },
-                'format': {
-                  'type': 'string',
-                  'enum': [
-                    'rgb',
-                    'rgba'
-                  ]
-                }
-              },
-              'required': [
-                'fieldType',
-                'format'
-              ]
-            }
-          ]
-        },
-        'MEDIA': {
-          'allOf': [
-            {
-              '$ref': '#/definitions/COMMON_FIELD_PROPERTIES'
-            },
-            {
-              'type': 'object',
-              'properties': {
-                'fieldType': {
-                  'type': 'string',
-                  'pattern': '^MEDIA$'
-                },
-                'minLength': {
-                  'type': 'integer',
-                  'minimum': 0,
-                  'maximum': 999
-                },
-                'maxLength': {
-                  'type': 'integer',
-                  'minimum': 1,
-                  'maximum': 1000
-                }
-              },
-              'required': [
-                'fieldType',
-                'minLength',
-                'maxLength'
-              ]
-            }
-          ]
-        },
-        'LINK': {
-          'allOf': [
-            {
-              '$ref': '#/definitions/COMMON_FIELD_PROPERTIES'
-            },
-            {
-              'type': 'object',
-              'properties': {
-                'fieldType': {
-                  'type': 'string',
-                  'pattern': '^LINK$'
-                },
-                'minLength': {
-                  'type': 'integer',
-                  'minimum': 0,
-                  'maximum': 999
-                },
-                'maxLength': {
-                  'type': 'integer',
-                  'minimum': 1,
-                  'maximum': 1000
-                }
-              },
-              'required': [
-                'fieldType',
-                'minLength',
-                'maxLength'
-              ]
-            }
-          ]
-        },
-        'LIST': {
-          'allOf': [
-            {
-              '$ref': '#/definitions/COMMON_FIELD_PROPERTIES'
-            },
-            {
-              'type': 'object',
-              'properties': {
-                'fieldType': {
-                  'type': 'string',
-                  'pattern': '^LIST$'
-                },
-                'minLength': {
-                  'type': 'integer',
-                  'minimum': 0,
-                  'maximum': 999
-                },
-                'maxLength': {
-                  'type': 'integer',
-                  'minimum': 1,
-                  'maximum': 1000
-                }
-              },
-              'required': [
-                'fieldType',
-                'minLength',
-                'maxLength'
-              ]
-            }
-          ]
-        }
-      }
-    };
-  }
-
   static getById(id: number, trx?: Transaction): QueryBuilderOption<EntryType> {
     return EntryType.query(trx)
       .where('id', id)
@@ -849,14 +369,501 @@ export default class EntryType extends Model {
       .where({id, projectId})
       .count('*')
       .first() as any;
-    return !!parseInt(result.count);
+    return !!parseInt(result.count, 10);
+  }
+
+  static async deleteAll(trx?: Transaction): Promise<number> {
+    const num: any = await EntryType
+      .query(trx)
+      .delete();
+    return num as number;
+  }
+
+  $beforeValidate(jsonSchema: object, json: IEntryTypeJson) {
+    // Validate top-level fields
+    const errors = validate(json, entryTypeConstraints);
+    if (errors) {
+      const err = new ValidationError();
+      err.errors = errors;
+      throw err;
+    }
+    // Validate all fields have unique names
+    const fieldNames = json.fields.map(field => field.name);
+    if (fieldNames.length !== _.uniq(fieldNames).length) {
+      throw new ValidationError('Field names must be unique');
+    }
+    const fieldErrors: any = {};
+    json.fields.forEach(field => {
+      // Validate field type
+      const fieldTypeError = validate.single(field.fieldType, { inclusion: fieldTypes });
+      if (fieldTypeError) {
+        throw new ValidationError(`'${field.fieldType}' is not a valid field type`);
+      }
+      // Validate each field against it's fieldType constraints
+      const constraints = fieldTypeConstraints[field.fieldType];
+      const errorsForField = validate(field, constraints);
+      if (errorsForField) fieldErrors[field.name] = errorsForField;
+    });
+    if (!_.isEmpty(fieldErrors)) {
+      const err = new ValidationError();
+      err.errors = { fields: fieldErrors };
+      throw err;
+    }
+    return jsonSchema;
+  }
+
+  static get jsonSchema(): object {
+    return {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'integer'
+        },
+        name: {
+          type: 'string',
+          minLength: 1,
+          maxLength: 64
+        },
+        description: {
+          type: 'string',
+          default: '',
+          maxLength: 128
+        },
+        metadata: {
+          type: 'string',
+          default: '',
+          maxLength: 3000
+        },
+        projectId: {
+          type: 'integer'
+        },
+        userId: {
+          type: 'integer'
+        },
+        fields: {
+          type: 'array',
+          items: {
+            oneOf: [
+              {
+                $ref: '#/definitions/TEXT'
+              },
+              {
+                $ref: '#/definitions/LONGTEXT'
+              },
+              {
+                $ref: '#/definitions/BOOLEAN'
+              },
+              {
+                $ref: '#/definitions/NUMBER'
+              },
+              {
+                $ref: '#/definitions/DATE'
+              },
+              {
+                $ref: '#/definitions/CHOICE'
+              },
+              {
+                $ref: '#/definitions/COLOR'
+              },
+              {
+                $ref: '#/definitions/MEDIA'
+              },
+              {
+                $ref: '#/definitions/LINK'
+              },
+              {
+                $ref: '#/definitions/LIST'
+              }
+            ]
+          }
+        },
+        createdAt: {
+          type: 'string',
+          format: 'date-time'
+        },
+        modifiedAt: {
+          type: 'string',
+          format: 'date-time'
+        }
+      },
+      required: [
+        'name',
+        'projectId',
+        'userId'
+      ],
+      definitions: {
+        COMMON_FIELD_PROPERTIES: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              minLength: 4,
+              maxLength: 64
+            },
+            label: {
+              type: 'string',
+              minLength: 4,
+              maxLength: 64
+            },
+            description: {
+              type: 'string',
+              default: '',
+              maxLength: 128
+            },
+            required: {
+              type: 'boolean',
+              default: false
+            },
+            disabled: {
+              type: 'boolean',
+              default: false
+            }
+          },
+          required: [
+            'name',
+            'label',
+            'description',
+            'required',
+            'disabled'
+          ]
+        },
+        TEXT: {
+          allOf: [
+            {
+              $ref: '#/definitions/COMMON_FIELD_PROPERTIES'
+            },
+            {
+              type: 'object',
+              properties: {
+                fieldType: {
+                  type: 'string',
+                  pattern: '^TEXT$'
+                },
+                minLength: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 999
+                },
+                maxLength: {
+                  type: 'integer',
+                  minimum: 1,
+                  maximum: 1000
+                },
+                format: {
+                  type: 'string',
+                  enum: [
+                    'plaintext',
+                    'uri',
+                    'email'
+                  ]
+                }
+              },
+              required: [
+                'fieldType',
+                'minLength',
+                'maxLength',
+                'format'
+              ]
+            }
+          ]
+        },
+        LONGTEXT: {
+          allOf: [
+            {
+              $ref: '#/definitions/COMMON_FIELD_PROPERTIES'
+            },
+            {
+              type: 'object',
+              properties: {
+                fieldType: {
+                  type: 'string',
+                  pattern: '^LONGTEXT$'
+                },
+                minLength: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 29999
+                },
+                maxLength: {
+                  type: 'integer',
+                  minimum: 1,
+                  maximum: 30000
+                },
+                format: {
+                  type: 'string',
+                  enum: [
+                    'plaintext',
+                    'markdown'
+                  ]
+                }
+              },
+              required: [
+                'fieldType',
+                'minLength',
+                'maxLength',
+                'format'
+              ]
+            }
+          ]
+        },
+        BOOLEAN: {
+          allOf: [
+            {
+              $ref: '#/definitions/COMMON_FIELD_PROPERTIES'
+            },
+            {
+              type: 'object',
+              properties: {
+                fieldType: {
+                  type: 'string',
+                  pattern: '^BOOLEAN$'
+                },
+                labelTrue: {
+                  type: 'string',
+                  minLength: 1,
+                  maxLength: 32
+                },
+                labelFalse: {
+                  type: 'string',
+                  minLength: 1,
+                  maxLength: 32
+                }
+              },
+              required: [
+                'fieldType',
+                'labelTrue',
+                'labelFalse'
+              ]
+            }
+          ]
+        },
+        NUMBER: {
+          allOf: [
+            {
+              $ref: '#/definitions/COMMON_FIELD_PROPERTIES'
+            },
+            {
+              type: 'object',
+              properties: {
+                fieldType: {
+                  type: 'string',
+                  pattern: '^NUMBER$'
+                },
+                minValue: {
+                  type: 'number'
+                },
+                maxValue: {
+                  type: 'number'
+                },
+                format: {
+                  type: 'string',
+                  enum: [
+                    'number',
+                    'integer'
+                  ]
+                }
+              },
+              required: [
+                'fieldType',
+                'minValue',
+                'maxValue',
+                'format'
+              ]
+            }
+          ]
+        },
+        DATE: {
+          allOf: [
+            {
+              $ref: '#/definitions/COMMON_FIELD_PROPERTIES'
+            },
+            {
+              type: 'object',
+              properties: {
+                fieldType: {
+                  type: 'string',
+                  pattern: '^DATE$'
+                },
+                format: {
+                  type: 'string',
+                  enum: [
+                    'datetime',
+                    'date'
+                  ]
+                }
+              },
+              required: [
+                'fieldType',
+                'format'
+              ]
+            }
+          ]
+        },
+        CHOICE: {
+          allOf: [
+            {
+              $ref: '#/definitions/COMMON_FIELD_PROPERTIES'
+            },
+            {
+              type: 'object',
+              properties: {
+                fieldType: {
+                  type: 'string',
+                  pattern: '^CHOICE$'
+                },
+                choices: {
+                  type: 'array',
+                  items: {
+                    type: 'string'
+                  },
+                  minLength: 2,
+                  maxLength: 128
+                },
+                format: {
+                  type: 'string',
+                  enum: [
+                    'single',
+                    'multiple'
+                  ]
+                }
+              },
+              required: [
+                'fieldType',
+                'choices',
+                'format'
+              ]
+            }
+          ]
+        },
+        COLOR: {
+          allOf: [
+            {
+              $ref: '#/definitions/COMMON_FIELD_PROPERTIES'
+            },
+            {
+              type: 'object',
+              properties: {
+                fieldType: {
+                  type: 'string',
+                  pattern: '^COLOR$'
+                },
+                format: {
+                  type: 'string',
+                  enum: [
+                    'rgb',
+                    'rgba'
+                  ]
+                }
+              },
+              required: [
+                'fieldType',
+                'format'
+              ]
+            }
+          ]
+        },
+        MEDIA: {
+          allOf: [
+            {
+              $ref: '#/definitions/COMMON_FIELD_PROPERTIES'
+            },
+            {
+              type: 'object',
+              properties: {
+                fieldType: {
+                  type: 'string',
+                  pattern: '^MEDIA$'
+                },
+                minLength: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 999
+                },
+                maxLength: {
+                  type: 'integer',
+                  minimum: 1,
+                  maximum: 1000
+                }
+              },
+              required: [
+                'fieldType',
+                'minLength',
+                'maxLength'
+              ]
+            }
+          ]
+        },
+        LINK: {
+          allOf: [
+            {
+              $ref: '#/definitions/COMMON_FIELD_PROPERTIES'
+            },
+            {
+              type: 'object',
+              properties: {
+                fieldType: {
+                  type: 'string',
+                  pattern: '^LINK$'
+                },
+                minLength: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 999
+                },
+                maxLength: {
+                  type: 'integer',
+                  minimum: 1,
+                  maximum: 1000
+                }
+              },
+              required: [
+                'fieldType',
+                'minLength',
+                'maxLength'
+              ]
+            }
+          ]
+        },
+        LIST: {
+          allOf: [
+            {
+              $ref: '#/definitions/COMMON_FIELD_PROPERTIES'
+            },
+            {
+              type: 'object',
+              properties: {
+                fieldType: {
+                  type: 'string',
+                  pattern: '^LIST$'
+                },
+                minLength: {
+                  type: 'integer',
+                  minimum: 0,
+                  maximum: 999
+                },
+                maxLength: {
+                  type: 'integer',
+                  minimum: 1,
+                  maximum: 1000
+                }
+              },
+              required: [
+                'fieldType',
+                'minLength',
+                'maxLength'
+              ]
+            }
+          ]
+        }
+      }
+    };
   }
 
   async validateEntryFields(fields: any, projectId: number): Promise<any> {
     const constraints: any = {};
-    for (let field of this.fields) {
+    for (const field of this.fields) {
       if (field.disabled) continue;
-      let fieldConstraints: any = {};
+      const fieldConstraints: any = {};
       if (field.required) fieldConstraints.presence = { allowEmpty: false };
       if (field.fieldType === 'TEXT') {
         if (field.format === 'uri') {
@@ -886,11 +893,11 @@ export default class EntryType extends Model {
           fieldConstraints.numericality.onlyInteger = true;
         }
       } else if (field.fieldType === 'CHOICE') {
-        fieldConstraints.choicesUnion = {choices: field.choices};
+        fieldConstraints.choicesUnion = { choices: field.choices };
         if (field.format === 'single') {
-          fieldConstraints.arrayLength = {is: 1};
+          fieldConstraints.arrayLength = { is: 1 };
         } else if (field.format === 'multiple') {
-          fieldConstraints.arrayLength = {minimum: 1};
+          fieldConstraints.arrayLength = { minimum: 1 };
           fieldConstraints.uniqueArray = true;
         }
       } else if (field.fieldType === 'COLOR') {
@@ -927,13 +934,6 @@ export default class EntryType extends Model {
       constraints[field.name] = fieldConstraints;
     }
     return validate.async(fields, constraints);
-  }
-
-  static async deleteAll(trx?: Transaction): Promise<number> {
-    const num: any = await EntryType
-      .query(trx)
-      .delete();
-    return num as number;
   }
 
 }

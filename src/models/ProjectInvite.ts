@@ -1,8 +1,8 @@
-import {Model, RelationMappings, QueryBuilderDelete, Transaction} from 'objection';
+import { Model, RelationMappings, QueryBuilderDelete, Transaction } from 'objection';
 import * as jwt from 'jsonwebtoken';
 import config from '../config';
 
-interface IInvitePayload {
+export interface IInvitePayload {
   projectInviteId: number;
   projectName: string;
   projectId: number;
@@ -80,10 +80,10 @@ export default class ProjectInvite extends Model {
   static generateInviteToken(projectInviteId: number, projectName: string, projectId: number): Promise<string> {
     return new Promise((resolve, reject) => {
       jwt.sign(
-        {projectInviteId, projectName, projectId} as IInvitePayload,
+        { projectInviteId, projectName, projectId } as IInvitePayload,
         `invite${config.SECRET_KEY}`,
-        {expiresIn: '7 days'},
-        function (err: object, token: string) {
+        { expiresIn: '7 days' },
+        (err: object, token: string) => {
           if (err) {
             reject(err);
           } else {
@@ -100,7 +100,7 @@ export default class ProjectInvite extends Model {
         token,
         `invite${config.SECRET_KEY}`,
         undefined,
-        function (err: any, decoded: string | object) {
+        (err: any, decoded: string | object) => {
           if (err) {
             reject(err);
           } else {
@@ -125,8 +125,8 @@ export default class ProjectInvite extends Model {
       .patch({accepted: true})
       .returning('*')
       .where({
-        'id': id,
-        'accepted': false
+        id,
+        accepted: false
       })
       .first();
   }

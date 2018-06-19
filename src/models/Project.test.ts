@@ -2,17 +2,17 @@ import '../app';
 import Project from './Project';
 import WebHook from './WebHook';
 import User from './User';
-import {get} from 'lodash';
-import {assert} from 'chai';
+import { get } from 'lodash';
+import { assert } from 'chai';
 
-describe('Project', function () {
+describe('Project', () => {
 
   let user1: User;
   let user2: User;
   let user3: User;
   let project1: Project;
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     await User.deleteAll();
     await Project.deleteAll();
     user1 = await User.create('user1@example.com', 'User1', '12345');
@@ -23,51 +23,51 @@ describe('Project', function () {
       .insert({name: 'Test Project 1', userId: user1.id});
   });
 
-  afterEach(async function () {
+  afterEach(async () => {
     await User.deleteAll();
     await Project.deleteAll();
   });
 
-  describe('#getById', async function () {
+  describe('#getById', async () => {
 
-    it('gets a project by id', async function () {
+    it('gets a project by id', async () => {
       const project = await Project.getById(project1.id);
       assert.equal(get(project, 'id'), project1.id);
     });
 
   });
 
-  describe('#deleteAll', async function () {
+  describe('#deleteAll', async () => {
 
-    it('deletes all projects', async function () {
+    it('deletes all projects', async () => {
       const numDeleted = await Project.deleteAll();
       assert.equal(numDeleted, 1);
     });
 
   });
 
-  describe('#getUsers', async function () {
+  describe('#getUsers', async () => {
 
-    beforeEach(async function () {
+    beforeEach(async () => {
       await project1.addUser(user1, 'author');
       await project1.addUser(user2, 'author');
       await project1.addUser(user3, 'author');
     });
 
-    it('returns 3 users', async function () {
+    it('returns 3 users', async () => {
       const users = await project1.getUsers();
       assert.lengthOf(users, 3, 'has length of 3');
     });
 
   });
 
-  describe('#getUserById', async function () {
+  describe('#getUserById', async () => {
 
-    beforeEach(async function () {
+    beforeEach(async () => {
       await project1.addUser(user1, 'author');
     });
 
-    it('returns project user', async function () {
+    it('returns project user', async () => {
       const user = await project1.getUserById(user1.id);
       assert.strictEqual(get(user, 'membershipType'), 'author');
       assert.strictEqual(get(user, 'membershipIsActive'), true);
@@ -76,51 +76,51 @@ describe('Project', function () {
 
   });
 
-  describe('#isMember', async function () {
+  describe('#isMember', async () => {
 
-    beforeEach(async function () {
+    beforeEach(async () => {
       await project1.addUser(user1, 'author');
     });
 
-    it('user is project member', async function () {
+    it('user is project member', async () => {
       const isMember = await project1.isMember(user1.id);
       assert.isTrue(isMember);
     });
 
-    it('user is not project member', async function () {
+    it('user is not project member', async () => {
       const isMember = await project1.isMember(user2.id);
       assert.isFalse(isMember);
     });
 
-    it('user is project member with membershipType', async function () {
+    it('user is project member with membershipType', async () => {
       const isMember = await project1.isMember(user1.id, 'author');
       assert.isTrue(isMember);
     });
 
-    it('user is not project member with membershipType', async function () {
+    it('user is not project member with membershipType', async () => {
       const isMember = await project1.isMember(user2.id, 'admin');
       assert.isFalse(isMember);
     });
 
   });
 
-  describe('#isOwner', async function () {
+  describe('#isOwner', async () => {
 
-    it('user is project owner', async function () {
+    it('user is project owner', async () => {
       const isOwner = await project1.isOwner(user1.id);
       assert.isTrue(isOwner);
     });
 
-    it('user is not project owner', async function () {
+    it('user is not project owner', async () => {
       const isOwner = await project1.isOwner(user2.id);
       assert.isFalse(isOwner);
     });
 
   });
 
-  describe('#getUsersByMembershipType', async function () {
+  describe('#getUsersByMembershipType', async () => {
 
-    beforeEach(async function () {
+    beforeEach(async () => {
       await project1.addUser(user1, 'author');
       await project1.addUser(user2, 'admin');
       // Calling addUser multiple times with the same user regardless
@@ -130,21 +130,21 @@ describe('Project', function () {
       await project1.addUser(user3, 'admin');
     });
 
-    it('returns 2 users', async function () {
+    it('returns 2 users', async () => {
       const users = await project1.getUsersByMembershipType('author');
       assert.lengthOf(users, 2, 'has length of 2');
     });
 
-    it('returns 1 users', async function () {
+    it('returns 1 users', async () => {
       const users = await project1.getUsersByMembershipType('admin');
       assert.lengthOf(users, 1, 'has length of 1');
     });
 
   });
 
-  describe('#addUser', async function () {
+  describe('#addUser', async () => {
 
-    it('adds user to project', async function () {
+    it('adds user to project', async () => {
       let isMember;
       isMember = await project1.isMember(user2.id);
       assert.isFalse(isMember, 'user is not member');
@@ -155,13 +155,13 @@ describe('Project', function () {
 
   });
 
-  describe('#removeUser', async function () {
+  describe('#removeUser', async () => {
 
-    beforeEach(async function () {
+    beforeEach(async () => {
       await project1.addUser(user2, 'author');
     });
 
-    it('removes user from project', async function () {
+    it('removes user from project', async () => {
       let isMember;
       isMember = await project1.isMember(user2.id);
       assert.isTrue(isMember);
@@ -172,41 +172,62 @@ describe('Project', function () {
 
   });
 
-  describe('#delete', async function () {
+  describe('#delete', async () => {
 
-    it('deletes the project', async function () {
+    it('deletes the project', async () => {
       const numDeleted = await Project.deleteAll();
       assert.equal(numDeleted, 1);
     });
 
   });
 
-  describe('#getActiveWebHooks', async function () {
+  describe('#getActiveWebHooks', async () => {
 
-    beforeEach(async function () {
-      await WebHook.query().insert({name: 'webHook1', url: 'http://example.com', isActive: true, projectId: project1.id});
-      await WebHook.query().insert({name: 'webHook2', url: 'http://example.com', isActive: true, projectId: project1.id});
-      await WebHook.query().insert({name: 'webHook3', url: 'http://example.com', isActive: false, projectId: project1.id});
+    beforeEach(async () => {
+      await WebHook
+        .query()
+        .insert({
+          name: 'webHook1',
+          url: 'http://example.com',
+          isActive: true,
+          projectId: project1.id
+        });
+      await WebHook
+        .query()
+        .insert({
+          name: 'webHook2',
+          url: 'http://example.com',
+          isActive: true,
+          projectId: project1.id
+        });
+      await WebHook
+        .query()
+        .insert({
+          name: 'webHook3',
+          url: 'http://example.com',
+          isActive: false,
+          projectId: project1.id
+        });
     });
 
-    it('project has 2 active webooks', async function () {
-      let webHooks = await project1.getActiveWebHooks();
+    it('project has 2 active webooks', async () => {
+      const webHooks = await project1.getActiveWebHooks();
       assert.lengthOf(webHooks, 2, 'has length of 2');
     });
 
   });
 
-  describe('#updateUserMembership', async function () {
+  describe('#updateUserMembership', async () => {
 
-    beforeEach(async function () {
+    beforeEach(async () => {
       await project1.addUser(user2, 'author');
     });
 
-    afterEach(async function () {
+    afterEach(async () => {
       await project1.removeUser(user2.id);
     });
 
-    it('changes an existing users membershipType', async function () {
+    it('changes an existing users membershipType', async () => {
       await project1.updateUserMembership(user2.id, true, 'admin');
       const users = await project1.getUsers();
       assert.lengthOf(users, 1);
@@ -214,7 +235,7 @@ describe('Project', function () {
       assert.isTrue(users[0].membershipIsActive);
     });
 
-    it('sets membershipIsActive to false', async function () {
+    it('sets membershipIsActive to false', async () => {
       let isActiveMember = await project1.isActiveMember(user2.id);
       assert.isTrue(isActiveMember);
       await project1.updateUserMembership(user2.id, false);

@@ -2,18 +2,18 @@ import '../server';
 import config from '../config';
 import User from '../models/User';
 import Project from '../models/Project';
-import {assert} from 'chai';
-import axios, {AxiosInstance} from 'axios';
+import { assert } from 'chai';
+import axios, { AxiosInstance } from 'axios';
 
 const BASE_URL = `http://localhost:${config.PORT}/`;
 
-describe('Project - Integration', function () {
+describe('Project - Integration', () => {
   let client: AxiosInstance;
   let token: string;
 
-  describe('#create project (non-admin)', async function () {
+  describe('#create project (non-admin)', async () => {
 
-    before(async function () {
+    before(async () => {
       // Create a non-admin user and login
       await User.create('user1@example.com', 'User1', '123456', true);
       const loginResponse = await axios
@@ -35,14 +35,15 @@ describe('Project - Integration', function () {
       });
     });
 
-    after(async function () {
+    after(async () => {
       await User.deleteAll();
       await Project.deleteAll();
     });
 
-    it('fails as user is not an admin', async function () {
+    it('fails as user is not an admin', async () => {
+      let response;
       try {
-        var response = await client.post(
+        response = await client.post(
           'project/',
           {
             name: 'My Project'

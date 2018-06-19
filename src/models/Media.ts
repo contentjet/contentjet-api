@@ -1,8 +1,14 @@
-import {Model, Transaction, RelationMappings, QueryBuilderDelete, QueryBuilder} from 'objection';
+import {
+  Model,
+  QueryBuilder,
+  QueryBuilderDelete,
+  RelationMappings,
+  Transaction
+} from 'objection';
 import MediaTag from './MediaTag';
 import config from '../config';
 import url = require('url');
-import {difference} from 'lodash';
+import { difference } from 'lodash';
 
 export default class Media extends Model {
 
@@ -133,6 +139,13 @@ export default class Media extends Model {
       .where('media.projectId', projectId);
   }
 
+  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilderDelete<Media> {
+    return Media.query(trx)
+      .whereIn('id', arrayOfIds)
+      .andWhere('projectId', projectId)
+      .delete();
+  }
+
   toJSON(): any {
     // The file and thumbnail fields holds the storage-relative path to the file. We change
     // the output of this value by making it relative to MEDIA_URL.
@@ -140,16 +153,9 @@ export default class Media extends Model {
     data.file = url.resolve(config.MEDIA_URL, data.file);
     if (data.thumbnail) data.thumbnail = url.resolve(config.MEDIA_URL, data.thumbnail);
     // If tags is present (like when eagerly fetched) only return tag names.
-    const {tags} = data;
-    if (tags) data.tags = tags.map((tag: {name: string}) => tag.name);
+    const { tags } = data;
+    if (tags) data.tags = tags.map((tag: { name: string }) => tag.name);
     return data;
-  }
-
-  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilderDelete<Media> {
-    return Media.query(trx)
-      .whereIn('id', arrayOfIds)
-      .andWhere('projectId', projectId)
-      .delete();
   }
 
   getTags(trx?: Transaction): QueryBuilder<MediaTag> {

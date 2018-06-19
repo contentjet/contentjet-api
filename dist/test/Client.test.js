@@ -8,12 +8,12 @@ const Project_1 = require("../models/Project");
 const chai_1 = require("chai");
 const axios_1 = require("axios");
 const BASE_URL = `http://localhost:${config_1.default.PORT}/`;
-describe('Client - Integration', function () {
+describe('Client - Integration', () => {
     let client;
     let token;
     let user1;
     let project1;
-    before(async function () {
+    before(async () => {
         user1 = await User_1.default.create('user1@example.com', 'User1', '123456', true);
         project1 = await Project_1.default
             .query()
@@ -36,15 +36,15 @@ describe('Client - Integration', function () {
             }
         });
     });
-    after(async function () {
+    after(async () => {
         await Project_1.default.deleteAll();
         await User_1.default.deleteAll();
     });
-    describe('#create', async function () {
-        afterEach(async function () {
+    describe('#create', async () => {
+        afterEach(async () => {
             await Client_1.default.deleteAll();
         });
-        it('creates a client', async function () {
+        it('creates a client', async () => {
             const data = {
                 name: 'Test client'
             };
@@ -55,18 +55,18 @@ describe('Client - Integration', function () {
             chai_1.assert.lengthOf(response.data.clientSecret, 32);
         });
     });
-    describe('#authenticate', async function () {
-        let client;
-        before(async function () {
-            client = await Client_1.default.create(project1.id, 'Test client');
+    describe('#authenticate', async () => {
+        let authClient;
+        before(async () => {
+            authClient = await Client_1.default.create(project1.id, 'Test client');
         });
-        afterEach(async function () {
+        afterEach(async () => {
             await Client_1.default.deleteAll();
         });
-        it('authenticates a client', async function () {
+        it('authenticates a client', async () => {
             const data = {
-                client_id: client.clientId,
-                client_secret: client.clientSecret,
+                client_id: authClient.clientId,
+                client_secret: authClient.clientSecret,
                 grant_type: 'client_credentials'
             };
             const response = await axios_1.default.post(`${BASE_URL}project/${project1.id}/client/authenticate`, data);
