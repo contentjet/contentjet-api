@@ -27,7 +27,7 @@ class Client extends objection_1.Model {
                     type: 'integer'
                 },
                 projectId: {
-                    'type': 'integer'
+                    type: 'integer'
                 },
                 name: {
                     type: 'string',
@@ -55,10 +55,6 @@ class Client extends objection_1.Model {
             },
             required: ['name', 'clientId', 'clientSecret']
         };
-    }
-    $beforeInsert() {
-        this.clientId = uuid.v4().replace(/-/g, '');
-        this.clientSecret = uuid.v4().replace(/-/g, '');
     }
     static getById(id, trx) {
         return Client
@@ -90,6 +86,10 @@ class Client extends objection_1.Model {
             .query()
             .where({ clientId, clientSecret })
             .first();
+    }
+    $beforeInsert() {
+        this.clientId = uuid.v4().replace(/-/g, '');
+        this.clientSecret = uuid.v4().replace(/-/g, '');
     }
     delete(trx) {
         return Client

@@ -1,31 +1,31 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function createUserTable(knex) {
-    return knex.schema.createTableIfNotExists('user', function (table) {
+function createUserTable(_knex) {
+    return _knex.schema.createTableIfNotExists('user', (table) => {
         table.increments();
         table.string('email').unique();
         table.string('password', 64);
         table.string('name', 128);
         table.boolean('isActive').defaultTo(false);
         table.boolean('isAdmin').defaultTo(false);
-        table.timestamp('createdAt').defaultTo(knex.fn.now());
-        table.timestamp('modifiedAt').defaultTo(knex.fn.now());
+        table.timestamp('createdAt').defaultTo(_knex.fn.now());
+        table.timestamp('modifiedAt').defaultTo(_knex.fn.now());
     });
 }
-function createProjectTable(knex) {
-    return knex.schema.createTableIfNotExists('project', function (table) {
+function createProjectTable(_knex) {
+    return _knex.schema.createTableIfNotExists('project', (table) => {
         table.increments();
         table.string('name', 128);
         table.text('metadata').defaultTo('');
         table.integer('userId').unsigned();
-        table.timestamp('createdAt').defaultTo(knex.fn.now());
-        table.timestamp('modifiedAt').defaultTo(knex.fn.now());
+        table.timestamp('createdAt').defaultTo(_knex.fn.now());
+        table.timestamp('modifiedAt').defaultTo(_knex.fn.now());
         // Constraints
         table.foreign('userId').references('user.id').onDelete('CASCADE');
     });
 }
-function createProjectMembershipTable(knex) {
-    return knex.schema.createTableIfNotExists('projectMembership', function (table) {
+function createProjectMembershipTable(_knex) {
+    return _knex.schema.createTableIfNotExists('projectMembership', (table) => {
         table.integer('userId').unsigned();
         table.integer('projectId').unsigned();
         table.string('membershipType', 128);
@@ -36,8 +36,8 @@ function createProjectMembershipTable(knex) {
         table.primary(['userId', 'projectId']);
     });
 }
-function createWebhookTable(knex) {
-    return knex.schema.createTableIfNotExists('webHook', function (table) {
+function createWebhookTable(_knex) {
+    return _knex.schema.createTableIfNotExists('webHook', (table) => {
         table.increments();
         table.integer('projectId').unsigned();
         table.string('name', 128);
@@ -56,29 +56,29 @@ function createWebhookTable(knex) {
         table.boolean('mediaUpdated').defaultTo(false);
         table.boolean('mediaDeleted').defaultTo(false);
         table.boolean('mediaDeletedBulk').defaultTo(false);
-        table.timestamp('createdAt').defaultTo(knex.fn.now());
-        table.timestamp('modifiedAt').defaultTo(knex.fn.now());
+        table.timestamp('createdAt').defaultTo(_knex.fn.now());
+        table.timestamp('modifiedAt').defaultTo(_knex.fn.now());
         // Constraints
         table.foreign('projectId').references('project.id').onDelete('CASCADE');
     });
 }
-function createProjectinviteTable(knex) {
-    return knex.schema.createTableIfNotExists('projectInvite', function (table) {
+function createProjectinviteTable(_knex) {
+    return _knex.schema.createTableIfNotExists('projectInvite', (table) => {
         table.increments();
         table.integer('projectId').unsigned();
         table.string('name', 128);
         table.string('email');
         table.integer('userId').unsigned();
         table.boolean('accepted').defaultTo(false);
-        table.timestamp('createdAt').defaultTo(knex.fn.now());
-        table.timestamp('modifiedAt').defaultTo(knex.fn.now());
+        table.timestamp('createdAt').defaultTo(_knex.fn.now());
+        table.timestamp('modifiedAt').defaultTo(_knex.fn.now());
         // Constraints
         table.foreign('projectId').references('project.id');
         table.foreign('userId').references('user.id');
     });
 }
-function createMediatagTable(knex) {
-    return knex.schema.createTableIfNotExists('mediaTag', function (table) {
+function createMediatagTable(_knex) {
+    return _knex.schema.createTableIfNotExists('mediaTag', (table) => {
         table.increments();
         table.integer('projectId').unsigned();
         table.string('name', 128);
@@ -87,8 +87,8 @@ function createMediatagTable(knex) {
         table.unique(['projectId', 'name']);
     });
 }
-function createMediaTable(knex) {
-    return knex.schema.createTableIfNotExists('media', function (table) {
+function createMediaTable(_knex) {
+    return _knex.schema.createTableIfNotExists('media', (table) => {
         table.increments();
         table.integer('projectId').unsigned();
         table.integer('userId').unsigned();
@@ -100,15 +100,15 @@ function createMediaTable(knex) {
         table.integer('width').unsigned();
         table.integer('height').unsigned();
         table.text('description').defaultTo('');
-        table.timestamp('createdAt').defaultTo(knex.fn.now());
-        table.timestamp('modifiedAt').defaultTo(knex.fn.now());
+        table.timestamp('createdAt').defaultTo(_knex.fn.now());
+        table.timestamp('modifiedAt').defaultTo(_knex.fn.now());
         // Constraints
         table.foreign('projectId').references('project.id').onDelete('CASCADE');
         table.foreign('userId').references('user.id').onDelete('CASCADE');
     });
 }
-function createMedia_MediatagTable(knex) {
-    return knex.schema.createTableIfNotExists('media_mediaTag', function (table) {
+function createMedia_MediatagTable(_knex) {
+    return _knex.schema.createTableIfNotExists('media_mediaTag', (table) => {
         table.integer('mediaId').unsigned();
         table.integer('mediaTagId').unsigned();
         // Constraints
@@ -117,8 +117,8 @@ function createMedia_MediatagTable(knex) {
         table.primary(['mediaId', 'mediaTagId']);
     });
 }
-function createEntrytypeTable(knex) {
-    return knex.schema.createTableIfNotExists('entryType', function (table) {
+function createEntrytypeTable(_knex) {
+    return _knex.schema.createTableIfNotExists('entryType', (table) => {
         table.increments();
         table.integer('projectId').unsigned();
         table.integer('userId').unsigned();
@@ -126,15 +126,15 @@ function createEntrytypeTable(knex) {
         table.text('metadata').defaultTo('');
         table.string('description', 128).defaultTo('');
         table.jsonb('fields');
-        table.timestamp('createdAt').defaultTo(knex.fn.now());
-        table.timestamp('modifiedAt').defaultTo(knex.fn.now());
+        table.timestamp('createdAt').defaultTo(_knex.fn.now());
+        table.timestamp('modifiedAt').defaultTo(_knex.fn.now());
         // Constraints
         table.foreign('projectId').references('project.id').onDelete('CASCADE');
         table.foreign('userId').references('user.id').onDelete('CASCADE');
     });
 }
-function createEntrytagTable(knex) {
-    return knex.schema.createTableIfNotExists('entryTag', function (table) {
+function createEntrytagTable(_knex) {
+    return _knex.schema.createTableIfNotExists('entryTag', (table) => {
         table.increments();
         table.integer('projectId').unsigned();
         table.string('name', 128);
@@ -143,8 +143,8 @@ function createEntrytagTable(knex) {
         table.unique(['projectId', 'name']);
     });
 }
-function createEntryTable(knex) {
-    return knex.schema.createTableIfNotExists('entry', function (table) {
+function createEntryTable(_knex) {
+    return _knex.schema.createTableIfNotExists('entry', (table) => {
         table.increments();
         table.integer('entryTypeId').unsigned();
         table.integer('userId').unsigned();
@@ -152,16 +152,16 @@ function createEntryTable(knex) {
         table.string('name', 128);
         table.timestamp('published');
         table.jsonb('fields');
-        table.timestamp('createdAt').defaultTo(knex.fn.now());
-        table.timestamp('modifiedAt').defaultTo(knex.fn.now());
+        table.timestamp('createdAt').defaultTo(_knex.fn.now());
+        table.timestamp('modifiedAt').defaultTo(_knex.fn.now());
         // Constraints
         table.foreign('entryTypeId').references('entryType.id').onDelete('CASCADE');
         table.foreign('userId').references('user.id').onDelete('CASCADE');
         table.foreign('modifiedByUserId').references('user.id').onDelete('CASCADE');
     });
 }
-function createEntry_EntrytagTable(knex) {
-    return knex.schema.createTableIfNotExists('entry_entryTag', function (table) {
+function createEntry_EntrytagTable(_knex) {
+    return _knex.schema.createTableIfNotExists('entry_entryTag', (table) => {
         table.integer('entryId').unsigned();
         table.integer('entryTagId').unsigned();
         // Constraints
@@ -170,20 +170,20 @@ function createEntry_EntrytagTable(knex) {
         table.primary(['entryId', 'entryTagId']);
     });
 }
-function createPermissionTable(knex) {
-    return knex.schema.createTableIfNotExists('permission', function (table) {
+function createPermissionTable(_knex) {
+    return _knex.schema.createTableIfNotExists('permission', (table) => {
         table.increments();
         table.string('name', 128).unique();
     });
 }
-function createRoleTable(knex) {
-    return knex.schema.createTableIfNotExists('role', function (table) {
+function createRoleTable(_knex) {
+    return _knex.schema.createTableIfNotExists('role', (table) => {
         table.increments();
         table.string('name', 128).unique();
     });
 }
-function createRole_PermissionTable(knex) {
-    return knex.schema.createTableIfNotExists('role_permission', function (table) {
+function createRole_PermissionTable(_knex) {
+    return _knex.schema.createTableIfNotExists('role_permission', (table) => {
         table.integer('roleId').unsigned();
         table.integer('permissionId').unsigned();
         // Constraints
@@ -192,8 +192,8 @@ function createRole_PermissionTable(knex) {
         table.primary(['roleId', 'permissionId']);
     });
 }
-function createUser_RoleTable(knex) {
-    return knex.schema.createTableIfNotExists('user_role', function (table) {
+function createUser_RoleTable(_knex) {
+    return _knex.schema.createTableIfNotExists('user_role', (table) => {
         table.integer('userId').unsigned();
         table.integer('roleId').unsigned();
         // Constraints
@@ -202,25 +202,25 @@ function createUser_RoleTable(knex) {
         table.primary(['userId', 'roleId']);
     });
 }
-exports.up = function (knex) {
-    return createUserTable(knex)
-        .then(() => createProjectTable(knex))
-        .then(() => createProjectMembershipTable(knex))
-        .then(() => createWebhookTable(knex))
-        .then(() => createProjectinviteTable(knex))
-        .then(() => createMediatagTable(knex))
-        .then(() => createMediaTable(knex))
-        .then(() => createMedia_MediatagTable(knex))
-        .then(() => createEntrytypeTable(knex))
-        .then(() => createEntrytagTable(knex))
-        .then(() => createEntryTable(knex))
-        .then(() => createEntry_EntrytagTable(knex))
-        .then(() => createPermissionTable(knex))
-        .then(() => createRoleTable(knex))
-        .then(() => createRole_PermissionTable(knex))
-        .then(() => createUser_RoleTable(knex));
+exports.up = (_knex) => {
+    return createUserTable(_knex)
+        .then(() => createProjectTable(_knex))
+        .then(() => createProjectMembershipTable(_knex))
+        .then(() => createWebhookTable(_knex))
+        .then(() => createProjectinviteTable(_knex))
+        .then(() => createMediatagTable(_knex))
+        .then(() => createMediaTable(_knex))
+        .then(() => createMedia_MediatagTable(_knex))
+        .then(() => createEntrytypeTable(_knex))
+        .then(() => createEntrytagTable(_knex))
+        .then(() => createEntryTable(_knex))
+        .then(() => createEntry_EntrytagTable(_knex))
+        .then(() => createPermissionTable(_knex))
+        .then(() => createRoleTable(_knex))
+        .then(() => createRole_PermissionTable(_knex))
+        .then(() => createUser_RoleTable(_knex));
 };
-exports.down = function (knex) {
+exports.down = (_knex) => {
     const tables = [
         'user',
         'project',
@@ -241,7 +241,7 @@ exports.down = function (knex) {
     ];
     return tables.reduce((promise, tableName) => {
         return promise.then(() => {
-            return knex.raw(`DROP TABLE "${tableName}" CASCADE`);
+            return _knex.raw(`DROP TABLE "${tableName}" CASCADE`);
         });
     }, Promise.resolve());
 };

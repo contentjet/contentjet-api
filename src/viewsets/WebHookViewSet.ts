@@ -1,7 +1,7 @@
 import * as Koa from 'koa';
-import WebHook from '../models/WebHook';
+import { requireAuthentication } from '../authentication/jwt/middleware';
 import BaseViewSet from './BaseViewSet';
-import {requireAuthentication} from '../authentication/jwt/middleware';
+import WebHook from '../models/WebHook';
 
 export default class WebHookViewSet extends BaseViewSet<WebHook> {
 

@@ -18,10 +18,10 @@ const textField = {
     maxLength: 100,
     format: 'plaintext'
 };
-describe('Entry', function () {
+describe('Entry', () => {
     let user1;
     let project1;
-    beforeEach(async function () {
+    beforeEach(async () => {
         await User_1.default.deleteAll();
         await Project_1.default.deleteAll();
         user1 = await User_1.default.create('user1@example.com', 'User1', '12345');
@@ -29,14 +29,14 @@ describe('Entry', function () {
             .query()
             .insert({ name: 'Test Project 1', userId: user1.id });
     });
-    afterEach(async function () {
+    afterEach(async () => {
         await User_1.default.deleteAll();
         await Project_1.default.deleteAll();
         await Entry_1.default.deleteAll();
         await EntryType_1.default.deleteAll();
     });
-    describe('#bulkDelete', async function () {
-        beforeEach(async function () {
+    describe('#bulkDelete', async () => {
+        beforeEach(async () => {
             const entryType = await EntryType_1.default
                 .query()
                 .insert({
@@ -66,11 +66,11 @@ describe('Entry', function () {
                 });
             }));
         });
-        afterEach(async function () {
+        afterEach(async () => {
             await Entry_1.default.deleteAll();
             await EntryType_1.default.deleteAll();
         });
-        it('bulk deletes 3 entries', async function () {
+        it('bulk deletes 3 entries', async () => {
             let entries = await Entry_1.default.query();
             chai_1.assert.lengthOf(entries, 5);
             const entryIds = entries.map(entry => entry.id);

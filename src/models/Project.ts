@@ -1,4 +1,11 @@
-import {Model, QueryBuilder, QueryBuilderOption, QueryBuilderDelete, Transaction, RelationMappings} from 'objection';
+import {
+  Model,
+  QueryBuilder,
+  QueryBuilderDelete,
+  QueryBuilderOption,
+  RelationMappings,
+  Transaction
+} from 'objection';
 import ProjectMembership from './ProjectMembership';
 import User from './User';
 import WebHook from './WebHook';
@@ -158,7 +165,7 @@ export default class Project extends Model {
       .$relatedQuery<User>('members', trx)
       .relate<User & ProjectMembership>({
         id: user.id,
-        membershipType: membershipType
+        membershipType
       });
     return user;
   }
@@ -170,13 +177,15 @@ export default class Project extends Model {
       .where('id', userId);
   }
 
-  updateUserMembership(userId: number, membershipIsActive: boolean, membershipType?: string, trx?: Transaction): QueryBuilder<ProjectMembership> {
+  updateUserMembership(
+    userId: number, membershipIsActive: boolean, membershipType?: string, trx?: Transaction
+  ): QueryBuilder<ProjectMembership> {
     return ProjectMembership
       .query(trx)
       .patch({membershipType, membershipIsActive})
       .where({
-        'userId': userId,
-        'projectId': this.id
+        userId,
+        projectId: this.id
       });
   }
 

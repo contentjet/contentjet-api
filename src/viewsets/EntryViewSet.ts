@@ -1,23 +1,23 @@
 import * as Koa from 'koa';
-import {isInteger, clone, cloneDeep} from 'lodash';
+import { isInteger, clone, cloneDeep } from 'lodash';
 import * as moment from 'moment';
 import Entry from '../models/Entry';
 import EntryTag from '../models/EntryTag';
 import EntryType from '../models/EntryType';
-import BaseViewSet, {IPaginatedResult} from './BaseViewSet';
+import BaseViewSet, { IPaginatedResult } from './BaseViewSet';
 import ValidationError from '../errors/ValidationError';
 import NotFoundError from '../errors/NotFoundError';
 import DatabaseError from '../errors/DatabaseError';
 import validate from '../utils/validate';
-import {transaction} from 'objection';
-import {requirePermission} from '../authorization/middleware';
-import {requireAuthentication} from '../authentication/jwt/middleware';
+import { transaction } from 'objection';
+import { requirePermission } from '../authorization/middleware';
+import { requireAuthentication } from '../authentication/jwt/middleware';
 
 const initialValidationConstraints = {
   name: {
     presence: {
       allowEmpty: false
-    },
+    }
   },
   published: {
     datetime: true,
@@ -57,7 +57,7 @@ interface IEntryListQuery {
   entryType?: string;
   nonPublished?: string;
   search?: string;
-  orderBy?: EntryOrderBy
+  orderBy?: EntryOrderBy;
 }
 
 export default class EntryViewSet extends BaseViewSet<Entry> {
@@ -65,7 +65,12 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
   constructor(options: any) {
     super(Entry, options);
     this.bulkDelete = this.bulkDelete.bind(this);
-    this.router.post('bulk-delete', requirePermission(`${this.Model.tableName}:delete`), this.bulkDelete);
+    this.router.post(
+      'bulk-delete',
+      requireAuthentication,
+      requirePermission(`${this.modelClass.tableName}:delete`),
+      this.bulkDelete
+    );
   }
 
   getCommonMiddleware() {
@@ -73,7 +78,7 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
   }
 
   getPageSize(ctx: Koa.Context) {
-    const pageSize = parseInt(ctx.request.query.pageSize);
+    const pageSize = parseInt(ctx.request.query.pageSize, 10);
     if (isInteger(pageSize) && pageSize > 0) return pageSize;
     return super.getPageSize(ctx);
   }
@@ -82,7 +87,7 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
     let queryBuilder = Entry
       .getInProject(ctx.state.project.id)
       .eager('[tags, entryType, modifiedByUser, user]');
-    let {tags, entryType, nonPublished, search, orderBy} = ctx.request.query as IEntryListQuery;
+    const { tags, entryType, nonPublished, search, orderBy } = ctx.request.query as IEntryListQuery;
     // We only include entries where published date is in the past. If nonPublished
     // query parameter is present we include BOTH published and non-published entries.
     if (!nonPublished) {
@@ -97,7 +102,7 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
     }
     // Filter by EntryType
     if (entryType) {
-      const entryTypeId = parseInt(entryType);
+      const entryTypeId = parseInt(entryType, 10);
       if (isInteger(entryTypeId) && entryTypeId > 0) {
         queryBuilder = queryBuilder.where('entry.entryTypeId', entryTypeId);
       }
@@ -151,7 +156,7 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
       await entryType.validateEntryFields(fields, projectId);
     } catch (fieldErrors) {
       const err = new ValidationError();
-      err.errors = {fields: fieldErrors};
+      err.errors = { fields: fieldErrors };
       throw err;
     }
   }
@@ -168,7 +173,7 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
     const mappedEntries = entries.map(entry => {
       const json = entry.toJSON() as any;
       // Return tags as strings, not objects
-      json.tags = json.tags.map((tag: {name: string}) => tag.name);
+      json.tags = json.tags.map((tag: { name: string }) => tag.name);
       // Don't include entry fields and entryType fields on list endpoint
       delete json.fields;
       delete json.entryType.fields;
@@ -187,9 +192,9 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
 
   async create(ctx: Koa.Context) {
     this.initialValidation(ctx.request.body);
-    const {entryTypeId, fields, tags} = ctx.request.body;
+    const { entryTypeId, fields, tags } = ctx.request.body;
     const entryType = await EntryType.getById(entryTypeId);
-    const {project, user} = ctx.state;
+    const { project, user } = ctx.state;
     if (!entryType || entryType.projectId !== project.id) {
       throw new ValidationError('Entry type with the provided id does not exist in project');
     }
@@ -202,7 +207,7 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
     entryData.modifiedByUserId = user.id;
     entryData.fields = Entry.externalFieldsToInternal(entryType.fields, fields);
     const knex = Entry.knex();
-    return await transaction(knex, async (trx) => {
+    return await transaction(knex, async trx => {
       // Create new entry
       const entry = await Entry
         .query(trx)
@@ -229,13 +234,13 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
   async retrieve(ctx: Koa.Context) {
     const entry = await super.retrieve(ctx) as any;
     const entryJSON = entry.toJSON() as any;
-    entryJSON.tags = entry.tags.map((entryTag: {name: string}) => entryTag.name);
+    entryJSON.tags = entry.tags.map((entryTag: { name: string }) => entryTag.name);
     entryJSON.fields = await entry.internalFieldsToExternal(entry.entryType.fields);
     delete entryJSON.entryType.fields;
     ctx.body = entryJSON;
     ctx.state.viewsetResult = {
       action: 'retrieve',
-      modelClass: this.Model,
+      modelClass: this.modelClass,
       data: entryJSON
     };
     return entry;
@@ -243,11 +248,11 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
 
   async update(ctx: Koa.Context) {
     this.initialValidation(ctx.request.body);
-    const {fields, tags} = ctx.request.body;
-    const {project, user} = ctx.state;
+    const { fields, tags } = ctx.request.body;
+    const { project, user } = ctx.state;
     const id = ctx.params[this.getIdRouteParameter()];
     const knex = Entry.knex();
-    return await transaction(knex, async (trx) => {
+    return await transaction(knex, async trx => {
       let entry = await Entry
         .getInProject(project.id, trx)
         .where('entry.id', id)
@@ -286,7 +291,7 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
       ctx.body = entryJSON;
       ctx.state.viewsetResult = {
         action: 'update',
-        modelClass: this.Model,
+        modelClass: this.modelClass,
         data: entryJSON
       };
       return entry;

@@ -1,24 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = require("path");
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+const dotenv = require("dotenv");
 const DiskStorageBackend_1 = require("../backends/storage/DiskStorageBackend");
 const ModelPermissionBackend_1 = require("../backends/permissions/ModelPermissionBackend");
 const ProjectPermissionBackend_1 = require("../backends/permissions/ProjectPermissionBackend");
 const SMTPBackend_1 = require("../backends/mail/SMTPBackend");
 const lodash_1 = require("lodash");
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 function env(name, required = false) {
     const value = lodash_1.get(process.env, name);
     if (!value && required)
         throw new Error(`Invalid config: ${name} must be set`);
     return value;
 }
-;
 const MEDIA_ROOT = env('MEDIA_ROOT') || 'media/';
-const PORT = parseInt(env('PORT') || '3000');
+const PORT = parseInt(env('PORT') || '3000', 10);
 const config = {
     NODE_ENV: env('NODE_ENV', true),
-    PORT: PORT,
+    PORT,
     // Secret key used for hashing passwords and generating tokens
     SECRET_KEY: env('SECRET_KEY', true),
     // Database connection options. See http://knexjs.org/#Installation-client
@@ -26,14 +26,14 @@ const config = {
         client: 'postgresql',
         connection: {
             host: env('POSTGRES_HOST') || 'localhost',
-            port: parseInt(env('POSTGRES_PORT') || '5432'),
+            port: parseInt(env('POSTGRES_PORT') || '5432', 10),
             database: env('POSTGRES_DB') || 'contentjet-api',
             user: env('POSTGRES_USER') || 'postgres',
             password: env('POSTGRES_PASSWORD') || 'password'
         },
         pool: {
-            min: parseInt(env('POSTGRES_POOL_MIN') || '2'),
-            max: parseInt(env('POSTGRES_POOL_MAX') || '10')
+            min: parseInt(env('POSTGRES_POOL_MIN') || '2', 10),
+            max: parseInt(env('POSTGRES_POOL_MAX') || '10', 10)
         },
         migrations: {
             tableName: 'knex_migrations'
@@ -45,16 +45,16 @@ const config = {
     BACKEND_URL: env('BACKEND_URL') || `http://localhost:${PORT}`,
     // The duration in seconds an authentication token (JWT) is valid for when authenticating
     // via the OAuth2 `Resource Owner Password Credentials Grant` flow. Default 5 mins.
-    USER_TOKEN_EXPIRY: parseInt(env('USER_TOKEN_EXPIRY') || '300'),
+    USER_TOKEN_EXPIRY: parseInt(env('USER_TOKEN_EXPIRY') || '300', 10),
     // The duration in seconds an authentication token (JWT) is valid for when authenticating
     // via the OAuth2 `Client Credentials Grant` flow. Default 1 hour.
-    CLIENT_TOKEN_EXPIRY: parseInt(env('CLIENT_TOKEN_EXPIRY') || '3600'),
+    CLIENT_TOKEN_EXPIRY: parseInt(env('CLIENT_TOKEN_EXPIRY') || '3600', 10),
     // When false the user will receive a signup confirmation email. When true
     // the user will NOT receive a confirmation email and will have isActive = true
     // set immediately upon signup. Recommended this remains false in production.
-    ACTIVE_ON_SIGNUP: !!parseInt(env('ACTIVE_ON_SIGNUP') || '0'),
+    ACTIVE_ON_SIGNUP: !!parseInt(env('ACTIVE_ON_SIGNUP') || '0', 10),
     // When true, stack traces will be logged.
-    DEBUG: !!parseInt(env('DEBUG') || '0'),
+    DEBUG: !!parseInt(env('DEBUG') || '0', 10),
     // Cross-Origin Resource Sharing. See https://github.com/koajs/cors for options
     CORS: {
         origin: env('CORS_ORIGIN') || '*'
@@ -68,17 +68,17 @@ const config = {
     // File storage service
     STORAGE_BACKEND: new DiskStorageBackend_1.default(MEDIA_ROOT),
     // File system path of storage directory. Required when storage backend is DiskStorageBackend.
-    MEDIA_ROOT: MEDIA_ROOT,
+    MEDIA_ROOT,
     // When true files in MEDIA_ROOT will served at the path /media.
     // Use in production is strongly discouraged.
-    SERVE_MEDIA: !!parseInt(env('SERVE_MEDIA') || '0'),
+    SERVE_MEDIA: !!parseInt(env('SERVE_MEDIA') || '0', 10),
     // The URL uploaded media is served from
     MEDIA_URL: env('MEDIA_URL') || 'http://localhost:3000/media/',
     // The dimensions of thumbnails created from uploaded images. Set values to 0
     // to disable thumbnail generation.
     THUMBNAIL: {
-        width: parseInt(env('THUMBNAIL_WIDTH') || '200'),
-        height: parseInt(env('THUMBNAIL_HEIGHT') || '200')
+        width: parseInt(env('THUMBNAIL_WIDTH') || '200', 10),
+        height: parseInt(env('THUMBNAIL_HEIGHT') || '200', 10)
     },
     MAIL_BACKEND: new SMTPBackend_1.default({
         host: env('SMTP_HOST', true),
@@ -87,9 +87,9 @@ const config = {
             user: env('SMTP_USER', true),
             pass: env('SMTP_PASSWORD', true)
         },
-        secure: !!parseInt(env('SMTP_SECURE') || '0')
+        secure: !!parseInt(env('SMTP_SECURE') || '0', 10)
     }),
     // Whether or not to serve Swagger UI at /swagger endpoint. Defaults to true.
-    SERVE_SWAGGER_UI: !!parseInt(env('SERVE_SWAGGER_UI') || '1')
+    SERVE_SWAGGER_UI: !!parseInt(env('SERVE_SWAGGER_UI') || '1', 10)
 };
 exports.default = config;

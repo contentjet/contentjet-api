@@ -52,7 +52,7 @@ export default class ProjectPermissionBackend implements IPermissionBackend {
   }
 
   async hasPermission(ctx: Koa.Context, permissionName: string): Promise<boolean> {
-    const {user, client, project} = ctx.state;
+    const { user, client, project } = ctx.state;
     if (user) return this.userHasPermission(user, project, permissionName);
     if (client) return this.clientHasPermission(client, project, permissionName);
     return false;

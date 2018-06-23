@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const WebHook_1 = require("../models/WebHook");
-const BaseViewSet_1 = require("./BaseViewSet");
 const middleware_1 = require("../authentication/jwt/middleware");
+const BaseViewSet_1 = require("./BaseViewSet");
+const WebHook_1 = require("../models/WebHook");
 class WebHookViewSet extends BaseViewSet_1.default {
     constructor(options) {
         super(WebHook_1.default, options);

@@ -1,4 +1,4 @@
-import {Model, Transaction, RelationMappings, QueryBuilder} from 'objection';
+import { Model, Transaction, RelationMappings, QueryBuilder } from 'objection';
 import _ = require('lodash');
 
 export default class MediaTag extends Model {
@@ -70,8 +70,8 @@ export default class MediaTag extends Model {
       .whereIn('name', names);
     if (existingTags.length === names.length) return existingTags;
     const existingTagNames = existingTags.map(mediaTag => mediaTag.name);
-    const tagsToCreate: {name: string, projectId: number}[] = _.difference(names, existingTagNames).map(name => {
-      return {name, projectId};
+    const tagsToCreate: Array<{ name: string, projectId: number }> = _.difference(names, existingTagNames).map(name => {
+      return { name, projectId };
     });
     const newTags = await MediaTag
       .query(trx)

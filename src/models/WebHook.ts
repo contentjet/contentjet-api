@@ -1,4 +1,4 @@
-import {Model, RelationMappings} from 'objection';
+import { Model, RelationMappings } from 'objection';
 
 export default class WebHook extends Model {
 

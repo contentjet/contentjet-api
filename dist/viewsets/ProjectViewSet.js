@@ -11,7 +11,7 @@ class ProjectViewSet extends BaseViewSet_1.default {
         super(Project_1.default, options);
         const id = this.getIdRouteParameter();
         this.updateMember = this.updateMember.bind(this);
-        this.router.post(`:${id}(\\d+)/update-member`, middleware_2.requirePermission(`${this.Model.tableName}:update`), this.updateMember);
+        this.router.post(`:${id}(\\d+)/update-member`, middleware_1.requireAuthentication, middleware_2.requirePermission(`${this.modelClass.tableName}:update`), this.updateMember);
     }
     getCommonMiddleware() {
         return [middleware_1.requireAuthentication];

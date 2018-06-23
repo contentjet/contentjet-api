@@ -61,7 +61,7 @@ class ProjectInvite extends objection_1.Model {
     }
     static generateInviteToken(projectInviteId, projectName, projectId) {
         return new Promise((resolve, reject) => {
-            jwt.sign({ projectInviteId, projectName, projectId }, `invite${config_1.default.SECRET_KEY}`, { expiresIn: '7 days' }, function (err, token) {
+            jwt.sign({ projectInviteId, projectName, projectId }, `invite${config_1.default.SECRET_KEY}`, { expiresIn: '7 days' }, (err, token) => {
                 if (err) {
                     reject(err);
                 }
@@ -73,7 +73,7 @@ class ProjectInvite extends objection_1.Model {
     }
     static verifyInviteToken(token) {
         return new Promise((resolve, reject) => {
-            jwt.verify(token, `invite${config_1.default.SECRET_KEY}`, undefined, function (err, decoded) {
+            jwt.verify(token, `invite${config_1.default.SECRET_KEY}`, undefined, (err, decoded) => {
                 if (err) {
                     reject(err);
                 }
@@ -96,8 +96,8 @@ class ProjectInvite extends objection_1.Model {
             .patch({ accepted: true })
             .returning('*')
             .where({
-            'id': id,
-            'accepted': false
+            id,
+            accepted: false
         })
             .first();
     }

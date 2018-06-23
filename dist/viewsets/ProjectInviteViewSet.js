@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const url = require("url");
 const ejs = require("ejs");
-const { mjml2html } = require('mjml');
+const { mjml2html } = require('mjml'); // tslint:disable-line
 const config_1 = require("../config");
 const lodash_1 = require("lodash");
 const BaseViewSet_1 = require("./BaseViewSet");
@@ -41,8 +41,8 @@ class ProjectInviteViewSet extends BaseViewSet_1.default {
         super(ProjectInvite_1.default, clonedOptions);
         this.accept = this.accept.bind(this);
         this.bulkDelete = this.bulkDelete.bind(this);
-        this.router.put('accept', this.accept);
-        this.router.post('bulk-delete', middleware_2.requirePermission(`${this.Model.tableName}:delete`), this.bulkDelete);
+        this.router.put('accept', middleware_1.requireAuthentication, this.accept);
+        this.router.post('bulk-delete', middleware_1.requireAuthentication, middleware_2.requirePermission(`${this.modelClass.tableName}:delete`), this.bulkDelete);
     }
     getCommonMiddleware() {
         return [middleware_1.requireAuthentication];
@@ -71,7 +71,7 @@ class ProjectInviteViewSet extends BaseViewSet_1.default {
             .query()
             .where({
             projectId: project.id,
-            email: email
+            email
         })
             .first();
         if (existingProjectInvite) {
@@ -87,7 +87,7 @@ class ProjectInviteViewSet extends BaseViewSet_1.default {
         const context = {
             url: url.resolve(config_1.default.FRONTEND_URL, `/accept-invite/${token}`),
             projectName: project.name,
-            name: name
+            name
         };
         const mailOptions = {
             from: config_1.default.MAIL_FROM,
@@ -98,7 +98,7 @@ class ProjectInviteViewSet extends BaseViewSet_1.default {
         };
         sendMail(mailOptions)
             .then(info => {
-            console.log('Message sent: %s', info.messageId);
+            console.log('Message sent: %s', info.messageId); // tslint:disable-line
         })
             .catch(err => {
             console.error(err);

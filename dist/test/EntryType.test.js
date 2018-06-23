@@ -110,12 +110,12 @@ const validEntryTypeData = {
         listField
     ]
 };
-describe('EntryType - Integration', function () {
+describe('EntryType - Integration', () => {
     let client;
     let user1;
     let project1;
     let token;
-    beforeEach(async function () {
+    beforeEach(async () => {
         await EntryType_1.default.deleteAll();
         await User_1.default.deleteAll();
         await Project_1.default.deleteAll();
@@ -141,18 +141,18 @@ describe('EntryType - Integration', function () {
             }
         });
     });
-    afterEach(async function () {
+    afterEach(async () => {
         await EntryType_1.default.deleteAll();
         await User_1.default.deleteAll();
         await Project_1.default.deleteAll();
     });
-    describe('#create', async function () {
-        it('creates an EntryType', async function () {
+    describe('#create', async () => {
+        it('creates an EntryType', async () => {
             const response = await client.post(`project/${project1.id}/entry-type/`, validEntryTypeData);
             chai_1.assert.equal(response.status, 201);
             chai_1.assert.lengthOf(response.data.fields, validEntryTypeData.fields.length);
         });
-        it('creates an EntryType ignoring extra fields', async function () {
+        it('creates an EntryType ignoring extra fields', async () => {
             const data = lodash_1.cloneDeep(validEntryTypeData);
             // Assuming the data is valid, any extra fields should be ignored
             data.someUnexpectedField = 'blah';

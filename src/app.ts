@@ -2,15 +2,17 @@ import config from './config';
 import * as fs from 'fs';
 import * as url from 'url';
 import * as path from 'path';
+import * as knex from 'knex';
 import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
 import * as cors from 'kcors';
 import * as send from 'koa-send';
 import * as Router from 'koa-router';
 import { Model, ValidationError as ObjectionValidationError } from 'objection';
-Model.knex(require('knex')(config.DATABASE));
+Model.knex(knex(config.DATABASE));
 import * as jwt from 'jsonwebtoken';
 import * as yaml from 'yamljs';
+// tslint:disable-next-line
 const swaggerUIAbsolutePath = require('swagger-ui-dist').absolutePath();
 
 import { authenticateUser, tokenRefresh } from './authentication/jwt/routes';
@@ -57,7 +59,7 @@ const router = new Router();
 router.post('/authenticate', authenticateUser);
 router.post('/token-refresh', requireAuthentication, tokenRefresh);
 router.use('/user/', new UserViewSet(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/', async function (ctx: Koa.Context, next: Function) {
+router.use('/project/:projectId(\\d+)/', async (ctx: Koa.Context, next: () => Promise<any>) => {
   const project = await Project.getById(ctx.params.projectId);
   if (!project) throw new NotFoundError();
   ctx.state.project = project;
@@ -77,14 +79,14 @@ router.use('/project/:projectId(\\d+)/client/', new ClientViewSet(viewSetOptions
 // the servers array with our config.BACKEND_URL.
 const spec = yaml.load('spec.yml');
 if (!spec.servers) spec.servers = [];
-spec.servers.push({url: config.BACKEND_URL});
-router.get('/spec', function (ctx: Koa.Context) {
+spec.servers.push({ url: config.BACKEND_URL });
+router.get('/spec', (ctx: Koa.Context) => {
   ctx.set('Cache-Control', 'max-age=604800');
   ctx.body = spec;
 });
 
 // robots.txt
-router.get('/robots.txt', function (ctx: Koa.Context) {
+router.get('/robots.txt', (ctx: Koa.Context) => {
   ctx.set('Cache-Control', 'max-age=604800');
   ctx.body = 'User-agent: *\nDisallow: /';
 });
@@ -93,32 +95,33 @@ const app = new Koa();
 
 app
   .use(cors(config.CORS))
-  .use(async function (ctx: Koa.Context, next: Function) {
+  .use(async (ctx: Koa.Context, next: () => Promise<any>) => {
     try {
       await next();
       // Catch Koa's stadard 404 response and throw our own error
       if (ctx.response.status === 404) throw new NotFoundError();
     } catch (err) {
       if (err instanceof ObjectionValidationError) {
-        let e = new ValidationError();
+        const e = new ValidationError();
         e.errors = err.data;
         ctx.body = e;
         ctx.status = e.status;
       } else if (err instanceof jwt.JsonWebTokenError || err instanceof jwt.TokenExpiredError) {
-        let e = new AuthenticationError(err.message);
+        const e = new AuthenticationError(err.message);
         ctx.body = e;
         ctx.status = e.status;
       } else {
         ctx.status = err.status || err.statusCode || 500;
         ctx.body = err;
       }
+      // tslint:disable-next-line
       if (config.DEBUG) console.log(err.stack);
     }
   })
   .use(WebHookMiddleware);
 
 if (config.SERVE_MEDIA) {
-  app.use(async function (ctx: Koa.Context, next: Function) {
+  app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {
     if (ctx.path.match(/^\/media\/.*$/)) {
       await send(ctx, path.join(config.MEDIA_ROOT, ctx.path.replace('/media/', '')));
     } else {
@@ -132,14 +135,14 @@ if (config.SERVE_SWAGGER_UI) {
     .readFileSync(path.join(swaggerUIAbsolutePath, 'index.html'), { encoding: 'utf8' })
     .replace(/http:\/\/petstore\.swagger\.io\/v2\/swagger\.json/g, url.resolve(config.BACKEND_URL, 'spec'));
 
-  app.use(async function (ctx: Koa.Context, next: Function) {
+  app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {
     if (ctx.path.match(/^\/swagger\/.*$/)) {
-      const path = ctx.path.replace('/swagger/', '');
-      if (path === '' || path === '/index.html') {
+      const _path = ctx.path.replace('/swagger/', '');
+      if (_path === '' || _path === '/index.html') {
         ctx.body = swaggerIndex;
         return;
       }
-      await send(ctx, path, { root: swaggerUIAbsolutePath });
+      await send(ctx, _path, { root: swaggerUIAbsolutePath });
     } else {
       await next();
     }
@@ -150,7 +153,7 @@ app
   .use(bodyParser())
   .use(router.routes())
   .use(router.allowedMethods())
-  .use(async function (ctx: Koa.Context) {
+  .use(async (ctx: Koa.Context) => {
     ctx.status = 404;
     ctx.body = {
       message: 'Not found',

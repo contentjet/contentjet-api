@@ -3,8 +3,8 @@ import Project from '../models/Project';
 import BaseViewSet from './BaseViewSet';
 import ValidationError from '../errors/ValidationError';
 import validate from '../utils/validate';
-import {requireAuthentication} from '../authentication/jwt/middleware';
-import {requirePermission} from '../authorization/middleware';
+import { requireAuthentication } from '../authentication/jwt/middleware';
+import { requirePermission } from '../authorization/middleware';
 
 export default class ProjectViewSet extends BaseViewSet<Project> {
 
@@ -12,7 +12,12 @@ export default class ProjectViewSet extends BaseViewSet<Project> {
     super(Project, options);
     const id = this.getIdRouteParameter();
     this.updateMember = this.updateMember.bind(this);
-    this.router.post(`:${id}(\\d+)/update-member`, requirePermission(`${this.Model.tableName}:update`), this.updateMember);
+    this.router.post(
+      `:${id}(\\d+)/update-member`,
+      requireAuthentication,
+      requirePermission(`${this.modelClass.tableName}:update`),
+      this.updateMember
+    );
   }
 
   getCommonMiddleware() {
@@ -22,7 +27,7 @@ export default class ProjectViewSet extends BaseViewSet<Project> {
   getListQueryBuilder(ctx: Koa.Context) {
     // We only list projects where the authenticated user is the project owner
     // OR where they are a member.
-    const {user} = ctx.state;
+    const { user } = ctx.state;
     return Project
       .query()
       .distinct('project.*')
@@ -70,7 +75,7 @@ export default class ProjectViewSet extends BaseViewSet<Project> {
   }
 
   async updateMember(ctx: Koa.Context) {
-    const {project} = ctx.state;
+    const { project } = ctx.state;
     try {
       await validate.async(
         ctx.request.body,
@@ -94,7 +99,7 @@ export default class ProjectViewSet extends BaseViewSet<Project> {
       err.errors = errors;
       throw err;
     }
-    const {userId, membershipIsActive, membershipType} = ctx.request.body;
+    const { userId, membershipIsActive, membershipType } = ctx.request.body;
     await project.updateUserMembership(userId, membershipIsActive, membershipType);
     ctx.body = await project.getUserById(userId);
   }

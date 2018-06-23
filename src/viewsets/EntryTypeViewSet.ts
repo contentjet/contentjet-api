@@ -1,7 +1,7 @@
 import * as Koa from 'koa';
 import EntryType from '../models/EntryType';
 import BaseViewSet from './BaseViewSet';
-import {requireAuthentication} from '../authentication/jwt/middleware';
+import { requireAuthentication } from '../authentication/jwt/middleware';
 
 export default class EntryTypeViewSet extends BaseViewSet<EntryType> {
 
@@ -17,7 +17,7 @@ export default class EntryTypeViewSet extends BaseViewSet<EntryType> {
     return super
       .getListQueryBuilder(ctx)
       .where('entryType.projectId', ctx.state.project.id)
-      .orderBy('entryType.modifiedAt', 'desc');;
+      .orderBy('entryType.modifiedAt', 'desc');
   }
 
   getRetrieveQueryBuilder(ctx: Koa.Context) {

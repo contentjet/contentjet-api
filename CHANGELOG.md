@@ -1,3 +1,8 @@
+# 0.15.0
+* Added tslint and fixed several minor syntax issues
+* Fixed incorrect Entry path in spec.yml
+* App config now implements IConfig interface
+
 # 0.14.0
 * Fixed incorrect URLs in spec.yml
 * Upgraded libraries

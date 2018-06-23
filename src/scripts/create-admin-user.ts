@@ -10,7 +10,7 @@ async function main() {
         name: 'name',
         message: 'Enter your name',
         suffix: ':',
-        validate: function (value: string) {
+        validate(value: string) {
           if (value.length >= 1 && value.length <= 128) return true;
           return 'Value must be between 1 and 128 characters long.';
         }
@@ -35,7 +35,7 @@ async function main() {
       true,
       true
     );
-    console.log('User created');
+    console.log('User created'); // tslint:disable-line
     process.exit();
   } catch (err) {
     console.error(err);

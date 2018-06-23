@@ -11,7 +11,7 @@ class ValidationError extends BaseError {
   }
 
   toJSON() {
-    let json = super.toJSON() as any;
+    const json = super.toJSON() as any;
     json.errors = this.errors;
     return json;
   }

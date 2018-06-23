@@ -3,9 +3,9 @@ import config from '../config';
 import Project from '../models/Project';
 import EntryType from '../models/EntryType';
 import User from '../models/User';
-import {assert} from 'chai';
-import axios, {AxiosInstance} from 'axios';
-import {cloneDeep} from 'lodash';
+import { assert } from 'chai';
+import axios, { AxiosInstance } from 'axios';
+import { cloneDeep } from 'lodash';
 
 const BASE_URL = `http://localhost:${config.PORT}/`;
 
@@ -119,13 +119,13 @@ const validEntryTypeData: any = {
   ]
 };
 
-describe('EntryType - Integration', function () {
+describe('EntryType - Integration', () => {
   let client: AxiosInstance;
   let user1: User;
   let project1: Project;
   let token: string;
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     await EntryType.deleteAll();
     await User.deleteAll();
     await Project.deleteAll();
@@ -155,15 +155,15 @@ describe('EntryType - Integration', function () {
     });
   });
 
-  afterEach(async function () {
+  afterEach(async () => {
     await EntryType.deleteAll();
     await User.deleteAll();
     await Project.deleteAll();
   });
 
-  describe('#create', async function () {
+  describe('#create', async () => {
 
-    it('creates an EntryType', async function () {
+    it('creates an EntryType', async () => {
       const response = await client.post(
         `project/${project1.id}/entry-type/`,
         validEntryTypeData
@@ -172,7 +172,7 @@ describe('EntryType - Integration', function () {
       assert.lengthOf(response.data.fields, validEntryTypeData.fields.length);
     });
 
-    it('creates an EntryType ignoring extra fields', async function () {
+    it('creates an EntryType ignoring extra fields', async () => {
       const data = cloneDeep(validEntryTypeData);
       // Assuming the data is valid, any extra fields should be ignored
       data.someUnexpectedField = 'blah';

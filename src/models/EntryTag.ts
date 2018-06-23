@@ -1,4 +1,4 @@
-import {Model, Transaction, RelationMappings, QueryBuilder} from 'objection';
+import { Model, Transaction, RelationMappings, QueryBuilder } from 'objection';
 import _ = require('lodash');
 
 export default class EntryTag extends Model {
@@ -71,7 +71,7 @@ export default class EntryTag extends Model {
     if (existingTags.length === names.length) return existingTags;
     const existingTagNames = existingTags.map(entryTag => entryTag.name);
     const tagsToCreate = _.difference(names, existingTagNames).map(name => {
-      return {name, projectId};
+      return { name, projectId };
     });
     const newTags = await EntryTag
       .query(trx)

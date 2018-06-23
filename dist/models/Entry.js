@@ -127,7 +127,6 @@ class Entry extends objection_1.Model {
                 if (existingField)
                     return existingField;
             }
-            ;
             const obj = { name, fieldType, value: null };
             if (fieldType === 'TEXT' || fieldType === 'LONGTEXT') {
                 obj.value = lodash_1.get(entryFields, entryTypeField.name, '');
@@ -149,11 +148,11 @@ class Entry extends objection_1.Model {
                 obj.value = lodash_1.get(entryFields, entryTypeField.name, '');
             }
             else if (fieldType === 'MEDIA') {
-                let media = lodash_1.get(entryFields, entryTypeField.name, []);
-                obj.value = media.map(media => media.id);
+                const media = lodash_1.get(entryFields, entryTypeField.name, []);
+                obj.value = media.map(m => m.id);
             }
             else if (fieldType === 'LINK') {
-                let entires = lodash_1.get(entryFields, entryTypeField.name, []);
+                const entires = lodash_1.get(entryFields, entryTypeField.name, []);
                 obj.value = entires.map(entry => entry.id);
             }
             else if (fieldType === 'LIST') {
@@ -162,8 +161,14 @@ class Entry extends objection_1.Model {
             return obj;
         });
     }
+    static async deleteAll(trx) {
+        const num = await Entry
+            .query(trx)
+            .delete();
+        return num;
+    }
     getFieldValue(fieldName, fieldType) {
-        const field = this.fields.find(field => field.name === fieldName && field.fieldType === fieldType);
+        const field = this.fields.find(f => f.name === fieldName && f.fieldType === fieldType);
         return lodash_1.get(field, 'value');
     }
     async internalFieldsToExternal(entryTypeFields, trx) {
@@ -218,12 +223,6 @@ class Entry extends objection_1.Model {
         const p2 = this.$relatedQuery('tags', trx).relate(idsToRelate);
         await Promise.all([p1, p2]);
         return entryTags;
-    }
-    static async deleteAll(trx) {
-        const num = await Entry
-            .query(trx)
-            .delete();
-        return num;
     }
 }
 exports.default = Entry;

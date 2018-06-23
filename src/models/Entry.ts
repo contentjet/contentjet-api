@@ -1,16 +1,16 @@
 import * as moment from 'moment';
-import {get, isArray, difference} from 'lodash';
-import {Model, Transaction, QueryBuilder, RelationMappings} from 'objection';
+import { get, isArray, difference } from 'lodash';
+import { Model, Transaction, QueryBuilder, RelationMappings } from 'objection';
 import Media from './Media';
 import EntryTag from './EntryTag';
 import EntryType from './EntryType';
 import User from './EntryType';
-import {IEntryTypeField} from './EntryType';
+import { IEntryTypeField } from './EntryType';
 
 export interface IEntryField {
-  name: string,
-  fieldType: string,
-  value: any
+  name: string;
+  fieldType: string;
+  value: any;
 }
 
 export interface IExternalEntryFields {
@@ -42,7 +42,7 @@ export default class Entry extends Model {
   modifiedByUserId!: number;
   name!: string;
   published!: Date | string;
-  fields!: IEntryField[]
+  fields!: IEntryField[];
   createdAt!: Date;
   modifiedAt!: Date;
 
@@ -166,7 +166,7 @@ export default class Entry extends Model {
     const entryIds = entries.map(entry => entry.id);
     const numDeleted = await Entry.query(trx)
       .whereIn('entry.id', entryIds)
-      .delete()
+      .delete();
     return numDeleted;
   }
 
@@ -175,12 +175,12 @@ export default class Entry extends Model {
   ): IInternalField[] {
     return entryTypeFields
       .map(entryTypeField => {
-        const {name, fieldType, disabled} = entryTypeField;
+        const { name, fieldType, disabled } = entryTypeField;
         if (disabled && existingFields) {
-          const existingField = existingFields.find(f => f.name === name)
+          const existingField = existingFields.find(f => f.name === name);
           if (existingField) return existingField;
-        };
-        const obj: IInternalField = {name, fieldType, value: null};
+        }
+        const obj: IInternalField = { name, fieldType, value: null };
         if (fieldType === 'TEXT' || fieldType === 'LONGTEXT') {
           obj.value = get(entryFields, entryTypeField.name, '');
         } else if (fieldType === 'BOOLEAN') {
@@ -195,10 +195,10 @@ export default class Entry extends Model {
         } else if (fieldType === 'COLOR') {
           obj.value = get(entryFields, entryTypeField.name, '');
         } else if (fieldType === 'MEDIA') {
-          let media: IObjectWithId[] = get(entryFields, entryTypeField.name, []);
-          obj.value = media.map(media => media.id);
+          const media: IObjectWithId[] = get(entryFields, entryTypeField.name, []);
+          obj.value = media.map(m => m.id);
         } else if (fieldType === 'LINK') {
-          let entires: IObjectWithId[] = get(entryFields, entryTypeField.name, []);
+          const entires: IObjectWithId[] = get(entryFields, entryTypeField.name, []);
           obj.value = entires.map(entry => entry.id);
         } else if (fieldType === 'LIST') {
           obj.value = get(entryFields, entryTypeField.name, []);
@@ -207,9 +207,16 @@ export default class Entry extends Model {
       });
   }
 
+  static async deleteAll(trx?: Transaction): Promise<number> {
+    const num: any = await Entry
+      .query(trx)
+      .delete();
+    return num as number;
+  }
+
   getFieldValue(fieldName: string, fieldType: string): any {
     const field = this.fields.find(
-      field => field.name === fieldName && field.fieldType === fieldType
+      f => f.name === fieldName && f.fieldType === fieldType
     );
     return get(field, 'value');
   }
@@ -264,13 +271,6 @@ export default class Entry extends Model {
     const p2 = this.$relatedQuery('tags', trx).relate(idsToRelate);
     await Promise.all([p1, p2]);
     return entryTags;
-  }
-
-  static async deleteAll(trx?: Transaction): Promise<number> {
-    const num: any = await Entry
-      .query(trx)
-      .delete();
-    return num as number;
   }
 
 }

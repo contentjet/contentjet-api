@@ -1,8 +1,8 @@
 import * as Koa from 'koa';
 import MediaTag from '../models/MediaTag';
 import BaseViewSet from './BaseViewSet';
-import {requireAuthentication} from '../authentication/jwt/middleware';
-import {cloneDeep} from 'lodash';
+import { requireAuthentication } from '../authentication/jwt/middleware';
+import { cloneDeep } from 'lodash';
 
 export default class MediaTagViewSet extends BaseViewSet<MediaTag> {
 

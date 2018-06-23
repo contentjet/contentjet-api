@@ -15,15 +15,15 @@ class DiskStorageBackend {
         const now = new Date();
         const dir = path.resolve(path.join(this.mediaRoot, String(ctx.state.project.id), `${now.getFullYear()}-${now.getMonth() + 1}`));
         const storage = multer.diskStorage({
-            destination: (_req, _file, cb) => {
+            destination(_req, _file, cb) {
                 // Always create path on filesystem if it doesn't exist
-                mkdirp(dir, function (err) {
+                mkdirp(dir, (err) => {
                     if (err)
                         cb(err);
                     cb(null, dir);
                 });
             },
-            filename: (_req, file, cb) => {
+            filename(_req, file, cb) {
                 cb(null, `${Date.now()}-${Math.floor(Math.random() * 1000000)}${path.extname(file.originalname)}`);
             }
         });

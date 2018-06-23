@@ -47,16 +47,16 @@ const validEntryData = {
     published: '1970-01-01T00:00:00Z',
     tags: [],
     fields: {
-        'testTextField': 'Hello',
-        'testLongTextField': 'World'
+        testTextField: 'Hello',
+        testLongTextField: 'World'
     }
 };
-describe('Entry - Integration', function () {
+describe('Entry - Integration', () => {
     let client;
     let token;
     let user1;
     let project1;
-    before(async function () {
+    before(async () => {
         user1 = await User_1.default.create('user1@example.com', 'User1', '123456', true);
         project1 = await Project_1.default
             .query()
@@ -79,15 +79,15 @@ describe('Entry - Integration', function () {
             }
         });
     });
-    after(async function () {
+    after(async () => {
         await User_1.default.deleteAll();
         await Entry_1.default.deleteAll();
         await EntryType_1.default.deleteAll();
     });
-    describe('#update', async function () {
+    describe('#update', async () => {
         let entryTypeId;
         let entryId;
-        beforeEach(async function () {
+        beforeEach(async () => {
             // Create entry type
             const entryTypeResponse = await client.post(`project/${project1.id}/entry-type/`, validEntryTypeData);
             entryTypeId = entryTypeResponse.data.id;
@@ -97,11 +97,11 @@ describe('Entry - Integration', function () {
             const entryResponse = await client.post(`project/${project1.id}/entry/`, data);
             entryId = entryResponse.data.id;
         });
-        afterEach(async function () {
+        afterEach(async () => {
             await Entry_1.default.deleteAll();
             await EntryType_1.default.deleteAll();
         });
-        it('updates an entry\'s field', async function () {
+        it('updates an entry\'s field', async () => {
             const data = _.cloneDeep(validEntryData);
             data.userId = user1.id;
             data.entryTypeId = entryTypeId;

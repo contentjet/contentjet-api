@@ -1,16 +1,16 @@
 import '../server';
 import config from '../config';
 import User from '../models/User';
-import {assert} from 'chai';
-import axios, {AxiosInstance} from 'axios';
+import { assert } from 'chai';
+import axios, { AxiosInstance } from 'axios';
 
 const BASE_URL = `http://localhost:${config.PORT}/`;
 
-describe('User - Integration', function () {
+describe('User - Integration', () => {
   let client: AxiosInstance;
   let token: string;
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     await User.create('user1@example.com', 'User1', '123456', true);
     const loginResponse = await axios
       .post(
@@ -31,13 +31,13 @@ describe('User - Integration', function () {
     });
   });
 
-  afterEach(async function () {
+  afterEach(async () => {
     await User.deleteAll();
   });
 
-  describe('#change-password', async function () {
+  describe('#change-password', async () => {
 
-    it('changes the authenticated user\'s password', async function () {
+    it('changes the authenticated user\'s password', async () => {
       const response = await client.post(
         'user/change-password/',
         {
@@ -58,7 +58,7 @@ describe('User - Integration', function () {
       assert.equal(loginResponse.status, 200);
     });
 
-    it('fails to change the authenticated user\'s password because it\'s too short', async function () {
+    it('fails to change the authenticated user\'s password because it\'s too short', async () => {
       try {
         await client.post(
           'user/change-password/',
@@ -72,7 +72,7 @@ describe('User - Integration', function () {
       }
     });
 
-    it('fails to change the authenticated user\'s password because current password is wrong', async function () {
+    it('fails to change the authenticated user\'s password because current password is wrong', async () => {
       try {
         await client.post(
           'user/change-password/',
@@ -88,9 +88,9 @@ describe('User - Integration', function () {
 
   });
 
-  describe('#authenticate', async function () {
+  describe('#authenticate', async () => {
 
-    it('fails to authenticate with wrong grant_type', async function () {
+    it('fails to authenticate with wrong grant_type', async () => {
       let loginResponse: any;
       try {
         // Note we're not using the axios client created in the beforeEach hook.
@@ -110,7 +110,7 @@ describe('User - Integration', function () {
       assert.notEqual(loginResponse.status, 200);
     });
 
-    it('fails to refresh token with wrong grant_type', async function () {
+    it('fails to refresh token with wrong grant_type', async () => {
       const loginResponse = await axios
         .post(
           `${BASE_URL}authenticate`,
@@ -120,7 +120,7 @@ describe('User - Integration', function () {
             grant_type: 'password'
           }
         );
-      const token = loginResponse.data.access_token;
+      const accessToken = loginResponse.data.access_token;
       const refreshToken = loginResponse.data.refresh_token;
       let refreshResponse: any;
       try {
@@ -134,7 +134,7 @@ describe('User - Integration', function () {
             {
               headers: {
                 'Content-Type': `application/json`,
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${accessToken}`
               }
             }
           );

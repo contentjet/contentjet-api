@@ -678,7 +678,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Entry'
 
-  /project/{projectId}/entry-type/{entryId}:
+  /project/{projectId}/entry/{entryId}:
     get:
       tags:
         - Entry

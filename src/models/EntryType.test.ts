@@ -2,8 +2,8 @@ import '../app';
 import Project from './Project';
 import EntryType from './EntryType';
 import User from './User';
-import {get} from 'lodash';
-import {assert} from 'chai';
+import { get } from 'lodash';
+import { assert } from 'chai';
 
 const textField = {
   name: 'testTextField',
@@ -99,12 +99,12 @@ const listField = {
   maxLength: 999
 };
 
-describe('EntryType', function () {
+describe('EntryType', () => {
   let user1: User;
   let project1: Project;
   let entryType1: EntryType;
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     await EntryType.deleteAll();
     await User.deleteAll();
     await Project.deleteAll();
@@ -134,38 +134,38 @@ describe('EntryType', function () {
       });
   });
 
-  afterEach(async function () {
+  afterEach(async () => {
     await EntryType.deleteAll();
     await User.deleteAll();
     await Project.deleteAll();
   });
 
-  describe('#getById', async function () {
+  describe('#getById', async () => {
 
-    it('gets an EntryType by id', async function () {
+    it('gets an EntryType by id', async () => {
       const entryType = await EntryType.getById(entryType1.id);
       assert.equal(get(entryType, 'id'), entryType1.id);
     });
 
   });
 
-  describe('#existsInProject', async function () {
+  describe('#existsInProject', async () => {
 
-    it('EntryType exists in project', async function () {
+    it('EntryType exists in project', async () => {
       const exists = await EntryType.existsInProject(entryType1.id, project1.id);
       assert.isTrue(exists);
     });
 
-    it('EntryType does not exist in project', async function () {
+    it('EntryType does not exist in project', async () => {
       const exists = await EntryType.existsInProject(entryType1.id, 123);
       assert.isFalse(exists);
     });
 
   });
 
-  describe('#deleteAll', async function () {
+  describe('#deleteAll', async () => {
 
-    it('deletes all entry types', async function () {
+    it('deletes all entry types', async () => {
       const numDeleted = await EntryType.deleteAll();
       assert.equal(numDeleted, 1);
     });
