@@ -191,17 +191,17 @@ export default class Entry extends Model {
           const date = get(entryFields, entryTypeField.name, null);
           obj.value = date ? moment.utc(date).format() : null;
         } else if (fieldType === 'CHOICE') {
-          obj.value = get(entryFields, entryTypeField.name, []);
+          obj.value = get(entryFields, entryTypeField.name, []) || [];
         } else if (fieldType === 'COLOR') {
           obj.value = get(entryFields, entryTypeField.name, '');
         } else if (fieldType === 'MEDIA') {
-          const media: IObjectWithId[] = get(entryFields, entryTypeField.name, []);
+          const media: IObjectWithId[] = get(entryFields, entryTypeField.name, []) || [];
           obj.value = media.map(m => m.id);
         } else if (fieldType === 'LINK') {
-          const entires: IObjectWithId[] = get(entryFields, entryTypeField.name, []);
+          const entires: IObjectWithId[] = get(entryFields, entryTypeField.name, []) || [];
           obj.value = entires.map(entry => entry.id);
         } else if (fieldType === 'LIST') {
-          obj.value = get(entryFields, entryTypeField.name, []);
+          obj.value = get(entryFields, entryTypeField.name, []) || [];
         }
         return obj;
       });
