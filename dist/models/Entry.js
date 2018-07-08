@@ -142,21 +142,21 @@ class Entry extends objection_1.Model {
                 obj.value = date ? moment.utc(date).format() : null;
             }
             else if (fieldType === 'CHOICE') {
-                obj.value = lodash_1.get(entryFields, entryTypeField.name, []);
+                obj.value = lodash_1.get(entryFields, entryTypeField.name, []) || [];
             }
             else if (fieldType === 'COLOR') {
                 obj.value = lodash_1.get(entryFields, entryTypeField.name, '');
             }
             else if (fieldType === 'MEDIA') {
-                const media = lodash_1.get(entryFields, entryTypeField.name, []);
+                const media = lodash_1.get(entryFields, entryTypeField.name, []) || [];
                 obj.value = media.map(m => m.id);
             }
             else if (fieldType === 'LINK') {
-                const entires = lodash_1.get(entryFields, entryTypeField.name, []);
+                const entires = lodash_1.get(entryFields, entryTypeField.name, []) || [];
                 obj.value = entires.map(entry => entry.id);
             }
             else if (fieldType === 'LIST') {
-                obj.value = lodash_1.get(entryFields, entryTypeField.name, []);
+                obj.value = lodash_1.get(entryFields, entryTypeField.name, []) || [];
             }
             return obj;
         });
