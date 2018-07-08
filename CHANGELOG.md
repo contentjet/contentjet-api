@@ -1,3 +1,6 @@
+# 0.15.1
+* Minor bug fix
+
 # 0.15.0
 * Added tslint and fixed several minor syntax issues
 * Fixed incorrect Entry path in spec.yml
