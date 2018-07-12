@@ -8,6 +8,8 @@ Contentjet is composed of 2 discreet applications, the backend API contentjet-ap
 
 For more information and hosting documentation please visit **[contentjet.github.io][contentjet]**.
 
+![Contentjet](https://s3.amazonaws.com/github.contentjet.io/hero1.jpg)
+
 ## Development
 
 ### Requirements
