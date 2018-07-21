@@ -9,7 +9,7 @@ interface IWebHookEventPayload {
   model: string;
   project: object;
   webHook: object;
-  target: number[];
+  target: Array<{id: number}>;
 }
 
 const actionToEventMap: {[index: string]: string} = {

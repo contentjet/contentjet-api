@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import { get, isArray, difference } from 'lodash';
+import { get, isArray, difference, pick } from 'lodash';
 import { Model, Transaction, QueryBuilder, RelationMappings } from 'objection';
 import Media from './Media';
 import EntryTag from './EntryTag';
@@ -96,7 +96,7 @@ export default class Entry extends Model {
     };
   }
 
-  static get jsonSchema(): object {
+  static get jsonSchema(): any {
     return {
       type: 'object',
       additionalProperties: false,
@@ -142,6 +142,15 @@ export default class Entry extends Model {
         'fields'
       ]
     };
+  }
+
+  static async create(data: any, trx?: Transaction): Promise<Entry> {
+    const fieldNames = Object.keys(Entry.jsonSchema.properties);
+    return Entry
+      .query(trx)
+      .insert(pick(data, fieldNames))
+      .returning('*')
+      .first() as any;
   }
 
   static getInProject(projectId: number, trx?: Transaction): QueryBuilder<Entry> {
