@@ -189,17 +189,14 @@ class EntryViewSet extends BaseViewSet_1.default {
         // Prepare the data for insertion into database
         const entryData = lodash_1.cloneDeep(ctx.request.body);
         delete entryData.tags;
+        delete entryData.modifiedAt;
         entryData.userId = user.id;
         entryData.modifiedByUserId = user.id;
         entryData.fields = Entry_1.default.externalFieldsToInternal(entryType.fields, fields);
         const knex = Entry_1.default.knex();
         return await objection_1.transaction(knex, async (trx) => {
             // Create new entry
-            const entry = await Entry_1.default
-                .query(trx)
-                .insert(entryData)
-                .returning('*')
-                .first();
+            const entry = await Entry_1.default.create(entryData, trx);
             if (!entry)
                 throw new DatabaseError_1.default();
             // Get or create tags and relate them to entry

@@ -203,17 +203,14 @@ export default class EntryViewSet extends BaseViewSet<Entry> {
     // Prepare the data for insertion into database
     const entryData = cloneDeep(ctx.request.body);
     delete entryData.tags;
+    delete entryData.modifiedAt;
     entryData.userId = user.id;
     entryData.modifiedByUserId = user.id;
     entryData.fields = Entry.externalFieldsToInternal(entryType.fields, fields);
     const knex = Entry.knex();
     return await transaction(knex, async trx => {
       // Create new entry
-      const entry = await Entry
-        .query(trx)
-        .insert(entryData)
-        .returning('*')
-        .first();
+      const entry = await Entry.create(entryData, trx);
       if (!entry) throw new DatabaseError();
       // Get or create tags and relate them to entry
       let entryTags = await EntryTag.bulkGetOrCreate(tags, project.id, trx);

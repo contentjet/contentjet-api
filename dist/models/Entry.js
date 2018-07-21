@@ -95,6 +95,14 @@ class Entry extends objection_1.Model {
             ]
         };
     }
+    static async create(data, trx) {
+        const fieldNames = Object.keys(Entry.jsonSchema.properties);
+        return Entry
+            .query(trx)
+            .insert(lodash_1.pick(data, fieldNames))
+            .returning('*')
+            .first();
+    }
     static getInProject(projectId, trx) {
         return Entry
             .query(trx)
