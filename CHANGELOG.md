@@ -1,5 +1,8 @@
+# 0.15.3
+* Fixing poor response performance when using webhooks
+
 # 0.15.2
-* Better sanitising of data when creating entries.
+* Better sanitising of data when creating entries
 
 # 0.15.1
 * Minor bug fix
