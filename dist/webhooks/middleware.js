@@ -33,12 +33,14 @@ async function default_1(ctx, next) {
             target: actionToEventMap[action] === 'DeletedBulk' ? data : [lodash_1.pick(data, 'id')],
             webHook: lodash_1.pick(webHook, ['id', 'name', 'url'])
         };
-        try {
-            await axios_1.default.post(webHook.url, payload);
-        }
-        catch (err) {
-            // TODO: Log error
-        }
+        // We intentionally don't use await here as we don't
+        // want to block the downstream middleware from returning
+        // the response.
+        axios_1.default
+            .post(webHook.url, payload)
+            .catch(err => {
+            console.error(err);
+        });
     }
 }
 exports.default = default_1;
