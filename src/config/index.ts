@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as dotenv from 'dotenv';
-import IConfig from './IConfig';
+import { IConfig } from '../types';
 import DiskStorageBackend from '../backends/storage/DiskStorageBackend';
 import ModelPermissionBackend from '../backends/permissions/ModelPermissionBackend';
 import ProjectPermissionBackend from '../backends/permissions/ProjectPermissionBackend';

@@ -1,4 +1,4 @@
-import IMailBackend from './IMailBackend';
+import { IMailBackend } from '../../types';
 import * as nodemailer from 'nodemailer';
 import * as Mail from 'nodemailer/lib/mailer';
 

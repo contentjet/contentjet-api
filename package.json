@@ -61,6 +61,7 @@
     "@types/knex": "0.0.67",
     "@types/koa": "^2.0.46",
     "@types/koa-bodyparser": "^3.0.26",
+    "@types/koa-multer": "^1.0.0",
     "@types/koa-router": "^7.0.28",
     "@types/koa-send": "^4.1.1",
     "@types/lodash": "^4.14.109",

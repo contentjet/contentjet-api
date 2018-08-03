@@ -1,16 +1,8 @@
 import axios from 'axios';
 import * as Koa from 'koa';
 import { get, pick } from 'lodash';
+import { IWebHookEventPayload } from '../types';
 import Project from '../models/Project';
-
-interface IWebHookEventPayload {
-  dateTime: Date;
-  action: string;
-  model: string;
-  project: object;
-  webHook: object;
-  target: Array<{id: number}>;
-}
 
 const actionToEventMap: {[index: string]: string} = {
   bulkDelete: 'DeletedBulk',

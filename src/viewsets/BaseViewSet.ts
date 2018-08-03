@@ -6,7 +6,7 @@ import * as moment from 'moment';
 import NotFoundError from '../errors/NotFoundError';
 import DatabaseError from '../errors/DatabaseError';
 import { requirePermission } from '../authorization/middleware';
-import IStorageBackend from '../backends/storage/IStorageBackend';
+import { IStorageBackend } from '../types';
 
 
 interface IViewSetOptions {
@@ -15,10 +15,10 @@ interface IViewSetOptions {
 }
 
 export interface IPaginatedResult {
-    page: number;
-    totalPages: number;
-    totalRecords: number;
-    results: any[];
+  page: number;
+  totalPages: number;
+  totalRecords: number;
+  results: any[];
 }
 
 export default abstract class BaseViewSet<MC> {

@@ -47,7 +47,7 @@ import NotFoundError from './errors/NotFoundError';
 import ValidationError from './errors/ValidationError';
 import AuthenticationError from './errors/AuthenticationError';
 
-import WebHookMiddleware from './webhooks/middleware';
+import webHookMiddleware from './middleware/webhooks';
 
 // Attach the storage backend to the viewSetOptions
 const viewSetOptions = {
@@ -118,7 +118,7 @@ app
       if (config.DEBUG) console.log(err.stack);
     }
   })
-  .use(WebHookMiddleware);
+  .use(webHookMiddleware);
 
 if (config.SERVE_MEDIA) {
   app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {

@@ -1,4 +1,4 @@
-import IPermissionBackend from './IPermissionBackend';
+import { IPermissionBackend } from '../../types';
 import * as Koa from 'koa';
 
 import User from '../../models/User';
