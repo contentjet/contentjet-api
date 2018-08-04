@@ -1,5 +1,6 @@
 # 0.16.0
-* Major refactor to file upload functionality. Storage interface no longer exposes middleware and now has a more explicit `write` method.
+* Storage interface no longer exposes middleware and now has a more explicit `write` method
+* Moved some middlewares out off app.ts into their own modules
 
 # 0.15.3
 * Fixing poor response performance when using webhooks

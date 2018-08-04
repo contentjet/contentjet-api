@@ -1,7 +1,12 @@
 import config from './config';
-import app from './app';
+import initApp from './app';
 
-app.listen(config.PORT, () => {
-  // tslint:disable-next-line
-  console.log(`Listening on port ${config.PORT}!`);
-});
+const main = async () => {
+  const app = await initApp();
+  app.listen(config.PORT, () => {
+    // tslint:disable-next-line
+    console.log(`Listening on port ${config.PORT}!`);
+  });
+};
+
+main();
