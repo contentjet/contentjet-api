@@ -4,6 +4,7 @@ import { promisify } from 'util';
 import mkdirp from '../../utils/mkdirp';
 import { IFile, IStorageBackend } from '../../types';
 import Project from '../../models/Project';
+import config from '../../config';
 
 const writeFile = promisify(fs.writeFile);
 
@@ -11,8 +12,8 @@ export default class DiskStorageBackend implements IStorageBackend {
 
   mediaRoot: string;
 
-  constructor(mediaRoot: string) {
-    this.mediaRoot = mediaRoot;
+  constructor() {
+    this.mediaRoot = config.MEDIA_ROOT;
   }
 
   async write(project: Project, file: IFile) {

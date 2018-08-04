@@ -42,6 +42,7 @@ import webHookMiddleware from './middleware/webhooks';
 import errorsMiddleware from './middleware/errors';
 import serveMediaMiddleware from './middleware/serveMedia';
 import swaggerUIMiddleware from './middleware/swaggerUI';
+import { IStorageBackend } from './types';
 
 export const models = {
   Client,
@@ -59,12 +60,14 @@ export const models = {
   WebHook
 };
 
-// Attach the storage backend to the viewSetOptions
-const viewSetOptions = {
-  storage: config.STORAGE_BACKEND
+const initStorageBackend = async () => {
+  const { default: storageClass } = await import(config.STORAGE_BACKEND);
+  return new storageClass() as IStorageBackend;
 };
 
-const initRootRouter = () => {
+const initRootRouter = (storage: IStorageBackend) => {
+  // Attach the storage backend to the viewSetOptions
+  const viewSetOptions = { storage };
   // Instantiate root router and attach routes
   const router = new Router();
   router.post('/authenticate', authenticateUser);
@@ -103,7 +106,8 @@ const initRootRouter = () => {
 };
 
 export default async () => {
-  const router = initRootRouter();
+  const storage = await initStorageBackend();
+  const router = initRootRouter(storage);
   const app = new Koa();
   app
     .use(cors(config.CORS))

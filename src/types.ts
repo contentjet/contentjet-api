@@ -64,7 +64,7 @@ export interface IConfig {
   };
   MAIL_FROM: string;
   PERMISSION_BACKENDS: IPermissionBackend[];
-  STORAGE_BACKEND: IStorageBackend;
+  STORAGE_BACKEND: string;
   MEDIA_ROOT: string;
   SERVE_MEDIA: boolean;
   MEDIA_URL: string;
