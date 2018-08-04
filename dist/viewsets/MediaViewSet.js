@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("../config");
 const Media_1 = require("../models/Media");
 const MediaTag_1 = require("../models/MediaTag");
 const BaseViewSet_1 = require("./BaseViewSet");
 const ValidationError_1 = require("../errors/ValidationError");
 const DatabaseError_1 = require("../errors/DatabaseError");
-const sharp = require("sharp");
 const lodash_1 = require("lodash");
 const moment = require("moment");
 const validate_1 = require("../utils/validate");
 const objection_1 = require("objection");
 const middleware_1 = require("../authorization/middleware");
 const middleware_2 = require("../authentication/jwt/middleware");
+const upload_1 = require("../middleware/upload");
+const thumbnailer_1 = require("../middleware/thumbnailer");
 const updateConstraints = {
     description: {
         length: {
@@ -38,7 +38,7 @@ class MediaViewSet extends BaseViewSet_1.default {
         super(Media_1.default, clonedOptions);
         this.upload = this.upload.bind(this);
         this.bulkDelete = this.bulkDelete.bind(this);
-        this.router.post('upload', middleware_2.requireAuthentication, middleware_1.requirePermission(`${this.modelClass.tableName}:create`), this.options.storage.middleware, this.upload);
+        this.router.post('upload', middleware_2.requireAuthentication, middleware_1.requirePermission(`${this.modelClass.tableName}:create`), upload_1.default, thumbnailer_1.default, this.upload);
         this.router.post('bulk-delete', middleware_2.requireAuthentication, middleware_1.requirePermission(`${this.modelClass.tableName}:delete`), this.bulkDelete);
     }
     getCommonMiddleware() {
@@ -100,33 +100,19 @@ class MediaViewSet extends BaseViewSet_1.default {
     }
     async upload(ctx) {
         const { file } = ctx.req;
-        let metadata;
-        let thumbnailPath;
-        if (['image/jpeg', 'image/png', 'image/gif'].includes(file.mimetype)) {
-            // Get the dimensions of uploaded image
-            metadata = await sharp(file.path).metadata();
-            // Create thumbnail
-            const { width, height } = config_1.default.THUMBNAIL;
-            if (width > 0 && height > 0) {
-                thumbnailPath = file.path
-                    .replace(/(\w+)(\.\w+)$/, '$1-thumb$2');
-                await sharp(file.path)
-                    .resize(width, height)
-                    .max()
-                    .toFile(thumbnailPath);
-            }
-        }
+        // Write the file to storage
+        const { filePath, thumbnailPath } = await this.options.storage.write(ctx.state.project, file);
         // Create Media record
         const data = {
             userId: ctx.state.user.id,
             projectId: ctx.state.project.id,
             name: file.originalname,
-            file: this.options.storage.getRelativePath(file.path),
-            thumbnail: thumbnailPath ? this.options.storage.getRelativePath(thumbnailPath) : undefined,
+            file: filePath,
+            thumbnail: thumbnailPath,
             mimeType: file.mimetype,
             size: file.size,
-            width: lodash_1.get(metadata, 'width', 0),
-            height: lodash_1.get(metadata, 'height', 0)
+            width: lodash_1.get(file, 'width', 0),
+            height: lodash_1.get(file, 'height', 0)
         };
         const media = await Media_1.default
             .query()
