@@ -5,7 +5,25 @@ import * as bodyParser from 'koa-bodyparser';
 import * as cors from 'kcors';
 import * as Router from 'koa-router';
 import { Model } from 'objection';
-Model.knex(knex(config.DATABASE));
+Model.knex(
+  knex({
+    client: 'postgresql',
+    connection: {
+      host: config.POSTGRES_HOST,
+      port: config.POSTGRES_PORT,
+      database: config.POSTGRES_DB,
+      user: config.POSTGRES_USER,
+      password: config.POSTGRES_PASSWORD
+    },
+    pool: {
+      min: config.POSTGRES_POOL_MIN,
+      max: config.POSTGRES_POOL_MAX
+    },
+    migrations: {
+      tableName: 'knex_migrations'
+    }
+  })
+);
 import * as yaml from 'yamljs';
 
 import { authenticateUser, tokenRefresh } from './authentication/jwt/routes';
@@ -71,7 +89,6 @@ const initMailBackend = async () => {
 };
 
 const initRootRouter = (storage: IStorageBackend, mail: IMailBackend) => {
-  // Attach the storage backend to the viewSetOptions
   const viewSetOptions = { storage, mail };
   // Instantiate root router and attach routes
   const router = new Router();
@@ -116,7 +133,7 @@ export default async () => {
   const router = initRootRouter(storage, mail);
   const app = new Koa();
   app
-    .use(cors(config.CORS))
+    .use(cors({ origin: config.CORS_ORIGIN }))
     .use(errorsMiddleware)
     .use(webHookMiddleware);
   if (config.SERVE_MEDIA) app.use(serveMediaMiddleware);

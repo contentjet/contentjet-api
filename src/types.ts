@@ -36,42 +36,27 @@ export interface IConfig {
   NODE_ENV: string;
   PORT: number;
   SECRET_KEY: string;
-  DATABASE: {
-    client: string;
-    connection: {
-      host: string;
-      port: number;
-      database: string;
-      user: string;
-      password: string;
-    };
-    pool: {
-      min: number;
-      max: number;
-    };
-    migrations: {
-      tableName: string;
-    };
-  };
+  POSTGRES_HOST: string;
+  POSTGRES_PORT: number;
+  POSTGRES_DB: string;
+  POSTGRES_USER: string;
+  POSTGRES_PASSWORD: string;
+  POSTGRES_POOL_MIN: number;
+  POSTGRES_POOL_MAX: number;
   FRONTEND_URL: string;
   BACKEND_URL: string;
   USER_TOKEN_EXPIRY: number;
   CLIENT_TOKEN_EXPIRY: number;
   ACTIVE_ON_SIGNUP: boolean;
   DEBUG: boolean;
-  CORS: {
-    origin: string;
-  };
+  CORS_ORIGIN: string;
   MAIL_FROM: string;
-  PERMISSION_BACKENDS: IPermissionBackend[];
   STORAGE_BACKEND: string;
   MEDIA_ROOT: string;
   SERVE_MEDIA: boolean;
   MEDIA_URL: string;
-  THUMBNAIL: {
-    width: number;
-    height: number;
-  };
+  THUMBNAIL_WIDTH: number;
+  THUMBNAIL_HEIGHT: number;
   MAIL_BACKEND: string;
   SERVE_SWAGGER_UI: boolean;
 }

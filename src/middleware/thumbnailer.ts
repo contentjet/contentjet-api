@@ -12,10 +12,9 @@ export default async (ctx: Koa.Context, next: () => Promise<any>) => {
     file.width = get(metadata, 'width', 0);
     file.height = get(metadata, 'height', 0);
     // Create thumbnail
-    const { width, height } = config.THUMBNAIL;
-    if (width > 0 && height > 0) {
+    if (config.THUMBNAIL_WIDTH > 0 && config.THUMBNAIL_HEIGHT > 0) {
       file.thumbnailBuffer = await sharp(file.buffer)
-        .resize(width, height)
+        .resize(config.THUMBNAIL_WIDTH, config.THUMBNAIL_HEIGHT)
         .max()
         .toBuffer();
     }
