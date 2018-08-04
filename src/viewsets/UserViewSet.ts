@@ -17,8 +17,6 @@ import config from '../config';
 import { requireAuthentication } from '../authentication/jwt/middleware';
 import validate from '../utils/validate';
 
-const sendMail = config.MAIL_BACKEND.sendMail;
-
 const signUpHTML = mjml2html(
   fs.readFileSync(
     path.resolve(__dirname, '../../templates/mail/sign-up-verify.mjml'), 'utf8'
@@ -219,7 +217,7 @@ export default class UserViewSet extends BaseViewSet<User> {
           text: ejs.render(signUpTXT, context),
           html: ejs.render(signUpHTML, context)
         };
-        sendMail(mailOptions)
+        this.options.mail.sendMail(mailOptions)
           .then(info => {
             console.log('Message sent: %s', info.messageId); // tslint:disable-line
           })
@@ -271,7 +269,7 @@ export default class UserViewSet extends BaseViewSet<User> {
       text: ejs.render(requestPasswordResetTXT, context),
       to: email
     };
-    sendMail(mailOptions)
+    this.options.mail.sendMail(mailOptions)
       .then(info => {
         console.log('Message sent: %s', info.messageId); // tslint:disable-line
       })

@@ -6,12 +6,13 @@ import * as moment from 'moment';
 import NotFoundError from '../errors/NotFoundError';
 import DatabaseError from '../errors/DatabaseError';
 import { requirePermission } from '../authorization/middleware';
-import { IStorageBackend } from '../types';
+import { IStorageBackend, IMailBackend } from '../types';
 
 
 interface IViewSetOptions {
   disabledActions?: ReadonlyArray<string>;
   storage: IStorageBackend;
+  mail: IMailBackend;
 }
 
 export interface IPaginatedResult {

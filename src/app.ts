@@ -42,7 +42,7 @@ import webHookMiddleware from './middleware/webhooks';
 import errorsMiddleware from './middleware/errors';
 import serveMediaMiddleware from './middleware/serveMedia';
 import swaggerUIMiddleware from './middleware/swaggerUI';
-import { IStorageBackend } from './types';
+import { IStorageBackend, IMailBackend } from './types';
 
 export const models = {
   Client,
@@ -65,9 +65,14 @@ const initStorageBackend = async () => {
   return new storageClass() as IStorageBackend;
 };
 
-const initRootRouter = (storage: IStorageBackend) => {
+const initMailBackend = async () => {
+  const { default: mailClass } = await import(config.MAIL_BACKEND);
+  return new mailClass() as IMailBackend;
+};
+
+const initRootRouter = (storage: IStorageBackend, mail: IMailBackend) => {
   // Attach the storage backend to the viewSetOptions
-  const viewSetOptions = { storage };
+  const viewSetOptions = { storage, mail };
   // Instantiate root router and attach routes
   const router = new Router();
   router.post('/authenticate', authenticateUser);
@@ -107,7 +112,8 @@ const initRootRouter = (storage: IStorageBackend) => {
 
 export default async () => {
   const storage = await initStorageBackend();
-  const router = initRootRouter(storage);
+  const mail = await initMailBackend();
+  const router = initRootRouter(storage, mail);
   const app = new Koa();
   app
     .use(cors(config.CORS))

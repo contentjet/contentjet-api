@@ -1,7 +1,7 @@
 # 0.16.0
 * Storage interface no longer exposes middleware and now has a more explicit `write` method
 * Moved some middlewares out off app.ts into their own modules
-* Storage backend now loaded and instantiated dynamically at run-time
+* Storage and Mail backends are now loaded and instantiated dynamically at run-time
 
 # 0.15.3
 * Fixing poor response performance when using webhooks

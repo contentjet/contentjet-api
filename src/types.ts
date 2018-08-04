@@ -72,7 +72,7 @@ export interface IConfig {
     width: number;
     height: number;
   };
-  MAIL_BACKEND: IMailBackend;
+  MAIL_BACKEND: string;
   SERVE_SWAGGER_UI: boolean;
 }
 
