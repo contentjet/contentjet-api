@@ -3,7 +3,7 @@ import fs = require('fs');
 import path = require('path');
 import url = require('url');
 import * as ejs from 'ejs';
-const { mjml2html } = require('mjml'); // tslint:disable-line
+import mjml2html = require('mjml');
 import config from '../config';
 import { cloneDeep } from 'lodash';
 import BaseViewSet from './BaseViewSet';

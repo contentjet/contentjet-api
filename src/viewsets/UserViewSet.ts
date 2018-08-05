@@ -5,7 +5,7 @@ import path = require('path');
 import url = require('url');
 import * as ejs from 'ejs';
 import { cloneDeep } from 'lodash';
-const { mjml2html } = require('mjml'); // tslint:disable-line
+import mjml2html = require('mjml');
 import { transaction } from 'objection';
 import User from '../models/User';
 import Project from '../models/Project';

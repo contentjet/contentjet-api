@@ -5,6 +5,7 @@
 * Mail backend is now dependency injected into viewsets via options object
 * Removed PERMISSIONS_BACKEND option from config
 * Changed config so all top-level keys are scalars
+* Updated packages flagged by `npm audit`, notably MJML upgraded from v3 to v4 and templates migrated
 
 # 0.15.3
 * Fixing poor response performance when using webhooks

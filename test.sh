@@ -39,4 +39,6 @@ done
 
 node dist/scripts/create-permissions.js
 
-$mocha dist/**/*.test.js
+# Note the --exit flag is a workaround to prevent the process hanging. This requires further investigation.
+# https://boneskull.com/mocha-v4-nears-release/#mochawontforceexit
+$mocha --exit dist/**/*.test.js
