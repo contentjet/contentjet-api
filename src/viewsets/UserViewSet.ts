@@ -5,7 +5,7 @@ import path = require('path');
 import url = require('url');
 import * as ejs from 'ejs';
 import { cloneDeep } from 'lodash';
-const { mjml2html } = require('mjml'); // tslint:disable-line
+import mjml2html = require('mjml');
 import { transaction } from 'objection';
 import User from '../models/User';
 import Project from '../models/Project';
@@ -16,8 +16,6 @@ import NotFoundError from '../errors/NotFoundError';
 import config from '../config';
 import { requireAuthentication } from '../authentication/jwt/middleware';
 import validate from '../utils/validate';
-
-const sendMail = config.MAIL_BACKEND.sendMail;
 
 const signUpHTML = mjml2html(
   fs.readFileSync(
@@ -219,7 +217,7 @@ export default class UserViewSet extends BaseViewSet<User> {
           text: ejs.render(signUpTXT, context),
           html: ejs.render(signUpHTML, context)
         };
-        sendMail(mailOptions)
+        this.options.mail.sendMail(mailOptions)
           .then(info => {
             console.log('Message sent: %s', info.messageId); // tslint:disable-line
           })
@@ -271,7 +269,7 @@ export default class UserViewSet extends BaseViewSet<User> {
       text: ejs.render(requestPasswordResetTXT, context),
       to: email
     };
-    sendMail(mailOptions)
+    this.options.mail.sendMail(mailOptions)
       .then(info => {
         console.log('Message sent: %s', info.messageId); // tslint:disable-line
       })

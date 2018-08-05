@@ -6,19 +6,20 @@ import * as moment from 'moment';
 import NotFoundError from '../errors/NotFoundError';
 import DatabaseError from '../errors/DatabaseError';
 import { requirePermission } from '../authorization/middleware';
-import IStorageBackend from '../backends/storage/IStorageBackend';
+import { IStorageBackend, IMailBackend } from '../types';
 
 
 interface IViewSetOptions {
   disabledActions?: ReadonlyArray<string>;
   storage: IStorageBackend;
+  mail: IMailBackend;
 }
 
 export interface IPaginatedResult {
-    page: number;
-    totalPages: number;
-    totalRecords: number;
-    results: any[];
+  page: number;
+  totalPages: number;
+  totalRecords: number;
+  results: any[];
 }
 
 export default abstract class BaseViewSet<MC> {

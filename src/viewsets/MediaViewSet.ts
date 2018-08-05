@@ -1,17 +1,17 @@
-import config from '../config';
 import * as Koa from 'koa';
 import Media from '../models/Media';
 import MediaTag from '../models/MediaTag';
 import BaseViewSet from './BaseViewSet';
 import ValidationError from '../errors/ValidationError';
 import DatabaseError from '../errors/DatabaseError';
-import * as sharp from 'sharp';
 import { isInteger, clone, get } from 'lodash';
 import * as moment from 'moment';
 import validate from '../utils/validate';
 import { transaction} from 'objection';
 import { requirePermission } from '../authorization/middleware';
 import { requireAuthentication } from '../authentication/jwt/middleware';
+import uploadMiddleware from '../middleware/upload';
+import thumbnailerMiddleware from '../middleware/thumbnailer';
 
 const updateConstraints = {
   description: {
@@ -50,7 +50,8 @@ export default class MediaViewSet extends BaseViewSet<Media> {
       'upload',
       requireAuthentication,
       requirePermission(`${this.modelClass.tableName}:create`),
-      this.options.storage.middleware,
+      uploadMiddleware,
+      thumbnailerMiddleware,
       this.upload
     );
     this.router.post(
@@ -118,33 +119,19 @@ export default class MediaViewSet extends BaseViewSet<Media> {
 
   async upload(ctx: Koa.Context) {
     const { file } = ctx.req as any;
-    let metadata;
-    let thumbnailPath;
-    if (['image/jpeg', 'image/png', 'image/gif'].includes(file.mimetype)) {
-      // Get the dimensions of uploaded image
-      metadata = await sharp(file.path).metadata();
-      // Create thumbnail
-      const { width, height } = config.THUMBNAIL;
-      if (width > 0 && height > 0) {
-        thumbnailPath = file.path
-          .replace(/(\w+)(\.\w+)$/, '$1-thumb$2');
-        await sharp(file.path)
-          .resize(width, height)
-          .max()
-          .toFile(thumbnailPath);
-      }
-    }
+    // Write the file to storage
+    const { filePath, thumbnailPath } = await this.options.storage.write(ctx.state.project, file);
     // Create Media record
     const data = {
       userId: ctx.state.user.id,
       projectId: ctx.state.project.id,
       name: file.originalname,
-      file: this.options.storage.getRelativePath(file.path),
-      thumbnail: thumbnailPath ? this.options.storage.getRelativePath(thumbnailPath) : undefined,
+      file: filePath,
+      thumbnail: thumbnailPath,
       mimeType: file.mimetype,
       size: file.size,
-      width: get(metadata, 'width', 0),
-      height: get(metadata, 'height', 0)
+      width: get(file, 'width', 0),
+      height: get(file, 'height', 0)
     };
     const media = await Media
       .query()

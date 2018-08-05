@@ -1,7 +1,14 @@
-import config from '../config';
 import * as Koa from 'koa';
 import * as Router from 'koa-router';
+import ModelPermissionBackend from '../backends/permissions/ModelPermissionBackend';
+import ProjectPermissionBackend from '../backends/permissions/ProjectPermissionBackend';
 import AuthorizationError from '../errors/AuthorizationError';
+import { IPermissionBackend } from '../types';
+
+const permissionBackends: IPermissionBackend[] = [
+  new ModelPermissionBackend(),
+  new ProjectPermissionBackend()
+];
 
 // requirePermission middleware factory
 export function requirePermission(permissionName: string): Router.IMiddleware {
@@ -9,7 +16,7 @@ export function requirePermission(permissionName: string): Router.IMiddleware {
     let hasPermission = false;
     // Check the permission against each backend until one returns true. If
     // no backends confirm the permission an AuthorizationError is thrown.
-    for (const backend of config.PERMISSION_BACKENDS) {
+    for (const backend of permissionBackends) {
       hasPermission = await backend.hasPermission(ctx, permissionName);
       if (hasPermission) break;
     }

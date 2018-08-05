@@ -1,21 +1,30 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = require("./config");
-const fs = require("fs");
-const url = require("url");
-const path = require("path");
 const knex = require("knex");
 const Koa = require("koa");
 const bodyParser = require("koa-bodyparser");
 const cors = require("kcors");
-const send = require("koa-send");
 const Router = require("koa-router");
 const objection_1 = require("objection");
-objection_1.Model.knex(knex(config_1.default.DATABASE));
-const jwt = require("jsonwebtoken");
+objection_1.Model.knex(knex({
+    client: 'postgresql',
+    connection: {
+        host: config_1.default.POSTGRES_HOST,
+        port: config_1.default.POSTGRES_PORT,
+        database: config_1.default.POSTGRES_DB,
+        user: config_1.default.POSTGRES_USER,
+        password: config_1.default.POSTGRES_PASSWORD
+    },
+    pool: {
+        min: config_1.default.POSTGRES_POOL_MIN,
+        max: config_1.default.POSTGRES_POOL_MAX
+    },
+    migrations: {
+        tableName: 'knex_migrations'
+    }
+}));
 const yaml = require("yamljs");
-// tslint:disable-next-line
-const swaggerUIAbsolutePath = require('swagger-ui-dist').absolutePath();
 const routes_1 = require("./authentication/jwt/routes");
 const middleware_1 = require("./authentication/jwt/middleware");
 const ProjectViewSet_1 = require("./viewsets/ProjectViewSet");
@@ -42,121 +51,10 @@ const Role_1 = require("./models/Role");
 const User_1 = require("./models/User");
 const WebHook_1 = require("./models/WebHook");
 const NotFoundError_1 = require("./errors/NotFoundError");
-const ValidationError_1 = require("./errors/ValidationError");
-const AuthenticationError_1 = require("./errors/AuthenticationError");
-const middleware_2 = require("./webhooks/middleware");
-// Attach the storage backend to the viewSetOptions
-const viewSetOptions = {
-    storage: config_1.default.STORAGE_BACKEND
-};
-// Instantiate root router and attach routes
-const router = new Router();
-router.post('/authenticate', routes_1.authenticateUser);
-router.post('/token-refresh', middleware_1.requireAuthentication, routes_1.tokenRefresh);
-router.use('/user/', new UserViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/', async (ctx, next) => {
-    const project = await Project_1.default.getById(ctx.params.projectId);
-    if (!project)
-        throw new NotFoundError_1.default();
-    ctx.state.project = project;
-    await next();
-});
-router.use('/project/', new ProjectViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/web-hook/', new WebHookViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/invite/', new ProjectInviteViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/media/', new MediaViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/media-tag/', new MediaTagViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/entry-type/', new EntryTypeViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/entry-tag/', new EntryTagViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/entry/', new EntryViewSet_1.default(viewSetOptions).routes());
-router.use('/project/:projectId(\\d+)/client/', new ClientViewSet_1.default(viewSetOptions).routes());
-// Load the OpenAPI spec from disk converting YAML to JSON and dynamically populating
-// the servers array with our config.BACKEND_URL.
-const spec = yaml.load('spec.yml');
-if (!spec.servers)
-    spec.servers = [];
-spec.servers.push({ url: config_1.default.BACKEND_URL });
-router.get('/spec', (ctx) => {
-    ctx.set('Cache-Control', 'max-age=604800');
-    ctx.body = spec;
-});
-// robots.txt
-router.get('/robots.txt', (ctx) => {
-    ctx.set('Cache-Control', 'max-age=604800');
-    ctx.body = 'User-agent: *\nDisallow: /';
-});
-const app = new Koa();
-app
-    .use(cors(config_1.default.CORS))
-    .use(async (ctx, next) => {
-    try {
-        await next();
-        // Catch Koa's stadard 404 response and throw our own error
-        if (ctx.response.status === 404)
-            throw new NotFoundError_1.default();
-    }
-    catch (err) {
-        if (err instanceof objection_1.ValidationError) {
-            const e = new ValidationError_1.default();
-            e.errors = err.data;
-            ctx.body = e;
-            ctx.status = e.status;
-        }
-        else if (err instanceof jwt.JsonWebTokenError || err instanceof jwt.TokenExpiredError) {
-            const e = new AuthenticationError_1.default(err.message);
-            ctx.body = e;
-            ctx.status = e.status;
-        }
-        else {
-            ctx.status = err.status || err.statusCode || 500;
-            ctx.body = err;
-        }
-        // tslint:disable-next-line
-        if (config_1.default.DEBUG)
-            console.log(err.stack);
-    }
-})
-    .use(middleware_2.default);
-if (config_1.default.SERVE_MEDIA) {
-    app.use(async (ctx, next) => {
-        if (ctx.path.match(/^\/media\/.*$/)) {
-            await send(ctx, path.join(config_1.default.MEDIA_ROOT, ctx.path.replace('/media/', '')));
-        }
-        else {
-            await next();
-        }
-    });
-}
-if (config_1.default.SERVE_SWAGGER_UI) {
-    const swaggerIndex = fs
-        .readFileSync(path.join(swaggerUIAbsolutePath, 'index.html'), { encoding: 'utf8' })
-        .replace(/http:\/\/petstore\.swagger\.io\/v2\/swagger\.json/g, url.resolve(config_1.default.BACKEND_URL, 'spec'));
-    app.use(async (ctx, next) => {
-        if (ctx.path.match(/^\/swagger\/.*$/)) {
-            const _path = ctx.path.replace('/swagger/', '');
-            if (_path === '' || _path === '/index.html') {
-                ctx.body = swaggerIndex;
-                return;
-            }
-            await send(ctx, _path, { root: swaggerUIAbsolutePath });
-        }
-        else {
-            await next();
-        }
-    });
-}
-app
-    .use(bodyParser())
-    .use(router.routes())
-    .use(router.allowedMethods())
-    .use(async (ctx) => {
-    ctx.status = 404;
-    ctx.body = {
-        message: 'Not found',
-        status: 404
-    };
-});
-exports.default = app;
+const webhooks_1 = require("./middleware/webhooks");
+const errors_1 = require("./middleware/errors");
+const serveMedia_1 = require("./middleware/serveMedia");
+const swaggerUI_1 = require("./middleware/swaggerUI");
 exports.models = {
     Client: Client_1.default,
     Entry: Entry_1.default,
@@ -171,4 +69,78 @@ exports.models = {
     Role: Role_1.default,
     User: User_1.default,
     WebHook: WebHook_1.default
+};
+const initStorageBackend = async () => {
+    const { default: storageClass } = await Promise.resolve().then(() => require(config_1.default.STORAGE_BACKEND));
+    return new storageClass();
+};
+const initMailBackend = async () => {
+    const { default: mailClass } = await Promise.resolve().then(() => require(config_1.default.MAIL_BACKEND));
+    return new mailClass();
+};
+const initRootRouter = (storage, mail) => {
+    const viewSetOptions = { storage, mail };
+    // Instantiate root router and attach routes
+    const router = new Router();
+    router.post('/authenticate', routes_1.authenticateUser);
+    router.post('/token-refresh', middleware_1.requireAuthentication, routes_1.tokenRefresh);
+    router.use('/user/', new UserViewSet_1.default(viewSetOptions).routes());
+    router.use('/project/:projectId(\\d+)/', async (ctx, next) => {
+        const project = await Project_1.default.getById(ctx.params.projectId);
+        if (!project)
+            throw new NotFoundError_1.default();
+        ctx.state.project = project;
+        await next();
+    });
+    router.use('/project/', new ProjectViewSet_1.default(viewSetOptions).routes());
+    router.use('/project/:projectId(\\d+)/web-hook/', new WebHookViewSet_1.default(viewSetOptions).routes());
+    router.use('/project/:projectId(\\d+)/invite/', new ProjectInviteViewSet_1.default(viewSetOptions).routes());
+    router.use('/project/:projectId(\\d+)/media/', new MediaViewSet_1.default(viewSetOptions).routes());
+    router.use('/project/:projectId(\\d+)/media-tag/', new MediaTagViewSet_1.default(viewSetOptions).routes());
+    router.use('/project/:projectId(\\d+)/entry-type/', new EntryTypeViewSet_1.default(viewSetOptions).routes());
+    router.use('/project/:projectId(\\d+)/entry-tag/', new EntryTagViewSet_1.default(viewSetOptions).routes());
+    router.use('/project/:projectId(\\d+)/entry/', new EntryViewSet_1.default(viewSetOptions).routes());
+    router.use('/project/:projectId(\\d+)/client/', new ClientViewSet_1.default(viewSetOptions).routes());
+    // Load the OpenAPI spec from disk converting YAML to JSON and dynamically populating
+    // the servers array with our config.BACKEND_URL.
+    const spec = yaml.load('spec.yml');
+    if (!spec.servers)
+        spec.servers = [];
+    spec.servers.push({ url: config_1.default.BACKEND_URL });
+    router.get('/spec', (ctx) => {
+        ctx.set('Cache-Control', 'max-age=604800');
+        ctx.body = spec;
+    });
+    // robots.txt
+    router.get('/robots.txt', (ctx) => {
+        ctx.set('Cache-Control', 'max-age=604800');
+        ctx.body = 'User-agent: *\nDisallow: /';
+    });
+    return router;
+};
+exports.default = async () => {
+    const storage = await initStorageBackend();
+    const mail = await initMailBackend();
+    const router = initRootRouter(storage, mail);
+    const app = new Koa();
+    app
+        .use(cors({ origin: config_1.default.CORS_ORIGIN }))
+        .use(errors_1.default)
+        .use(webhooks_1.default);
+    if (config_1.default.SERVE_MEDIA)
+        app.use(serveMedia_1.default);
+    if (config_1.default.SERVE_SWAGGER_UI)
+        app.use(swaggerUI_1.default());
+    app
+        .use(bodyParser())
+        .use(router.routes())
+        .use(router.allowedMethods())
+        .use(async (ctx) => {
+        ctx.status = 404;
+        ctx.body = {
+            message: 'Not found',
+            status: 404
+        };
+    });
+    return app;
 };

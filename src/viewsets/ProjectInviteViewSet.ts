@@ -3,7 +3,7 @@ import fs = require('fs');
 import path = require('path');
 import url = require('url');
 import * as ejs from 'ejs';
-const { mjml2html } = require('mjml'); // tslint:disable-line
+import mjml2html = require('mjml');
 import config from '../config';
 import { cloneDeep } from 'lodash';
 import BaseViewSet from './BaseViewSet';
@@ -13,8 +13,6 @@ import { requireAuthentication } from '../authentication/jwt/middleware';
 import { requirePermission } from '../authorization/middleware';
 import { transaction } from 'objection';
 import validate from '../utils/validate';
-
-const sendMail = config.MAIL_BACKEND.sendMail;
 
 const projectInviteHTML = mjml2html(
   fs.readFileSync(
@@ -122,7 +120,7 @@ export default class ProjectInviteViewSet extends BaseViewSet<ProjectInvite> {
       text: ejs.render(projectInviteTXT, context),
       html: ejs.render(projectInviteHTML, context)
     };
-    sendMail(mailOptions)
+    this.options.mail.sendMail(mailOptions)
       .then(info => {
         console.log('Message sent: %s', info.messageId); // tslint:disable-line
       })

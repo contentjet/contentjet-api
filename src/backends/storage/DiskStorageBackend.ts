@@ -1,48 +1,44 @@
 import * as path from 'path';
-import * as mkdirp from 'mkdirp';
-import * as Koa from 'koa';
-import IStorageBackend from './IStorageBackend';
-const multer = require('koa-multer');
+import * as fs from 'fs';
+import { promisify } from 'util';
+import mkdirp from '../../utils/mkdirp';
+import { IFile, IStorageBackend } from '../../types';
+import Project from '../../models/Project';
+import config from '../../config';
+
+const writeFile = promisify(fs.writeFile);
 
 export default class DiskStorageBackend implements IStorageBackend {
 
   mediaRoot: string;
 
-  constructor(mediaRoot: string) {
-    this.mediaRoot = mediaRoot;
-    this.middleware = this.middleware.bind(this);
-    this.getRelativePath = this.getRelativePath.bind(this);
+  constructor() {
+    this.mediaRoot = config.MEDIA_ROOT;
   }
 
-  async middleware(ctx: Koa.Context, next: () => Promise<any>) {
-    // Each uploaded file goes into a directory matching it's project id
-    // e.g <destination>/<projectId>/<year>-<month>/
+  async write(project: Project, file: IFile) {
     const now = new Date();
+    // Create directory
     const dir = path.resolve(
-      path.join(
-        this.mediaRoot,
-        String(ctx.state.project.id),
-        `${now.getFullYear()}-${now.getMonth() + 1}`
-      )
+      path.join(this.mediaRoot, String(project.id), `${now.getFullYear()}-${now.getMonth() + 1}`)
     );
-    const storage = multer.diskStorage({
-      destination(_req: any, _file: any, cb: Function) {
-        // Always create path on filesystem if it doesn't exist
-        mkdirp(dir, (err: any) => {
-          if (err) cb(err);
-          cb(null, dir);
-        });
-      },
-      filename(_req: any, file: any, cb: Function) {
-        cb(null, `${Date.now()}-${Math.floor(Math.random() * 1000000)}${path.extname(file.originalname)}`);
-      }
-    });
-    const upload = multer({ storage });
-    await upload.single('file')(ctx, next);
-  }
-
-  getRelativePath(path_: string): string {
-    return path.relative(this.mediaRoot, path_);
+    await mkdirp(dir);
+    // Write file buffer to disk
+    const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000000)}${path.extname(file.originalname)}`;
+    const filePath = path.join(dir, fileName);
+    await writeFile(path.join(dir, fileName), file.buffer);
+    // Write thumbnail buffer to disk if it exists
+    let thumbnailFileName: string | undefined;
+    let thumbnailFilePath: string | undefined;
+    if (file.thumbnailBuffer) {
+      thumbnailFileName = fileName.replace(/(\w+)(\.\w+)$/, '$1-thumb$2');
+      thumbnailFilePath = path.join(dir, thumbnailFileName);
+      await writeFile(path.join(dir, thumbnailFileName), file.thumbnailBuffer);
+    }
+    return {
+      filePath: path.relative(this.mediaRoot, filePath),
+      thumbnailPath: thumbnailFilePath ? path.relative(this.mediaRoot, thumbnailFilePath) : undefined
+    };
   }
 
 }

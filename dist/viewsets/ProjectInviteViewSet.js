@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const url = require("url");
 const ejs = require("ejs");
-const { mjml2html } = require('mjml'); // tslint:disable-line
+const mjml2html = require("mjml");
 const config_1 = require("../config");
 const lodash_1 = require("lodash");
 const BaseViewSet_1 = require("./BaseViewSet");
@@ -14,7 +14,6 @@ const middleware_1 = require("../authentication/jwt/middleware");
 const middleware_2 = require("../authorization/middleware");
 const objection_1 = require("objection");
 const validate_1 = require("../utils/validate");
-const sendMail = config_1.default.MAIL_BACKEND.sendMail;
 const projectInviteHTML = mjml2html(fs.readFileSync(path.resolve(__dirname, '../../templates/mail/project-invite.mjml'), 'utf8')).html;
 const projectInviteTXT = fs.readFileSync(path.resolve(__dirname, '../../templates/mail/project-invite.txt'), 'utf8');
 const createConstraints = {
@@ -96,7 +95,7 @@ class ProjectInviteViewSet extends BaseViewSet_1.default {
             text: ejs.render(projectInviteTXT, context),
             html: ejs.render(projectInviteHTML, context)
         };
-        sendMail(mailOptions)
+        this.options.mail.sendMail(mailOptions)
             .then(info => {
             console.log('Message sent: %s', info.messageId); // tslint:disable-line
         })
