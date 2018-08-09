@@ -1,3 +1,7 @@
+# 0.17.0
+* Changed IStorageBackend
+* Fixed issue with rendering swagger ui
+
 # 0.16.0
 * Storage interface no longer exposes middleware and now has a more explicit `write` method
 * Moved some middleware out off app.ts into their own modules
