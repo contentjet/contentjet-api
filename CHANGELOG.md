@@ -1,3 +1,7 @@
+# 0.17.1
+* Added 2x missing query params entry list in swagger spec
+* Fixed error when updating project
+
 # 0.17.0
 * Changed IStorageBackend
 * Fixed issue with rendering swagger ui

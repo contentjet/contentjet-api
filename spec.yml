@@ -634,6 +634,16 @@ paths:
               - -createdAt
               - modifiedAt
               - -modifiedAt
+        - name: page
+          in: query
+          description: Page number.
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          description: The number of results per page.
+          schema:
+            type: integer
       security:
         - OAuth2:
           - 'entry:list'
