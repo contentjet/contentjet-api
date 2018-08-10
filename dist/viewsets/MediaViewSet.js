@@ -101,7 +101,7 @@ class MediaViewSet extends BaseViewSet_1.default {
     async upload(ctx) {
         const { file } = ctx.req;
         // Write the file to storage
-        const { filePath, thumbnailPath } = await this.options.storage.write(ctx.state.project, file);
+        const { filePath, thumbnailPath } = await this.options.storage.write(ctx.state.project.id, file);
         // Create Media record
         const data = {
             userId: ctx.state.user.id,

@@ -10,10 +10,10 @@ class DiskStorageBackend {
     constructor() {
         this.mediaRoot = config_1.default.MEDIA_ROOT;
     }
-    async write(project, file) {
+    async write(projectId, file) {
         const now = new Date();
         // Create directory
-        const dir = path.resolve(path.join(this.mediaRoot, String(project.id), `${now.getFullYear()}-${now.getMonth() + 1}`));
+        const dir = path.resolve(path.join(this.mediaRoot, String(projectId), `${now.getFullYear()}-${now.getMonth() + 1}`));
         await mkdirp_1.default(dir);
         // Write file buffer to disk
         const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000000)}${path.extname(file.originalname)}`;

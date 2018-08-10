@@ -10,7 +10,7 @@ const config_1 = require("../config");
 exports.default = () => {
     const swaggerIndex = fs
         .readFileSync(path.join(swaggerUIAbsolutePath, 'index.html'), { encoding: 'utf8' })
-        .replace(/http:\/\/petstore\.swagger\.io\/v2\/swagger\.json/g, url.resolve(config_1.default.BACKEND_URL, 'spec'));
+        .replace('https://petstore.swagger.io/v2/swagger.json', url.resolve(config_1.default.BACKEND_URL, 'spec'));
     return async (ctx, next) => {
         if (ctx.path.match(/^\/swagger\/.*$/)) {
             const _path = ctx.path.replace('/swagger/', '');
