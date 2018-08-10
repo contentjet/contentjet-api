@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import { promisify } from 'util';
 import mkdirp from '../../utils/mkdirp';
 import { IFile, IStorageBackend } from '../../types';
-import Project from '../../models/Project';
 import config from '../../config';
 
 const writeFile = promisify(fs.writeFile);
@@ -16,11 +15,11 @@ export default class DiskStorageBackend implements IStorageBackend {
     this.mediaRoot = config.MEDIA_ROOT;
   }
 
-  async write(project: Project, file: IFile) {
+  async write(projectId: number, file: IFile) {
     const now = new Date();
     // Create directory
     const dir = path.resolve(
-      path.join(this.mediaRoot, String(project.id), `${now.getFullYear()}-${now.getMonth() + 1}`)
+      path.join(this.mediaRoot, String(projectId), `${now.getFullYear()}-${now.getMonth() + 1}`)
     );
     await mkdirp(dir);
     // Write file buffer to disk

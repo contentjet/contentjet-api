@@ -120,7 +120,7 @@ export default class MediaViewSet extends BaseViewSet<Media> {
   async upload(ctx: Koa.Context) {
     const { file } = ctx.req as any;
     // Write the file to storage
-    const { filePath, thumbnailPath } = await this.options.storage.write(ctx.state.project, file);
+    const { filePath, thumbnailPath } = await this.options.storage.write(ctx.state.project.id, file);
     // Create Media record
     const data = {
       userId: ctx.state.user.id,

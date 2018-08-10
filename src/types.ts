@@ -1,7 +1,6 @@
 import * as Koa from 'koa';
 import * as nodemailer from 'nodemailer';
 import Mail = require('nodemailer/lib/mailer');
-import Project from './models/Project';
 
 export interface IPermissionBackend {
   hasPermission(ctx: Koa.Context, permissionName: string, options?: any): Promise<boolean>;
@@ -29,7 +28,7 @@ export interface IStorageResponse {
 }
 
 export interface IStorageBackend {
-  write(project: Project, file: IFile): Promise<IStorageResponse>;
+  write(projectId: number, file: IFile): Promise<IStorageResponse>;
 }
 
 export interface IConfig {

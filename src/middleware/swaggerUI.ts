@@ -10,7 +10,7 @@ import config from '../config';
 export default () => {
   const swaggerIndex = fs
     .readFileSync(path.join(swaggerUIAbsolutePath, 'index.html'), { encoding: 'utf8' })
-    .replace(/http:\/\/petstore\.swagger\.io\/v2\/swagger\.json/g, url.resolve(config.BACKEND_URL, 'spec'));
+    .replace('https://petstore.swagger.io/v2/swagger.json', url.resolve(config.BACKEND_URL, 'spec'));
 
   return async (ctx: Koa.Context, next: () => Promise<any>) => {
     if (ctx.path.match(/^\/swagger\/.*$/)) {
