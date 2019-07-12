@@ -55,11 +55,7 @@ class User extends objection_1.Model {
                     default: false
                 }
             },
-            required: [
-                'email',
-                'password',
-                'name'
-            ]
+            required: ['email', 'password', 'name']
         };
     }
     static hashPassword(password) {
@@ -69,48 +65,48 @@ class User extends objection_1.Model {
             .digest('hex');
     }
     static authenticate(email, password) {
-        return User
-            .query()
+        return User.query()
             .where('email', email)
             .andWhere('password', User.hashPassword(password))
             .first();
     }
     static getById(id, trx) {
-        return User
-            .query(trx)
+        return User.query(trx)
             .where('id', id)
             .first();
     }
     static async existsWithEmail(email, trx) {
-        const result = await User
-            .query(trx)
+        const result = (await User.query(trx)
             .count('*')
             .where('email', email)
-            .first();
+            .first());
         return parseInt(result.count, 10) === 1;
     }
     static async create(email, name, password, isActive = false, isAdmin = false, trx) {
         const exists = await User.existsWithEmail(email, trx);
-        if (exists)
+        if (exists) {
             throw new ValidationError_1.default('A user with this email already exists');
-        return await User
-            .query(trx)
-            .insert({ email, name, password: User.hashPassword(password), isActive, isAdmin })
+        }
+        return (await User.query(trx)
+            .insert({
+            email,
+            name,
+            password: User.hashPassword(password),
+            isActive,
+            isAdmin
+        })
             .returning('*')
-            .first();
+            .first());
     }
     static async setPassword(userId, password) {
-        return await User
-            .query()
+        return await User.query()
             .patch({ password: User.hashPassword(password) })
             .returning('*')
             .where('id', userId)
             .first();
     }
     static deleteAll() {
-        return User
-            .query()
-            .delete();
+        return User.query().delete();
     }
     static generateSignUpToken(userId) {
         const payload = { userId };
@@ -166,21 +162,17 @@ class User extends objection_1.Model {
         return this.password === User.hashPassword(password);
     }
     assignRole(roleId) {
-        return this
-            .$relatedQuery('roles')
-            .relate(roleId);
+        return this.$relatedQuery('roles').relate(roleId);
     }
     unassignRole(roleId) {
-        return this
-            .$relatedQuery('roles')
+        return this.$relatedQuery('roles')
             .unrelate()
             .where('id', roleId);
     }
     getPermissions() {
         if (this._permissions)
             return Promise.resolve(this._permissions);
-        return Permission_1.default
-            .query()
+        return Permission_1.default.query()
             .join('role_permission', 'permission.id', 'role_permission.permissionId')
             .join('role', 'role.id', 'role_permission.roleId')
             .join('user_role', 'role.id', 'user_role.roleId')
@@ -200,9 +192,7 @@ class User extends objection_1.Model {
         });
     }
     delete() {
-        return User
-            .query()
-            .deleteById(this.id);
+        return User.query().deleteById(this.id);
     }
     $formatJson(json) {
         const data = super.$formatJson(json);

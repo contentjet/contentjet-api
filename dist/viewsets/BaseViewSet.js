@@ -80,7 +80,7 @@ class BaseViewSet {
             page = 1;
         let result;
         if (limit) {
-            result = await this.getListQueryBuilder(ctx).page(page - 1, limit);
+            result = (await this.getListQueryBuilder(ctx).page(page - 1, limit));
             result = {
                 page,
                 totalPages: Math.ceil(result.total / limit),
@@ -124,8 +124,7 @@ class BaseViewSet {
     }
     async retrieve(ctx) {
         const id = ctx.params[this.getIdRouteParameter()];
-        const model = await this
-            .getRetrieveQueryBuilder(ctx)
+        const model = await this.getRetrieveQueryBuilder(ctx)
             .where(`${this.modelClass.tableName}.id`, id)
             .first();
         if (!model)

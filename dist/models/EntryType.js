@@ -100,11 +100,7 @@ const textFieldConstraints = {
     format: {
         presence: true,
         inclusion: {
-            within: [
-                'plaintext',
-                'uri',
-                'email'
-            ],
+            within: ['plaintext', 'uri', 'email'],
             message: 'invalid'
         }
     }
@@ -130,10 +126,7 @@ const longTextFieldConstraints = {
     format: {
         presence: true,
         inclusion: {
-            within: [
-                'plaintext',
-                'markdown'
-            ],
+            within: ['plaintext', 'markdown'],
             message: 'invalid'
         }
     }
@@ -165,10 +158,7 @@ const numberFieldConstraints = {
     format: {
         presence: true,
         inclusion: {
-            within: [
-                'number',
-                'integer'
-            ],
+            within: ['number', 'integer'],
             message: 'invalid'
         }
     }
@@ -177,10 +167,7 @@ const dateFieldConstraints = {
     format: {
         presence: true,
         inclusion: {
-            within: [
-                'datetime',
-                'date'
-            ],
+            within: ['datetime', 'date'],
             message: 'invalid'
         }
     }
@@ -197,10 +184,7 @@ const choiceFieldConstraints = {
     format: {
         presence: true,
         inclusion: {
-            within: [
-                'single',
-                'multiple'
-            ],
+            within: ['single', 'multiple'],
             message: 'invalid'
         }
     }
@@ -209,10 +193,7 @@ const colorFieldConstraints = {
     format: {
         presence: true,
         inclusion: {
-            within: [
-                'rgb',
-                'rgba'
-            ],
+            within: ['rgb', 'rgba'],
             message: 'invalid'
         }
     }
@@ -317,16 +298,14 @@ class EntryType extends objection_1.Model {
             .first();
     }
     static async existsInProject(id, projectId, trx) {
-        const result = await EntryType.query(trx)
+        const result = (await EntryType.query(trx)
             .where({ id, projectId })
             .count('*')
-            .first();
+            .first());
         return !!parseInt(result.count, 10);
     }
     static async deleteAll(trx) {
-        const num = await EntryType
-            .query(trx)
-            .delete();
+        const num = await EntryType.query(trx).delete();
         return num;
     }
     $beforeValidate(jsonSchema, json) {
@@ -345,7 +324,9 @@ class EntryType extends objection_1.Model {
         const fieldErrors = {};
         json.fields.forEach(field => {
             // Validate field type
-            const fieldTypeError = validate_1.default.single(field.fieldType, { inclusion: fieldTypes });
+            const fieldTypeError = validate_1.default.single(field.fieldType, {
+                inclusion: fieldTypes
+            });
             if (fieldTypeError) {
                 throw new ValidationError_1.default(`'${field.fieldType}' is not a valid field type`);
             }
@@ -436,11 +417,7 @@ class EntryType extends objection_1.Model {
                     format: 'date-time'
                 }
             },
-            required: [
-                'name',
-                'projectId',
-                'userId'
-            ],
+            required: ['name', 'projectId', 'userId'],
             definitions: {
                 COMMON_FIELD_PROPERTIES: {
                     type: 'object',
@@ -469,13 +446,7 @@ class EntryType extends objection_1.Model {
                             default: false
                         }
                     },
-                    required: [
-                        'name',
-                        'label',
-                        'description',
-                        'required',
-                        'disabled'
-                    ]
+                    required: ['name', 'label', 'description', 'required', 'disabled']
                 },
                 TEXT: {
                     allOf: [
@@ -501,19 +472,10 @@ class EntryType extends objection_1.Model {
                                 },
                                 format: {
                                     type: 'string',
-                                    enum: [
-                                        'plaintext',
-                                        'uri',
-                                        'email'
-                                    ]
+                                    enum: ['plaintext', 'uri', 'email']
                                 }
                             },
-                            required: [
-                                'fieldType',
-                                'minLength',
-                                'maxLength',
-                                'format'
-                            ]
+                            required: ['fieldType', 'minLength', 'maxLength', 'format']
                         }
                     ]
                 },
@@ -541,18 +503,10 @@ class EntryType extends objection_1.Model {
                                 },
                                 format: {
                                     type: 'string',
-                                    enum: [
-                                        'plaintext',
-                                        'markdown'
-                                    ]
+                                    enum: ['plaintext', 'markdown']
                                 }
                             },
-                            required: [
-                                'fieldType',
-                                'minLength',
-                                'maxLength',
-                                'format'
-                            ]
+                            required: ['fieldType', 'minLength', 'maxLength', 'format']
                         }
                     ]
                 },
@@ -579,11 +533,7 @@ class EntryType extends objection_1.Model {
                                     maxLength: 32
                                 }
                             },
-                            required: [
-                                'fieldType',
-                                'labelTrue',
-                                'labelFalse'
-                            ]
+                            required: ['fieldType', 'labelTrue', 'labelFalse']
                         }
                     ]
                 },
@@ -607,18 +557,10 @@ class EntryType extends objection_1.Model {
                                 },
                                 format: {
                                     type: 'string',
-                                    enum: [
-                                        'number',
-                                        'integer'
-                                    ]
+                                    enum: ['number', 'integer']
                                 }
                             },
-                            required: [
-                                'fieldType',
-                                'minValue',
-                                'maxValue',
-                                'format'
-                            ]
+                            required: ['fieldType', 'minValue', 'maxValue', 'format']
                         }
                     ]
                 },
@@ -636,16 +578,10 @@ class EntryType extends objection_1.Model {
                                 },
                                 format: {
                                     type: 'string',
-                                    enum: [
-                                        'datetime',
-                                        'date'
-                                    ]
+                                    enum: ['datetime', 'date']
                                 }
                             },
-                            required: [
-                                'fieldType',
-                                'format'
-                            ]
+                            required: ['fieldType', 'format']
                         }
                     ]
                 },
@@ -671,17 +607,10 @@ class EntryType extends objection_1.Model {
                                 },
                                 format: {
                                     type: 'string',
-                                    enum: [
-                                        'single',
-                                        'multiple'
-                                    ]
+                                    enum: ['single', 'multiple']
                                 }
                             },
-                            required: [
-                                'fieldType',
-                                'choices',
-                                'format'
-                            ]
+                            required: ['fieldType', 'choices', 'format']
                         }
                     ]
                 },
@@ -699,16 +628,10 @@ class EntryType extends objection_1.Model {
                                 },
                                 format: {
                                     type: 'string',
-                                    enum: [
-                                        'rgb',
-                                        'rgba'
-                                    ]
+                                    enum: ['rgb', 'rgba']
                                 }
                             },
-                            required: [
-                                'fieldType',
-                                'format'
-                            ]
+                            required: ['fieldType', 'format']
                         }
                     ]
                 },
@@ -735,11 +658,7 @@ class EntryType extends objection_1.Model {
                                     maximum: 1000
                                 }
                             },
-                            required: [
-                                'fieldType',
-                                'minLength',
-                                'maxLength'
-                            ]
+                            required: ['fieldType', 'minLength', 'maxLength']
                         }
                     ]
                 },
@@ -766,11 +685,7 @@ class EntryType extends objection_1.Model {
                                     maximum: 1000
                                 }
                             },
-                            required: [
-                                'fieldType',
-                                'minLength',
-                                'maxLength'
-                            ]
+                            required: ['fieldType', 'minLength', 'maxLength']
                         }
                     ]
                 },
@@ -797,11 +712,7 @@ class EntryType extends objection_1.Model {
                                     maximum: 1000
                                 }
                             },
-                            required: [
-                                'fieldType',
-                                'minLength',
-                                'maxLength'
-                            ]
+                            required: ['fieldType', 'minLength', 'maxLength']
                         }
                     ]
                 }

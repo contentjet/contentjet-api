@@ -98,19 +98,11 @@ class Media extends objection_1.Model {
                     format: 'date-time'
                 }
             },
-            required: [
-                'name',
-                'file',
-                'mimeType',
-                'size',
-                'projectId',
-                'userId'
-            ]
+            required: ['name', 'file', 'mimeType', 'size', 'projectId', 'userId']
         };
     }
     static getInProject(projectId, trx) {
-        return Media
-            .query(trx)
+        return Media.query(trx)
             .eager('tags')
             .where('media.projectId', projectId);
     }
@@ -125,16 +117,17 @@ class Media extends objection_1.Model {
         // the output of this value by making it relative to MEDIA_URL.
         const data = super.toJSON();
         data.file = url.resolve(config_1.default.MEDIA_URL, data.file);
-        if (data.thumbnail)
+        if (data.thumbnail) {
             data.thumbnail = url.resolve(config_1.default.MEDIA_URL, data.thumbnail);
+        }
         // If tags is present (like when eagerly fetched) only return tag names.
         const { tags } = data;
         if (tags)
             data.tags = tags.map((tag) => tag.name);
         return data;
     }
-    getTags(trx) {
-        return this.$relatedQuery('tags', trx);
+    async getTags(trx) {
+        return (await this.$relatedQuery('tags', trx));
     }
     async setTags(mediaTags, trx) {
         const incomingTagIds = mediaTags.map(mediaTag => mediaTag.id);
@@ -143,7 +136,9 @@ class Media extends objection_1.Model {
         const idsToUnrelate = lodash_1.difference(existingTagIds, incomingTagIds);
         const idsToRelate = lodash_1.difference(incomingTagIds, existingTagIds);
         // Unrelate any existing tags not in mediaTags
-        const p1 = this.$relatedQuery('tags', trx).unrelate().whereIn('id', idsToUnrelate);
+        const p1 = this.$relatedQuery('tags', trx)
+            .unrelate()
+            .whereIn('id', idsToUnrelate);
         // Relate incoming mediaTags
         const p2 = this.$relatedQuery('tags', trx).relate(idsToRelate);
         await Promise.all([p1, p2]);

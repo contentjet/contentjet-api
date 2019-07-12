@@ -97,22 +97,18 @@ class Entry extends objection_1.Model {
     }
     static async create(data, trx) {
         const fieldNames = Object.keys(Entry.jsonSchema.properties);
-        return Entry
-            .query(trx)
+        return Entry.query(trx)
             .insert(lodash_1.pick(data, fieldNames))
             .returning('*')
             .first();
     }
     static getInProject(projectId, trx) {
-        return Entry
-            .query(trx)
+        return Entry.query(trx)
             .joinRelation('entryType')
             .where('entryType.projectId', projectId);
     }
     static getInProjectWithRelations(projectId, trx) {
-        return Entry
-            .getInProject(projectId, trx)
-            .eager('[user, modifiedByUser, tags, entryType]');
+        return Entry.getInProject(projectId, trx).eager('[user, modifiedByUser, tags, entryType]');
     }
     static async bulkDelete(arrayOfIds, projectId, trx) {
         const entries = await Entry.query(trx)
@@ -127,8 +123,7 @@ class Entry extends objection_1.Model {
         return numDeleted;
     }
     static externalFieldsToInternal(entryTypeFields, entryFields, existingFields) {
-        return entryTypeFields
-            .map(entryTypeField => {
+        return entryTypeFields.map(entryTypeField => {
             const { name, fieldType, disabled } = entryTypeField;
             if (disabled && existingFields) {
                 const existingField = existingFields.find(f => f.name === name);
@@ -170,9 +165,7 @@ class Entry extends objection_1.Model {
         });
     }
     static async deleteAll(trx) {
-        const num = await Entry
-            .query(trx)
-            .delete();
+        const num = await Entry.query(trx).delete();
         return num;
     }
     getFieldValue(fieldName, fieldType) {
@@ -199,8 +192,7 @@ class Entry extends objection_1.Model {
                     value = orderedMedia;
                 }
                 else if (entryTypeField.fieldType === 'LINK') {
-                    const entryResult = await Entry
-                        .query(trx)
+                    const entryResult = await Entry.query(trx)
                         .select('id', 'name', 'entryTypeId')
                         .whereIn('id', value);
                     const orderedEntries = [];
@@ -216,8 +208,8 @@ class Entry extends objection_1.Model {
         }
         return obj;
     }
-    getTags(trx) {
-        return this.$relatedQuery('tags', trx);
+    async getTags(trx) {
+        return (await this.$relatedQuery('tags', trx));
     }
     async setTags(entryTags, trx) {
         const incomingTagIds = entryTags.map(entryTag => entryTag.id);
@@ -226,7 +218,9 @@ class Entry extends objection_1.Model {
         const idsToUnrelate = lodash_1.difference(existingTagIds, incomingTagIds);
         const idsToRelate = lodash_1.difference(incomingTagIds, existingTagIds);
         // Unrelate any existing tags not in entryTags
-        const p1 = this.$relatedQuery('tags', trx).unrelate().whereIn('id', idsToUnrelate);
+        const p1 = this.$relatedQuery('tags', trx)
+            .unrelate()
+            .whereIn('id', idsToUnrelate);
         // Relate incoming entryTags
         const p2 = this.$relatedQuery('tags', trx).relate(idsToRelate);
         await Promise.all([p1, p2]);

@@ -3,8 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const objection_1 = require("objection");
 class Permission extends objection_1.Model {
     static async getOrCreate(name) {
-        const permission = await Permission
-            .query()
+        const permission = await Permission.query()
             .where('name', name)
             .first();
         if (permission)
@@ -12,9 +11,7 @@ class Permission extends objection_1.Model {
         return await Permission.create(name);
     }
     static create(name) {
-        return Permission
-            .query()
-            .insert({ name });
+        return Permission.query().insert({ name });
     }
     static get tableName() {
         return 'permission';
@@ -30,9 +27,7 @@ class Permission extends objection_1.Model {
                     maxLength: 64
                 }
             },
-            required: [
-                'name'
-            ]
+            required: ['name']
         };
     }
 }

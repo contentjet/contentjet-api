@@ -57,24 +57,19 @@ class Client extends objection_1.Model {
         };
     }
     static getById(id, trx) {
-        return Client
-            .query(trx)
+        return Client.query(trx)
             .where('id', id)
             .first();
     }
     static async deleteAll(trx) {
-        const num = await Client
-            .query(trx)
-            .delete();
+        const num = await Client.query(trx).delete();
         return num;
     }
     static generateRandomString() {
         return uuid.v4().replace(/-/g, '');
     }
     static async create(projectId, name, trx) {
-        return await Client
-            .query(trx)
-            .insert({
+        return await Client.query(trx).insert({
             clientId: Client.generateRandomString(),
             clientSecret: Client.generateRandomString(),
             name,
@@ -82,8 +77,7 @@ class Client extends objection_1.Model {
         });
     }
     static authenticate(clientId, clientSecret) {
-        return Client
-            .query()
+        return Client.query()
             .where({ clientId, clientSecret })
             .first();
     }
@@ -92,9 +86,7 @@ class Client extends objection_1.Model {
         this.clientSecret = uuid.v4().replace(/-/g, '');
     }
     delete(trx) {
-        return Client
-            .query(trx)
-            .deleteById(this.id);
+        return Client.query(trx).deleteById(this.id);
     }
 }
 exports.default = Client;

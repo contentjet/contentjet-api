@@ -73,46 +73,38 @@ class Project extends objection_1.Model {
         };
     }
     static getById(id, trx) {
-        return Project
-            .query(trx)
+        return Project.query(trx)
             .where('id', id)
             .first();
     }
     static async deleteAll(trx) {
-        const num = await Project
-            .query(trx)
-            .delete();
+        const num = await Project.query(trx).delete();
         return num;
     }
     async getUsers(trx) {
         return await this.$relatedQuery('members', trx);
     }
     getUserById(id, trx) {
-        return this
-            .$relatedQuery('members', trx)
+        return this.$relatedQuery('members', trx)
             .where('id', id)
             .first();
     }
     _isMember(userId, membershipType, trx) {
-        let query = this
-            .$relatedQuery('members', trx)
-            .where('id', userId);
-        if (membershipType)
+        let query = this.$relatedQuery('members', trx).where('id', userId);
+        if (membershipType) {
             query = query.andWhere('membershipType', membershipType);
+        }
         return query.first();
     }
     isMember(userId, membershipType, trx) {
         if (this.isOwner(userId))
             return Promise.resolve(true);
-        return this
-            ._isMember(userId, membershipType, trx)
-            .then(id => !!id);
+        return this._isMember(userId, membershipType, trx).then(id => !!id);
     }
     isActiveMember(userId, membershipType, trx) {
         if (this.isOwner(userId))
             return Promise.resolve(true);
-        return this
-            ._isMember(userId, membershipType, trx)
+        return this._isMember(userId, membershipType, trx)
             .andWhere('membershipIsActive', true)
             .then(id => !!id);
     }
@@ -120,35 +112,28 @@ class Project extends objection_1.Model {
         return this.userId === userId;
     }
     getUsersByMembershipType(membershipType, trx) {
-        return this
-            .$relatedQuery('members', trx)
-            .where('membershipType', membershipType);
+        return this.$relatedQuery('members', trx).where('membershipType', membershipType);
     }
     async addUser(user, membershipType, trx) {
-        const existingUserId = await this
-            .$relatedQuery('members', trx)
+        const existingUserId = await this.$relatedQuery('members', trx)
             .select('id')
             .where('id', user.id)
             .first();
         if (existingUserId)
             return user;
-        await this
-            .$relatedQuery('members', trx)
-            .relate({
+        await this.$relatedQuery('members', trx).relate({
             id: user.id,
             membershipType
         });
         return user;
     }
     removeUser(userId, trx) {
-        return this
-            .$relatedQuery('members', trx)
+        return this.$relatedQuery('members', trx)
             .unrelate()
             .where('id', userId);
     }
     updateUserMembership(userId, membershipIsActive, membershipType, trx) {
-        return ProjectMembership_1.default
-            .query(trx)
+        return ProjectMembership_1.default.query(trx)
             .patch({ membershipType, membershipIsActive })
             .where({
             userId,
@@ -156,14 +141,10 @@ class Project extends objection_1.Model {
         });
     }
     delete(trx) {
-        return Project
-            .query(trx)
-            .deleteById(this.id);
+        return Project.query(trx).deleteById(this.id);
     }
     getActiveWebHooks(trx) {
-        return this
-            .$relatedQuery('webHooks', trx)
-            .where('isActive', true);
+        return this.$relatedQuery('webHooks', trx).where('isActive', true);
     }
 }
 exports.default = Project;

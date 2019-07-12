@@ -44,14 +44,11 @@ class Role extends objection_1.Model {
                     maxLength: 64
                 }
             },
-            required: [
-                'name'
-            ]
+            required: ['name']
         };
     }
     static getOrCreate(name) {
-        return Role
-            .query()
+        return Role.query()
             .where('name', name)
             .first()
             .then(role => {
@@ -61,15 +58,15 @@ class Role extends objection_1.Model {
         });
     }
     static create(name) {
-        return Role
-            .query()
-            .insert({ name });
+        return Role.query().insert({ name });
     }
     assignPermission(permissionId) {
         return this.$relatedQuery('permissions').relate(permissionId);
     }
     unassignPermission(permissionId) {
-        return this.$relatedQuery('permissions').unrelate().where('id', permissionId);
+        return this.$relatedQuery('permissions')
+            .unrelate()
+            .where('id', permissionId);
     }
 }
 exports.default = Role;

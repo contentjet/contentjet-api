@@ -51,12 +51,7 @@ class ProjectInvite extends objection_1.Model {
                     type: 'integer'
                 }
             },
-            required: [
-                'name',
-                'email',
-                'userId',
-                'projectId'
-            ]
+            required: ['name', 'email', 'userId', 'projectId']
         };
     }
     static generateInviteToken(projectInviteId, projectName, projectId) {
@@ -84,15 +79,13 @@ class ProjectInvite extends objection_1.Model {
         });
     }
     static bulkDelete(arrayOfIds, projectId, trx) {
-        return ProjectInvite
-            .query(trx)
+        return ProjectInvite.query(trx)
             .whereIn('id', arrayOfIds)
             .andWhere('projectId', projectId)
             .delete();
     }
     static accept(id, trx) {
-        return ProjectInvite
-            .query(trx)
+        return ProjectInvite.query(trx)
             .patch({ accepted: true })
             .returning('*')
             .where({
