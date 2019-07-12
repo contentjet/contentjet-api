@@ -1,5 +1,12 @@
 import config from '../config';
-import { Model, QueryBuilder, QueryBuilderOption, RelationMappings, Transaction, QueryBuilderDelete } from 'objection';
+import {
+  Model,
+  QueryBuilder,
+  RelationMappings,
+  Transaction,
+  QueryBuilderYieldingOneOrNone,
+  QueryBuilderYieldingCount
+} from 'objection';
 import * as jwt from 'jsonwebtoken';
 // const crypto = require('crypto');
 import * as crypto from 'crypto';
@@ -15,7 +22,6 @@ interface IPasswordResetTokenPayload {
 }
 
 export default class User extends Model {
-
   id!: number;
   email!: string;
   password!: string;
@@ -75,11 +81,7 @@ export default class User extends Model {
           default: false
         }
       },
-      required: [
-        'email',
-        'password',
-        'name'
-      ]
+      required: ['email', 'password', 'name']
     };
   }
 
@@ -90,55 +92,70 @@ export default class User extends Model {
       .digest('hex');
   }
 
-  static authenticate(email: string, password: string): QueryBuilderOption<User> {
-    return User
-      .query()
+  static authenticate(
+    email: string,
+    password: string
+  ): QueryBuilderYieldingOneOrNone<User> {
+    return User.query()
       .where('email', email)
       .andWhere('password', User.hashPassword(password))
       .first();
   }
 
-  static getById(id: number, trx?: Transaction): QueryBuilderOption<User> {
-    return User
-      .query(trx)
+  static getById(
+    id: number,
+    trx?: Transaction
+  ): QueryBuilderYieldingOneOrNone<User> {
+    return User.query(trx)
       .where('id', id)
       .first();
   }
 
-  static async existsWithEmail(email: string, trx?: Transaction): Promise<boolean> {
-    const result = await User
-      .query(trx)
+  static async existsWithEmail(
+    email: string,
+    trx?: Transaction
+  ): Promise<boolean> {
+    const result = (await User.query(trx)
       .count('*')
       .where('email', email)
-      .first() as any;
+      .first()) as any;
     return parseInt(result.count, 10) === 1;
   }
 
   static async create(
-    email: string, name: string, password: string, isActive = false, isAdmin = false, trx?: Transaction
+    email: string,
+    name: string,
+    password: string,
+    isActive = false,
+    isAdmin = false,
+    trx?: Transaction
   ): Promise<User> {
     const exists = await User.existsWithEmail(email, trx);
-    if (exists) throw new ValidationError('A user with this email already exists');
-    return await User
-      .query(trx)
-      .insert({email, name, password: User.hashPassword(password), isActive, isAdmin})
+    if (exists) {
+      throw new ValidationError('A user with this email already exists');
+    }
+    return (await User.query(trx)
+      .insert({
+        email,
+        name,
+        password: User.hashPassword(password),
+        isActive,
+        isAdmin
+      })
       .returning('*')
-      .first() as User;
+      .first()) as User;
   }
 
   static async setPassword(userId: number, password: string) {
-    return await User
-      .query()
-      .patch({password: User.hashPassword(password)})
+    return await User.query()
+      .patch({ password: User.hashPassword(password) })
       .returning('*')
       .where('id', userId)
       .first();
   }
 
-  static deleteAll(): QueryBuilderDelete<User> {
-    return User
-      .query()
-      .delete();
+  static deleteAll(): QueryBuilderYieldingCount<User> {
+    return User.query().delete();
   }
 
   static generateSignUpToken(userId: number): Promise<string> {
@@ -194,7 +211,9 @@ export default class User extends Model {
     });
   }
 
-  static verifyPasswordResetToken(token: string): Promise<IPasswordResetTokenPayload> {
+  static verifyPasswordResetToken(
+    token: string
+  ): Promise<IPasswordResetTokenPayload> {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
@@ -216,22 +235,18 @@ export default class User extends Model {
   }
 
   assignRole(roleId: number): QueryBuilder<Model> {
-    return this
-      .$relatedQuery('roles')
-      .relate(roleId);
+    return this.$relatedQuery('roles').relate(roleId);
   }
 
   unassignRole(roleId: number): QueryBuilder<Model> {
-    return this
-      .$relatedQuery('roles')
+    return this.$relatedQuery('roles')
       .unrelate()
       .where('id', roleId);
   }
 
   getPermissions(): Promise<Permission[]> {
     if (this._permissions) return Promise.resolve(this._permissions);
-    return Permission
-      .query()
+    return Permission.query()
       .join('role_permission', 'permission.id', 'role_permission.permissionId')
       .join('role', 'role.id', 'role_permission.roleId')
       .join('user_role', 'role.id', 'user_role.roleId')
@@ -251,10 +266,8 @@ export default class User extends Model {
     });
   }
 
-  delete(): QueryBuilderDelete<User> {
-    return User
-      .query()
-      .deleteById(this.id);
+  delete(): QueryBuilderYieldingCount<User> {
+    return User.query().deleteById(this.id);
   }
 
   $formatJson(json: object): object {
@@ -262,5 +275,4 @@ export default class User extends Model {
     if ('password' in data) delete data.password;
     return data;
   }
-
 }

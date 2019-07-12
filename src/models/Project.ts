@@ -1,10 +1,10 @@
 import {
   Model,
   QueryBuilder,
-  QueryBuilderDelete,
-  QueryBuilderOption,
   RelationMappings,
-  Transaction
+  Transaction,
+  QueryBuilderYieldingOneOrNone,
+  QueryBuilderYieldingCount
 } from 'objection';
 import ProjectMembership from './ProjectMembership';
 import User from './User';
@@ -16,7 +16,6 @@ export interface IMember extends User {
 }
 
 export default class Project extends Model {
-
   id!: number;
   name!: string;
   metadata!: string;
@@ -96,17 +95,17 @@ export default class Project extends Model {
     };
   }
 
-  static getById(id: number, trx?: Transaction): QueryBuilderOption<Project> {
-    return Project
-      .query(trx)
+  static getById(
+    id: number,
+    trx?: Transaction
+  ): QueryBuilderYieldingOneOrNone<Project> {
+    return Project.query(trx)
       .where('id', id)
       .first();
   }
 
   static async deleteAll(trx?: Transaction): Promise<number> {
-    const num: any = await Project
-      .query(trx)
-      .delete();
+    const num: any = await Project.query(trx).delete();
     return num as number;
   }
 
@@ -114,32 +113,43 @@ export default class Project extends Model {
     return await this.$relatedQuery<IMember>('members', trx);
   }
 
-  getUserById(id: number, trx?: Transaction): QueryBuilderOption<User> {
-    return this
-      .$relatedQuery<User>('members', trx)
+  getUserById(
+    id: number,
+    trx?: Transaction
+  ): QueryBuilderYieldingOneOrNone<User> {
+    return this.$relatedQuery<User>('members', trx)
       .where('id', id)
       .first();
   }
 
-  _isMember(userId: number, membershipType?: string, trx?: Transaction): QueryBuilderOption<User> {
-    let query = this
-      .$relatedQuery<User>('members', trx)
-      .where('id', userId);
-    if (membershipType) query = query.andWhere('membershipType', membershipType);
+  _isMember(
+    userId: number,
+    membershipType?: string,
+    trx?: Transaction
+  ): QueryBuilderYieldingOneOrNone<User> {
+    let query = this.$relatedQuery<User>('members', trx).where('id', userId);
+    if (membershipType) {
+      query = query.andWhere('membershipType', membershipType);
+    }
     return query.first();
   }
 
-  isMember(userId: number, membershipType?: string, trx?: Transaction): Promise<boolean> {
+  isMember(
+    userId: number,
+    membershipType?: string,
+    trx?: Transaction
+  ): Promise<boolean> {
     if (this.isOwner(userId)) return Promise.resolve(true);
-    return this
-      ._isMember(userId, membershipType, trx)
-      .then(id => !!id);
+    return this._isMember(userId, membershipType, trx).then(id => !!id);
   }
 
-  isActiveMember(userId: number, membershipType?: string, trx?: Transaction): Promise<boolean> {
+  isActiveMember(
+    userId: number,
+    membershipType?: string,
+    trx?: Transaction
+  ): Promise<boolean> {
     if (this.isOwner(userId)) return Promise.resolve(true);
-    return this
-      ._isMember(userId, membershipType, trx)
+    return this._isMember(userId, membershipType, trx)
       .andWhere('membershipIsActive', true)
       .then(id => !!id);
   }
@@ -148,57 +158,60 @@ export default class Project extends Model {
     return this.userId === userId;
   }
 
-  getUsersByMembershipType(membershipType: string, trx?: Transaction): QueryBuilder<User> {
-    return this
-      .$relatedQuery<User>('members', trx)
-      .where('membershipType', membershipType);
+  getUsersByMembershipType(
+    membershipType: string,
+    trx?: Transaction
+  ): QueryBuilder<User> {
+    return this.$relatedQuery<User>('members', trx).where(
+      'membershipType',
+      membershipType
+    );
   }
 
-  async addUser(user: User, membershipType: string, trx?: Transaction): Promise<User> {
-    const existingUserId = await this
-      .$relatedQuery<User>('members', trx)
+  async addUser(
+    user: User,
+    membershipType: string,
+    trx?: Transaction
+  ): Promise<User> {
+    const existingUserId = await this.$relatedQuery<User>('members', trx)
       .select('id')
       .where('id', user.id)
       .first();
     if (existingUserId) return user;
-    await this
-      .$relatedQuery<User>('members', trx)
-      .relate<User & ProjectMembership>({
-        id: user.id,
-        membershipType
-      });
+    await this.$relatedQuery<User>('members', trx).relate<
+      User & ProjectMembership
+    >({
+      id: user.id,
+      membershipType
+    });
     return user;
   }
 
   removeUser(userId: number, trx?: Transaction): QueryBuilder<User> {
-    return this
-      .$relatedQuery<User>('members', trx)
+    return this.$relatedQuery<User>('members', trx)
       .unrelate()
       .where('id', userId);
   }
 
   updateUserMembership(
-    userId: number, membershipIsActive: boolean, membershipType?: string, trx?: Transaction
-  ): QueryBuilder<ProjectMembership> {
-    return ProjectMembership
-      .query(trx)
-      .patch({membershipType, membershipIsActive})
+    userId: number,
+    membershipIsActive: boolean,
+    membershipType?: string,
+    trx?: Transaction
+  ): number {
+    return (ProjectMembership.query(trx)
+      .patch({ membershipType, membershipIsActive })
       .where({
         userId,
         projectId: this.id
-      });
+      }) as unknown) as number;
   }
 
-  delete(trx?: Transaction): QueryBuilderDelete<Project> {
-    return Project
-      .query(trx)
-      .deleteById(this.id);
+  delete(trx?: Transaction): QueryBuilderYieldingCount<Project> {
+    return Project.query(trx).deleteById(this.id);
   }
 
   getActiveWebHooks(trx?: Transaction): QueryBuilder<WebHook> {
-    return this
-      .$relatedQuery<WebHook>('webHooks', trx)
-      .where('isActive', true);
+    return this.$relatedQuery<WebHook>('webHooks', trx).where('isActive', true);
   }
-
 }

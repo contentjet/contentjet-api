@@ -1,4 +1,9 @@
-import { Model, RelationMappings, QueryBuilderDelete, Transaction } from 'objection';
+import {
+  Model,
+  RelationMappings,
+  Transaction,
+  QueryBuilderYieldingCount
+} from 'objection';
 import * as jwt from 'jsonwebtoken';
 import config from '../config';
 
@@ -9,7 +14,6 @@ export interface IInvitePayload {
 }
 
 export default class ProjectInvite extends Model {
-
   id!: number;
   projectId!: number;
   name!: string;
@@ -68,16 +72,15 @@ export default class ProjectInvite extends Model {
           type: 'integer'
         }
       },
-      required: [
-        'name',
-        'email',
-        'userId',
-        'projectId'
-      ]
+      required: ['name', 'email', 'userId', 'projectId']
     };
   }
 
-  static generateInviteToken(projectInviteId: number, projectName: string, projectId: number): Promise<string> {
+  static generateInviteToken(
+    projectInviteId: number,
+    projectName: string,
+    projectId: number
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       jwt.sign(
         { projectInviteId, projectName, projectId } as IInvitePayload,
@@ -111,18 +114,20 @@ export default class ProjectInvite extends Model {
     });
   }
 
-  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilderDelete<ProjectInvite> {
-    return ProjectInvite
-      .query(trx)
+  static bulkDelete(
+    arrayOfIds: number[],
+    projectId: number,
+    trx?: Transaction
+  ): QueryBuilderYieldingCount<ProjectInvite> {
+    return ProjectInvite.query(trx)
       .whereIn('id', arrayOfIds)
       .andWhere('projectId', projectId)
       .delete();
   }
 
   static accept(id: number, trx?: Transaction) {
-    return ProjectInvite
-      .query(trx)
-      .patch({accepted: true})
+    return ProjectInvite.query(trx)
+      .patch({ accepted: true })
       .returning('*')
       .where({
         id,
@@ -130,5 +135,4 @@ export default class ProjectInvite extends Model {
       })
       .first();
   }
-
 }

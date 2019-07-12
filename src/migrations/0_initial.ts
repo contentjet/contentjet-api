@@ -38,7 +38,7 @@ async function createProjectTable(_knex: knex) {
 async function createProjectMembershipTable(_knex: knex) {
   const exists = await _knex.schema.hasTable('projectMembership');
   if (!exists) {
-    return _knex.schema.createTable('projectMembershipt', table => {
+    return _knex.schema.createTable('projectMembership', table => {
       table.integer('userId').unsigned();
       table.integer('projectId').unsigned();
       table.string('membershipType', 128);

@@ -1,9 +1,9 @@
 import {
   Model,
   QueryBuilder,
-  QueryBuilderDelete,
   RelationMappings,
-  Transaction
+  Transaction,
+  QueryBuilderYieldingCount
 } from 'objection';
 import MediaTag from './MediaTag';
 import config from '../config';
@@ -11,7 +11,6 @@ import url = require('url');
 import { difference } from 'lodash';
 
 export default class Media extends Model {
-
   id!: number;
   projectId!: number;
   userId!: number;
@@ -121,25 +120,24 @@ export default class Media extends Model {
           format: 'date-time'
         }
       },
-      required: [
-        'name',
-        'file',
-        'mimeType',
-        'size',
-        'projectId',
-        'userId'
-      ]
+      required: ['name', 'file', 'mimeType', 'size', 'projectId', 'userId']
     };
   }
 
-  static getInProject(projectId: number, trx?: Transaction): QueryBuilder<Media> {
-    return Media
-      .query(trx)
+  static getInProject(
+    projectId: number,
+    trx?: Transaction
+  ): QueryBuilder<Media> {
+    return Media.query(trx)
       .eager('tags')
       .where('media.projectId', projectId);
   }
 
-  static bulkDelete(arrayOfIds: number[], projectId: number, trx?: Transaction): QueryBuilderDelete<Media> {
+  static bulkDelete(
+    arrayOfIds: number[],
+    projectId: number,
+    trx?: Transaction
+  ): QueryBuilderYieldingCount<Media> {
     return Media.query(trx)
       .whereIn('id', arrayOfIds)
       .andWhere('projectId', projectId)
@@ -151,15 +149,17 @@ export default class Media extends Model {
     // the output of this value by making it relative to MEDIA_URL.
     const data: any = super.toJSON();
     data.file = url.resolve(config.MEDIA_URL, data.file);
-    if (data.thumbnail) data.thumbnail = url.resolve(config.MEDIA_URL, data.thumbnail);
+    if (data.thumbnail) {
+      data.thumbnail = url.resolve(config.MEDIA_URL, data.thumbnail);
+    }
     // If tags is present (like when eagerly fetched) only return tag names.
     const { tags } = data;
     if (tags) data.tags = tags.map((tag: { name: string }) => tag.name);
     return data;
   }
 
-  getTags(trx?: Transaction): QueryBuilder<MediaTag> {
-    return this.$relatedQuery('tags', trx);
+  async getTags(trx?: Transaction): Promise<MediaTag[]> {
+    return (await this.$relatedQuery('tags', trx)) as MediaTag[];
   }
 
   async setTags(mediaTags: MediaTag[], trx?: Transaction): Promise<MediaTag[]> {
@@ -169,11 +169,12 @@ export default class Media extends Model {
     const idsToUnrelate = difference(existingTagIds, incomingTagIds);
     const idsToRelate = difference(incomingTagIds, existingTagIds);
     // Unrelate any existing tags not in mediaTags
-    const p1 = this.$relatedQuery('tags', trx).unrelate().whereIn('id', idsToUnrelate);
+    const p1 = this.$relatedQuery('tags', trx)
+      .unrelate()
+      .whereIn('id', idsToUnrelate);
     // Relate incoming mediaTags
     const p2 = this.$relatedQuery('tags', trx).relate(idsToRelate);
     await Promise.all([p1, p2]);
     return mediaTags;
   }
-
 }

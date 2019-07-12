@@ -1,14 +1,13 @@
 import {
   Model,
-  QueryBuilderOption,
-  QueryBuilderDelete,
   Transaction,
-  RelationMappings
+  RelationMappings,
+  QueryBuilderYieldingOneOrNone,
+  QueryBuilderYieldingCount
 } from 'objection';
 import * as uuid from 'uuid';
 
 export default class Client extends Model {
-
   id!: number;
   projectId!: number;
   name!: string;
@@ -73,17 +72,17 @@ export default class Client extends Model {
     };
   }
 
-  static getById(id: number, trx?: Transaction): QueryBuilderOption<Client> {
-    return Client
-      .query(trx)
+  static getById(
+    id: number,
+    trx?: Transaction
+  ): QueryBuilderYieldingOneOrNone<Client> {
+    return Client.query(trx)
       .where('id', id)
       .first();
   }
 
   static async deleteAll(trx?: Transaction): Promise<number> {
-    const num: any = await Client
-      .query(trx)
-      .delete();
+    const num: any = await Client.query(trx).delete();
     return num as number;
   }
 
@@ -91,20 +90,24 @@ export default class Client extends Model {
     return uuid.v4().replace(/-/g, '');
   }
 
-  static async create(projectId: number, name: string, trx?: Transaction): Promise<Client> {
-    return await Client
-      .query(trx)
-      .insert({
-        clientId: Client.generateRandomString(),
-        clientSecret: Client.generateRandomString(),
-        name,
-        projectId
-      });
+  static async create(
+    projectId: number,
+    name: string,
+    trx?: Transaction
+  ): Promise<Client> {
+    return await Client.query(trx).insert({
+      clientId: Client.generateRandomString(),
+      clientSecret: Client.generateRandomString(),
+      name,
+      projectId
+    });
   }
 
-  static authenticate(clientId: string, clientSecret: string): QueryBuilderOption<Client> {
-    return Client
-      .query()
+  static authenticate(
+    clientId: string,
+    clientSecret: string
+  ): QueryBuilderYieldingOneOrNone<Client> {
+    return Client.query()
       .where({ clientId, clientSecret })
       .first();
   }
@@ -114,10 +117,7 @@ export default class Client extends Model {
     this.clientSecret = uuid.v4().replace(/-/g, '');
   }
 
-  delete(trx?: Transaction): QueryBuilderDelete<Client> {
-    return Client
-      .query(trx)
-      .deleteById(this.id);
+  delete(trx?: Transaction): QueryBuilderYieldingCount<Client> {
+    return Client.query(trx).deleteById(this.id);
   }
-
 }

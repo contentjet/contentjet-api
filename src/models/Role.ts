@@ -1,8 +1,7 @@
-import { Model, RelationMappings, QueryBuilderSingle, QueryBuilder } from 'objection';
+import { Model, RelationMappings, QueryBuilder } from 'objection';
 import Permission from './Permission';
 
 export default class Role extends Model {
-
   id!: number;
   name!: string;
 
@@ -50,15 +49,12 @@ export default class Role extends Model {
           maxLength: 64
         }
       },
-      required: [
-        'name'
-      ]
+      required: ['name']
     };
   }
 
   static getOrCreate(name: string): Promise<Role> {
-    return Role
-      .query()
+    return Role.query()
       .where('name', name)
       .first()
       .then(role => {
@@ -67,10 +63,8 @@ export default class Role extends Model {
       });
   }
 
-  static create(name: string): QueryBuilderSingle<Role> {
-    return Role
-      .query()
-      .insert({name});
+  static create(name: string): Role {
+    return (Role.query().insert({ name }) as unknown) as Role;
   }
 
   assignPermission(permissionId: number): QueryBuilder<Permission> {
@@ -78,7 +72,8 @@ export default class Role extends Model {
   }
 
   unassignPermission(permissionId: number): QueryBuilder<Permission> {
-    return this.$relatedQuery<Permission>('permissions').unrelate().where('id', permissionId);
+    return this.$relatedQuery<Permission>('permissions')
+      .unrelate()
+      .where('id', permissionId);
   }
-
 }

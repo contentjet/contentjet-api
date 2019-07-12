@@ -1,23 +1,19 @@
-import { Model, QueryBuilderSingle } from 'objection';
+import { Model } from 'objection';
 
 export default class Permission extends Model {
-
   id!: number;
   name!: string;
 
   static async getOrCreate(name: string): Promise<Permission> {
-    const permission = await Permission
-      .query()
+    const permission = await Permission.query()
       .where('name', name)
       .first();
     if (permission) return permission;
     return await Permission.create(name);
   }
 
-  static create(name: string): QueryBuilderSingle<Permission> {
-    return Permission
-      .query()
-      .insert({name});
+  static create(name: string): Permission {
+    return (Permission.query().insert({ name }) as unknown) as Permission;
   }
 
   static get tableName(): string {
@@ -35,10 +31,7 @@ export default class Permission extends Model {
           maxLength: 64
         }
       },
-      required: [
-        'name'
-      ]
+      required: ['name']
     };
   }
-
 }

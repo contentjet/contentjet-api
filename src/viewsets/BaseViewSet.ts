@@ -1,13 +1,12 @@
 import * as Koa from 'koa';
 import * as Router from 'koa-router';
 import { pick } from 'lodash';
-import { ModelClass, QueryBuilder } from 'objection';
+import { ModelClass, QueryBuilder, Model } from 'objection';
 import * as moment from 'moment';
 import NotFoundError from '../errors/NotFoundError';
 import DatabaseError from '../errors/DatabaseError';
 import { requirePermission } from '../authorization/middleware';
 import { IStorageBackend, IMailBackend } from '../types';
-
 
 interface IViewSetOptions {
   disabledActions?: ReadonlyArray<string>;
@@ -22,8 +21,7 @@ export interface IPaginatedResult {
   results: any[];
 }
 
-export default abstract class BaseViewSet<MC> {
-
+export default abstract class BaseViewSet<MC extends Model> {
   modelClass: ModelClass<any>;
   options: IViewSetOptions;
   router: Router;
@@ -49,19 +47,44 @@ export default abstract class BaseViewSet<MC> {
     const commonMiddleware = this.getCommonMiddleware();
     const id = this.getIdRouteParameter();
     if (!disabledActions.includes('list')) {
-      this.router.get('/', ...commonMiddleware, ...this.getListMiddleware(), this.list);
+      this.router.get(
+        '/',
+        ...commonMiddleware,
+        ...this.getListMiddleware(),
+        this.list
+      );
     }
     if (!disabledActions.includes('create')) {
-      this.router.post('/', ...commonMiddleware, ...this.getCreateMiddleware(), this.create);
+      this.router.post(
+        '/',
+        ...commonMiddleware,
+        ...this.getCreateMiddleware(),
+        this.create
+      );
     }
     if (!disabledActions.includes('retrieve')) {
-      this.router.get(`:${id}(\\d+)`, ...commonMiddleware, ...this.getRetrieveMiddleware(), this.retrieve);
+      this.router.get(
+        `:${id}(\\d+)`,
+        ...commonMiddleware,
+        ...this.getRetrieveMiddleware(),
+        this.retrieve
+      );
     }
     if (!disabledActions.includes('update')) {
-      this.router.put(`:${id}(\\d+)`, ...commonMiddleware, ...this.getUpdateMiddleware(), this.update);
+      this.router.put(
+        `:${id}(\\d+)`,
+        ...commonMiddleware,
+        ...this.getUpdateMiddleware(),
+        this.update
+      );
     }
     if (!disabledActions.includes('delete')) {
-      this.router.delete(`:${id}(\\d+)`, ...commonMiddleware, ...this.getDeleteMiddleware(), this.delete);
+      this.router.delete(
+        `:${id}(\\d+)`,
+        ...commonMiddleware,
+        ...this.getDeleteMiddleware(),
+        this.delete
+      );
     }
   }
 
@@ -115,7 +138,10 @@ export default abstract class BaseViewSet<MC> {
     if (page < 1) page = 1;
     let result;
     if (limit) {
-      result = await this.getListQueryBuilder(ctx).page(page - 1, limit) as any;
+      result = (await this.getListQueryBuilder(ctx).page(
+        page - 1,
+        limit
+      )) as any;
       result = {
         page,
         totalPages: Math.ceil(result.total / limit),
@@ -161,8 +187,7 @@ export default abstract class BaseViewSet<MC> {
 
   async retrieve(ctx: Koa.Context): Promise<MC> {
     const id = ctx.params[this.getIdRouteParameter()];
-    const model = await this
-      .getRetrieveQueryBuilder(ctx)
+    const model = await this.getRetrieveQueryBuilder(ctx)
       .where(`${this.modelClass.tableName}.id`, id)
       .first();
     if (!model) throw new NotFoundError();
@@ -223,5 +248,4 @@ export default abstract class BaseViewSet<MC> {
   routes(): Router.IMiddleware {
     return this.router.routes();
   }
-
 }

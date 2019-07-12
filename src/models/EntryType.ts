@@ -1,4 +1,4 @@
-import { Model, RelationMappings, Transaction, QueryBuilderOption } from 'objection';
+import { Model, RelationMappings, Transaction } from 'objection';
 import ValidationError from '../errors/ValidationError';
 import _ = require('lodash');
 import validate from '../utils/validate';
@@ -101,11 +101,7 @@ const textFieldConstraints = {
   format: {
     presence: true,
     inclusion: {
-      within: [
-        'plaintext',
-        'uri',
-        'email'
-      ],
+      within: ['plaintext', 'uri', 'email'],
       message: 'invalid'
     }
   }
@@ -132,10 +128,7 @@ const longTextFieldConstraints = {
   format: {
     presence: true,
     inclusion: {
-      within: [
-        'plaintext',
-        'markdown'
-      ],
+      within: ['plaintext', 'markdown'],
       message: 'invalid'
     }
   }
@@ -169,10 +162,7 @@ const numberFieldConstraints = {
   format: {
     presence: true,
     inclusion: {
-      within: [
-        'number',
-        'integer'
-      ],
+      within: ['number', 'integer'],
       message: 'invalid'
     }
   }
@@ -182,10 +172,7 @@ const dateFieldConstraints = {
   format: {
     presence: true,
     inclusion: {
-      within: [
-        'datetime',
-        'date'
-      ],
+      within: ['datetime', 'date'],
       message: 'invalid'
     }
   }
@@ -203,10 +190,7 @@ const choiceFieldConstraints = {
   format: {
     presence: true,
     inclusion: {
-      within: [
-        'single',
-        'multiple'
-      ],
+      within: ['single', 'multiple'],
       message: 'invalid'
     }
   }
@@ -216,10 +200,7 @@ const colorFieldConstraints = {
   format: {
     presence: true,
     inclusion: {
-      within: [
-        'rgb',
-        'rgba'
-      ],
+      within: ['rgb', 'rgba'],
       message: 'invalid'
     }
   }
@@ -285,7 +266,7 @@ const listFieldConstraints = {
   }
 };
 
-const fieldTypeConstraints: {[name: string]: object} = {
+const fieldTypeConstraints: { [name: string]: object } = {
   TEXT: Object.assign({}, commonFieldConstraints, textFieldConstraints),
   LONGTEXT: Object.assign({}, commonFieldConstraints, longTextFieldConstraints),
   BOOLEAN: Object.assign({}, commonFieldConstraints, booleanFieldConstraints),
@@ -322,7 +303,6 @@ interface IEntryTypeJson {
 }
 
 export default class EntryType extends Model {
-
   id!: number;
   projectId!: number;
   userId!: number;
@@ -358,24 +338,26 @@ export default class EntryType extends Model {
     };
   }
 
-  static getById(id: number, trx?: Transaction): QueryBuilderOption<EntryType> {
-    return EntryType.query(trx)
+  static getById(id: number, trx?: Transaction): EntryType {
+    return (EntryType.query(trx)
       .where('id', id)
-      .first();
+      .first() as unknown) as EntryType;
   }
 
-  static async existsInProject(id: number, projectId: number, trx?: Transaction): Promise<boolean> {
-    const result = await EntryType.query(trx)
-      .where({id, projectId})
+  static async existsInProject(
+    id: number,
+    projectId: number,
+    trx?: Transaction
+  ): Promise<boolean> {
+    const result = (await EntryType.query(trx)
+      .where({ id, projectId })
       .count('*')
-      .first() as any;
+      .first()) as any;
     return !!parseInt(result.count, 10);
   }
 
   static async deleteAll(trx?: Transaction): Promise<number> {
-    const num: any = await EntryType
-      .query(trx)
-      .delete();
+    const num: any = await EntryType.query(trx).delete();
     return num as number;
   }
 
@@ -395,9 +377,13 @@ export default class EntryType extends Model {
     const fieldErrors: any = {};
     json.fields.forEach(field => {
       // Validate field type
-      const fieldTypeError = validate.single(field.fieldType, { inclusion: fieldTypes });
+      const fieldTypeError = validate.single(field.fieldType, {
+        inclusion: fieldTypes
+      });
       if (fieldTypeError) {
-        throw new ValidationError(`'${field.fieldType}' is not a valid field type`);
+        throw new ValidationError(
+          `'${field.fieldType}' is not a valid field type`
+        );
       }
       // Validate each field against it's fieldType constraints
       const constraints = fieldTypeConstraints[field.fieldType];
@@ -486,11 +472,7 @@ export default class EntryType extends Model {
           format: 'date-time'
         }
       },
-      required: [
-        'name',
-        'projectId',
-        'userId'
-      ],
+      required: ['name', 'projectId', 'userId'],
       definitions: {
         COMMON_FIELD_PROPERTIES: {
           type: 'object',
@@ -519,13 +501,7 @@ export default class EntryType extends Model {
               default: false
             }
           },
-          required: [
-            'name',
-            'label',
-            'description',
-            'required',
-            'disabled'
-          ]
+          required: ['name', 'label', 'description', 'required', 'disabled']
         },
         TEXT: {
           allOf: [
@@ -551,19 +527,10 @@ export default class EntryType extends Model {
                 },
                 format: {
                   type: 'string',
-                  enum: [
-                    'plaintext',
-                    'uri',
-                    'email'
-                  ]
+                  enum: ['plaintext', 'uri', 'email']
                 }
               },
-              required: [
-                'fieldType',
-                'minLength',
-                'maxLength',
-                'format'
-              ]
+              required: ['fieldType', 'minLength', 'maxLength', 'format']
             }
           ]
         },
@@ -591,18 +558,10 @@ export default class EntryType extends Model {
                 },
                 format: {
                   type: 'string',
-                  enum: [
-                    'plaintext',
-                    'markdown'
-                  ]
+                  enum: ['plaintext', 'markdown']
                 }
               },
-              required: [
-                'fieldType',
-                'minLength',
-                'maxLength',
-                'format'
-              ]
+              required: ['fieldType', 'minLength', 'maxLength', 'format']
             }
           ]
         },
@@ -629,11 +588,7 @@ export default class EntryType extends Model {
                   maxLength: 32
                 }
               },
-              required: [
-                'fieldType',
-                'labelTrue',
-                'labelFalse'
-              ]
+              required: ['fieldType', 'labelTrue', 'labelFalse']
             }
           ]
         },
@@ -657,18 +612,10 @@ export default class EntryType extends Model {
                 },
                 format: {
                   type: 'string',
-                  enum: [
-                    'number',
-                    'integer'
-                  ]
+                  enum: ['number', 'integer']
                 }
               },
-              required: [
-                'fieldType',
-                'minValue',
-                'maxValue',
-                'format'
-              ]
+              required: ['fieldType', 'minValue', 'maxValue', 'format']
             }
           ]
         },
@@ -686,16 +633,10 @@ export default class EntryType extends Model {
                 },
                 format: {
                   type: 'string',
-                  enum: [
-                    'datetime',
-                    'date'
-                  ]
+                  enum: ['datetime', 'date']
                 }
               },
-              required: [
-                'fieldType',
-                'format'
-              ]
+              required: ['fieldType', 'format']
             }
           ]
         },
@@ -721,17 +662,10 @@ export default class EntryType extends Model {
                 },
                 format: {
                   type: 'string',
-                  enum: [
-                    'single',
-                    'multiple'
-                  ]
+                  enum: ['single', 'multiple']
                 }
               },
-              required: [
-                'fieldType',
-                'choices',
-                'format'
-              ]
+              required: ['fieldType', 'choices', 'format']
             }
           ]
         },
@@ -749,16 +683,10 @@ export default class EntryType extends Model {
                 },
                 format: {
                   type: 'string',
-                  enum: [
-                    'rgb',
-                    'rgba'
-                  ]
+                  enum: ['rgb', 'rgba']
                 }
               },
-              required: [
-                'fieldType',
-                'format'
-              ]
+              required: ['fieldType', 'format']
             }
           ]
         },
@@ -785,11 +713,7 @@ export default class EntryType extends Model {
                   maximum: 1000
                 }
               },
-              required: [
-                'fieldType',
-                'minLength',
-                'maxLength'
-              ]
+              required: ['fieldType', 'minLength', 'maxLength']
             }
           ]
         },
@@ -816,11 +740,7 @@ export default class EntryType extends Model {
                   maximum: 1000
                 }
               },
-              required: [
-                'fieldType',
-                'minLength',
-                'maxLength'
-              ]
+              required: ['fieldType', 'minLength', 'maxLength']
             }
           ]
         },
@@ -847,11 +767,7 @@ export default class EntryType extends Model {
                   maximum: 1000
                 }
               },
-              required: [
-                'fieldType',
-                'minLength',
-                'maxLength'
-              ]
+              required: ['fieldType', 'minLength', 'maxLength']
             }
           ]
         }
@@ -935,5 +851,4 @@ export default class EntryType extends Model {
     }
     return validate.async(fields, constraints);
   }
-
 }
