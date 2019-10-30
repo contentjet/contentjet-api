@@ -28,7 +28,7 @@
     "inquirer": "^3.3.0",
     "jsonwebtoken": "^8.3.0",
     "kcors": "^2.2.2",
-    "knex": "^0.13.0",
+    "knex": "^0.19.5",
     "koa": "^2.5.2",
     "koa-bodyparser": "^4.2.1",
     "koa-multer": "^1.0.2",
