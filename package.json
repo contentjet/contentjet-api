@@ -21,7 +21,7 @@
   "author": "Will Dady",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.16.2",
+    "axios": "^0.21.1",
     "body-parser": "^1.18.3",
     "dotenv": "^4.0.0",
     "ejs": "^2.6.1",
