@@ -43,7 +43,7 @@
     "objection": "^0.9.4",
     "pg": "^6.4.1",
     "pg-hstore": "^2.3.2",
-    "sharp": "^0.18.4",
+    "sharp": "^0.30.5",
     "swagger-ui-dist": "^3.18.0",
     "underscore.string": "^3.3.4",
     "uuid": "^3.3.2",
